@@ -73,42 +73,39 @@ angular.module('wk.chart').directive 'area', ($log, utils) ->
         else scaleY = y.scale()
 
         area = d3.svg.area()
-        .x((d) ->  x.scale()(d.x))
-        .y0((d) ->  scaleY(d.y0 + d.y))
-        .y1((d) ->  scaleY(d.y0))
+          .x((d) ->  x.scale()(d.x))
+          .y0((d) ->  scaleY(d.y0 + d.y))
+          .y1((d) ->  scaleY(d.y0))
 
         layers = layers
-        .data(layoutNew, (d) -> d.key)
+          .data(layoutNew, (d) -> d.key)
 
         if layoutOld.length is 0
           layers.enter()
-          .append('path').attr('class', 'area')
-          .style('fill', (d, i) ->
-            color.scale()(d.key)).style('opacity', 0)
+            .append('path').attr('class', 'area')
+            .style('fill', (d, i) -> color.scale()(d.key)).style('opacity', 0)
+            .style('pointer-events', 'none')
         else
           layers.enter()
-          #.append('g').attr('class', 'layer')
-          .append('path').attr('class', 'area')
-          .attr('d', (d) ->
-            if addedPred[d.key] then getLayerByKey(addedPred[d.key], layoutOld).path else area(d.layer.map((p) ->
-              {x: p.x, y: 0, y0: 0}))
-          )
+            .append('path').attr('class', 'area')
+            .attr('d', (d) ->
+              if addedPred[d.key] then getLayerByKey(addedPred[d.key], layoutOld).path else area(d.layer.map((p) ->
+                {x: p.x, y: 0, y0: 0}))
+            )
           .style('fill', (d, i) ->
             color.scale()(d.key))
           .style('pointer-events', 'none')
 
         layers.transition().duration(options.duration)
-        .attr('d', (d) ->
-          null
-          area(d.layer))
-        .style('opacity', 1)
+          .attr('d', (d) -> area(d.layer))
+          .style('opacity', 1)
 
         layers.exit().transition().duration(options.duration)
           .attr('d', (d) ->
             succ = deletedSucc[d.key]
             if succ then area(getLayerByKey(succ, layoutNew).layer.map((p) -> {x: p.x, y: 0, y0: p.y0})) else area(layoutNew[layoutNew.length - 1].layer.map((p) -> {x: p.x, y: 0, y0: p.y0 + p.y}))
           )
-        .remove()
+          .remove()
 
 
       attrs.$observe 'area', (val) ->
