@@ -3,9 +3,9 @@
         thead
             tr
                 th(colspan="2") {{headerName}}
-                th {{headerValue}}
+                th {{headerValue | ttFormat}}
         tbody
             tr(ng-repeat="ttRow in layers")
                 td(style="background-color:{{ttRow.color}}")
                 td {{ttRow.name}}
-                td {{ttRow.value}}
+                td {{ttRow.value | ttFormat}}
