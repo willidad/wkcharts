@@ -1,0 +1,25 @@
+.col-lg-6
+    .box
+        .box80
+            chart(data="combo", tooltips)
+                x(axis, brushed, type="time", property="date", domain-range="extent", format="%Y/%m/%d", grid, label="Date")
+                color(type="category10")
+                layout(line)
+                    y(axis, type="linear", layer-property="close", domain-range="extent", grid="true", label="Temperature(F)", legend="#legend")
+                    color(type="category10")
+                layout(area, container="#chart1")
+                    y(axis, type="linear", layer-property="volume", domain-range="max", ticks="5", tick-format=".2s", grid)
+                layout(area, container="#chart2")
+                    y(type="linear", property="msft", layer-property="close", domain-range="extent")
+                    x(axis, brush, type="time", property="date", domain-range="extent", format="%Y/%m/%d")
+        .box20
+                #chart2.d3-chart
+.col-lg-3
+    .box
+        .box20
+            #chart1.d3-chart(style="height:150px")
+        .box80#legend
+
+
+
+

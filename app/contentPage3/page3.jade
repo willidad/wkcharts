@@ -1,0 +1,94 @@
+.col-lg-6
+    .box
+        .col-lg-3
+            //d3-chart(gauge-chart, data="simpleData", tool-tip)
+                y(property="value", domain="0,100", axis)
+                color(scale="threshold", range="green,yellow,orange,red", domain="{{limit}}")
+        .col-lg-6
+            table.table.table-condensed
+                tr
+                    td Value
+                    td
+                        input(ng-model="gaugeVal", ng-change="gaugeValChange()", type="number", min="0", max="100")
+                tr
+                    td Limit 1
+                    td
+                        input(ng-model="limit[0]", type="number", min="0", max="{{limit[1]}}")
+                tr
+                    td Limit 2
+                    td
+                        input(ng-model="limit[1]", type="number", min="{{limit[0]}}", max="{{limit[2]}}")
+                tr
+                    td Limit 3
+                    td
+                        input(ng-model="limit[2]", type="number", min="{{limit[2]}}", max="100")
+
+                tr
+                    td(colspan="2")
+                        pre
+                            {{limit}}
+                tr
+                    th(colspan="2") Aera Chart Cofiguration
+                tr
+                    td(colspan="2")
+                        select(ng-model="areaOffset")
+                            option zero
+                            option silhouette
+                            option expand
+                            option wiggle
+                tr
+                    td(colspan="2")
+                        btn-group
+                            label.btn.btn-primary(ng-model="checkModel[0]",btn-checkbox) New York
+                            label.btn.btn-primary(ng-model="checkModel[1]",btn-checkbox) San Francisco
+                            label.btn.btn-primary(ng-model="checkModel[2]",btn-checkbox) Austin
+                tr
+                    td(colspan="2")
+                        pre {{cities}}
+                tr
+                    td(colspan="2")
+                        button.btn.btn-primary(ng-click="update()") Update
+
+    .box
+        chart(layout, area="{{areaOffset}}", data="temperatureData")
+            x(property="date", type="time", axis, format="%Y%m%d", domain-range="extent")
+            y(type="linear", axis, property="{{cities}}", domain-range="total")
+            color(type="category10", legend="top-right")
+
+.col-lg-6
+    .box
+        //d3-chart(bubble-chart, data="productMap", tool-tip)
+            x(scale="linear", property="Profit Margin", axis, domain="-50,100", label="Profit Margin %")
+            y(scale="linear", property="Market Growth", axis, label-format="%", domain="0,15", label="Market Growth %")
+            size(scale="linear", property="Revenue", range="{{range}}", domain="{{scaleDomain}}")
+            color(scale="category20", property="Product", show-legend)
+    .box
+        table.table.table-condensed
+            thead
+                tr
+                    th
+                    th(ng-repeat="name in colNames") {{name}}
+            tbody
+                tr(ng-repeat="row in valSave")
+                    td
+                        input(type="checkbox", ng-model="row.selected",ng-change="valChange()")
+                    td(ng-repeat="n in colNames")
+                        input.input-small(ng-model="row[n]", type="text", ng-change="valChange()")
+
+        table.table.table-condensed
+            tr
+                th Size Scale
+                th Min
+                th Max
+            tr
+                td Domain
+                td
+                    input(ng-model="scaleDomain[0]")
+                td
+                    input(ng-model="scaleDomain[1]")
+            tr
+                td Range
+                td
+                    input(ng-model="range[0]")
+                td
+                    input(ng-model="range[1]")

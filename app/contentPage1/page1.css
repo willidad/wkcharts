@@ -1,0 +1,57 @@
+svg, .d3-chart {
+    width: 100%;
+    height: 100%;
+    font-size: 10px;
+}
+
+.d3-chart {
+    border: solid 1px lightgrey;
+}
+
+.axis path, .axis line {
+    fill:none;
+    stroke: darkGrey;
+    shape_rendering: crispEdges;
+}
+
+.bar {
+    fill: darkGrey;
+}
+.content .box {
+    height:50%;
+    position: relative;
+}
+.content .box80 {
+    height:80%;
+    position: relative;
+}
+.content .box20 {
+    height:20%;
+    position: relative;
+}
+.col-lg-6 {
+    height:100%
+}
+
+.line {
+    fill:none;
+}
+
+.svgToolTip {
+    fill:white;
+    stroke:darkgrey;
+}
+.svgToolTip text {
+    stroke:black;
+    font-size:12px;
+    stroke-width:1;
+}
+#scatter-legend{
+    position: relative;
+}
+
+#scatter-legend li {
+    display:inline-block;
+    margin-left: 10px;
+    
+}

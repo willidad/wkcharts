@@ -1,0 +1,44 @@
+.col-lg-6
+    .box
+        chart(data="shortDataFilter", layout, line)
+            x(property="State", type="ordinal", axis)
+            y(type="linear", axis, tick-format=".2s", grid, , property="{{categories}}", legend, domain-range="extent")
+            color(type="category20")
+    .box
+        chart(data="shortDataFilter", layout, stacked-bar)
+            x(property="State", type="ordinal", axis)
+            y(type="linear", axis, tick-format=".2s", grid, , property="{{categories}}", legend)
+            color(type="category20")
+.col-lg-6
+
+    table.table.table-condensed.table-bordered
+        tr
+            td State select
+            td(ng-repeat="key in ldKeys")
+                {{key.name}}
+        tr
+            td
+            td(ng-repeat="key in ldKeys")
+                input(type="checkbox", ng-model="key.data")
+        tr(ng-repeat="row in shortData")
+            td
+                {{row.State}}
+            td(ng-repeat="key in ldKeys")
+                input(type="input", ng-model="row[key.name]")
+
+    ul.list-inline.list-unstyled
+        li(ng-repeat="row in rowSelect")
+            input(type="checkbox", ng-model="row.include")
+            span {{row.name}}
+
+    button.btn.btn-primary(ng-click="UpdateShortData()") Update Charts
+    button.btn.btn-primary(ng-click="reset()") Reset Data
+    label(for="duration") Animation Duration (ms)
+        input(ng-model="duration", id="duration")
+    input(type="checkbox", ng-model="showShortData", ng-change="toggleShortList()")
+    span Short Data
+
+
+
+
+

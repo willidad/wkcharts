@@ -1,0 +1,85 @@
+.d3ChartsToolTip {
+    background-color: rgba(255,255,255,0.8);
+    margin: 4px;
+    border: #a9a9a9 solid 2px;
+    z-index:5000;
+}
+.d3ChartsToolTip > .table {
+    margin-bottom: 0;
+}
+
+.d3-chart {
+    position:relative;
+}
+
+
+
+.d3ChartColorLegend {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.d3ChartColorLegend ul,
+.d3ChartShapeLegend ul {
+    margin: 5px;
+}
+
+li.d3ChartShapeLegendItem {
+    height: 1.6em;
+}
+li.d3ChartShapeLegendItem svg {
+    width: 2em;
+    height: inherit;
+    vertical-align: middle;
+}
+li.d3ChartShapeLegendItem span {
+    vertical-align: middle;
+}
+
+.d3ChartColorLegendItem {
+    position:relative;
+}
+.d3ChartColorLegendItem.ng-enter,
+.d3ChartColorLegendItem.ng-leave,
+.d3ChartColorLegendItem.ng-move {
+    -webkit-transition: 0.5s linear all;
+    transition: .5s linear all;
+    position:relative;
+}
+
+.d3ChartColorLegendItem.ng-enter {
+    left:-30px;
+    opacity:0;
+}
+.d3ChartColorLegendItem.ng-enter.ng-enter-active {
+    left:0;
+    opacity:1;
+}
+
+.d3ChartColorLegendItem.ng-leave {
+    left:0;
+    opacity:1;
+}
+.d3ChartColorLegendItem.ng-leave.ng-leave-active {
+    left:-30px;
+    opacity:0;
+}
+.d3ChartColorLegendItem.ng-move {
+    opacity:0;
+}
+.d3ChartColorLegendItem.ng-move.ng-move-active {
+    opacity:1;
+}
+
+.brushArea .resize rect {
+    stroke: darkgrey;
+    visibility: visible;
+}
+
+.brushArea .background {
+    fill:lightgrey;
+    fill-opacity:0.2;
+}
+.brushArea .extent {
+    fill:lightgrey;
+    fill-opacity:0.6;
+}

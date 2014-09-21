@@ -1,0 +1,103 @@
+angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, tooltip) ->
+
+  chart = () ->
+    _id = ''
+    _allScales = scaleList()
+    _layouts = []
+    _containers = []
+    _ownedScales = scaleList()
+
+    _container = undefined
+    _dataFn = (data) -> data
+    _data = undefined
+    _dataTransformed = undefined
+    _showTooltip = false
+    _tooltip = tooltip()
+    _noop = () ->
+
+    _brush = d3.dispatch('draw', 'change')
+    _chartEvents = d3.dispatch('configure', 'draw', 'redraw', 'update')
+
+    me = () ->
+
+    me.id = (id) ->
+      if arguments.length is 0 then return _id
+      else
+        _id = id
+        return me
+
+    me.addLayout = (layout) ->
+      if arguments.length is 0 then return _layouts
+      else
+        _layouts.push(layout)
+        return me
+
+    me.layouts = () ->
+      return _layouts
+
+    me.addContainer = (container) ->
+      _containers.push(container)
+
+    me.containers = () ->
+      return _containers
+
+    me.scales = () ->
+      return _ownedScales
+
+    me.allScales = () ->
+      return _allScales
+
+    me.addScale = (scale, layout) ->
+      _allScales.add(scale)
+      if layout
+        layout.scales().add(scale)
+      else
+        _ownedScales.add(scale)
+      return me
+
+    me.hasScale = (scale) ->
+      return !!_allScales.has(scale)
+
+    me.container = (obj) ->
+      if arguments.length is 0 then return _container
+      else
+        _container = obj
+        return me
+
+    me.showTooltip = (trueFalse) ->
+      if arguments.length is 0 then return _showTooltip
+      else
+        _showTooltip = trueFalse
+        return me
+
+    me.tooltip = () ->
+      if _showTooltip then _tooltip else _noop
+
+
+    me.brush = () ->
+      return _brush
+
+    me.draw = (data) ->
+      # set domain for shared scales (other scales will be set in layout draw (called from container)
+      for id, s of _ownedScales.getOwned()
+        if s.resetOnNewData()
+          s.scale().domain(s.getDomain(data))
+
+      for c in _containers
+        if me.showTooltip()
+          c.setTooltip(_tooltip)
+        c.sizeContainer()
+        c.prepData(data)
+        c.draw(data)
+
+      me.events().draw(data)
+
+      return me
+
+    me.events = () ->
+      return _chartEvents
+
+
+    return me
+
+  return chart

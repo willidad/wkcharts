@@ -1,0 +1,26 @@
+.col-lg-6
+    .box
+        //d3-chart(scatter-chart, data="scatterData", tool-tip)
+            x(axis, property="x", scale="linear", label="abc", show-grid)
+            y(axis, property="y", scale="linear", show-grid)
+            color(property="group", scale="category10", show-legend ="#scatter-legend", label="Scatter Group Values")
+            size(property="size", range="20,200")
+            shape(property="shape", show-legend="#shape-legend", label="Scatter Shape Values")
+
+
+    .box
+        chart(layout, line, data="temperatureData")
+            x(property="date", domain-range="extent", type="time", axis, format="%Y%m%d", label="Date")
+            y(type="linear", domain-range="extent", axis, label="Temperature (F)", grid, legend="bottom-right")
+            color(type="category10", label="City" )
+
+.col-lg-6
+    .box
+        chart(data="longData2", layout, stacked-bar)
+            x(brushed, property="State", type="ordinal", axis)
+            y(type="linear", axis, tick-format=".2s", grid, , property="{{categories}}", legend)
+            color(type="category20")
+
+    .box
+        #scatter-legend.col-lg-6
+        #shape-legend.col-lg-6

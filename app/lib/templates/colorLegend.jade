@@ -1,0 +1,8 @@
+.d3ChartColorLegend(ng-style="position", ng-show="showLegend")
+    h3.legend-header(ng-show="label") {{label}}
+    ul.list-unstyled
+        li(ng-repeat="legendRow in legendRows track by legendRow.value", class="d3ChartColorLegendItem")
+            span(ng-style="legendRow.color") &nbsp;&nbsp;&nbsp;
+            &nbsp;{{legendRow.value}}
+
+

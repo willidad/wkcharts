@@ -1,0 +1,21 @@
+.box
+    //d3-chart(pie-chart, data="selData", tool-tip)
+        color(scale="category20", property="age")
+        y(scale="linear",property="population")
+
+.box
+    table.table.table-condensed
+        tr(ng-repeat="cat in pieData")
+            td
+                {{cat.age}}
+            td
+                input(type="checkbox", ng-model="cat.selected")
+            td
+                input(type="text", ng-model="cat.population")
+    button.btn.btn-primary(ng-click="selChange()") Update Chart
+
+.box(style="height:230px;margin-top:30px")
+    //d3-chart(bar-chart, data="selData", tool-tip)
+        x(property="age", scale="category10", axis="top", label="Age")
+        y(axis="right", tick-format=".2s", label="Population", property="population")
+        color(scale="category20", property="age")

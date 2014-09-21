@@ -1,0 +1,12 @@
+.right .box {
+    height:300px;
+}
+
+#pieLegend {
+    position:relative;
+    height:60px;
+}
+#pieLegend li {
+    display:inline-block;
+    margin:5px;
+}
