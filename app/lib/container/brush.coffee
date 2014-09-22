@@ -18,7 +18,7 @@ angular.module('wk.chart').directive 'brush', ($log) ->
             interv = range[1] - range[0]
             startIdx = Math.floor(brush.extent()[0] / interv)
             endIdx = Math.floor(brush.extent()[1] / interv)
-            extent = domain.slice(startIdx, endIdx)
+            extent = domain.slice(startIdx, endIdx + 1)
             chart.brush().change(extent)
           else
             chart.brush().change(brush.extent())
