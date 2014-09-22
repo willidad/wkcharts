@@ -26,23 +26,45 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     me.id = () ->
       return _containerId
 
-    _genChart = ()->
+    _genChartFrame = ()->
       _svg = _elementSelection.append('div').attr('class', 'd3-chart')
         .append('svg')
       _svg.append('defs').append('clipPath').attr('id', "clip-#{_containerId}").append('rect')
       _container= _svg.append('g').attr('class','d3-chart-container')
-      _container.append('g').attr('class', 'x axis top')
-      _container.append('g').attr('class', 'x axis bottom')
-      _container.append('g').attr('class', 'y axis left')
-      _container.append('g').attr('class', 'y axis right')
-      _container.append('g').attr('class', 'x label top')
-      _container.append('g').attr('class', 'x label bottom')
-      _container.append('g').attr('class', 'y label left')
-      _container.append('g').attr('class', 'y label right')
       _chartArea = _container.append('g').attr('class', 'chartArea')
       _overlay= _chartArea.append('rect').attr('class', 'overlay').style({opacity: 0, 'pointer-events': 'none'})
       _container.append('g').attr('class', 'brushArea')
-      #_tooltip.behavior(_overlay)
+
+    _getAxis = (orient) ->
+      axis = _container.select(".axis.#{orient}")
+      if axis.empty()
+        axis = _container.append('g').attr('class',"axis #{orient}")
+      if orient is 'bottom'
+        axis.attr('transform', (d) -> "translate(0, #{_innerHeight})")
+      if orient is 'right'
+        axis.attr('transform', (d) -> "translate(#{_innerWidth}, 0)")
+      return axis
+
+    _removeAxis = (orient) ->
+      _container.select(".axis.#{orient}").remove()
+
+    _getLabel = (orient) ->
+      label = _container.select(".label.#{orient}")
+      if label.empty()
+        label = _container.append('g').attr('class',"label #{orient}")
+      switch orient
+        when 'top'
+          label.attr('transform', (d) -> "translate(#{_innerWidth/2}, #{-_margin.top})")
+        when 'bottom'
+          label.attr('transform', (d) -> "translate(#{_innerWidth/2},#{_innerHeight+_margin.bottom})")
+        when 'left'
+          label.attr('transform', (d) -> "translate(#{-_margin.left},#{_innerHeight/2})rotate(-90)")
+        when 'right'
+          label.attr('transform', (d) ->"translate(#{_innerWidth+_margin.right},#{_innerHeight/2})rotate(90)")
+      return label
+
+    _removeLabel = (orient) ->
+      _container.select(".label.#{orient}").remove()
 
     me.addLayout = (layout) ->
       _layouts.push(layout)
@@ -71,14 +93,9 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _innerHeight = bounds.height - _margin.top - _margin.bottom
       _svg.select("#clip-#{_containerId} rect").attr('width', _innerWidth).attr('height', _innerHeight)
       _spacedContainer = _container.attr('transform', (d) -> "translate(#{_margin.left}, #{_margin.top})")
-      _spacedContainer.select('.bottom').attr('transform', (d) -> "translate(0, #{_innerHeight})")
-      _spacedContainer.select('.right').attr('transform', (d) -> "translate(#{_innerWidth}, 0)")
       _spacedContainer.select('.chartArea').style('clip-path', "url(#clip-#{_containerId})")
-      _spacedContainer.select('.x.label.top').attr('transform', (d) -> "translate(#{_innerWidth/2}, #{-_margin.top})")
-      _spacedContainer.select('.x.label.bottom').attr('transform', (d) -> "translate(#{_innerWidth/2},#{_innerHeight+_margin.bottom})")
-      _spacedContainer.select('.y.label.left').attr('transform', (d) -> "translate(#{-_margin.left},#{_innerHeight/2})rotate(-90)")
-      _spacedContainer.select('.y.label.right').attr('transform', (d) ->"translate(#{_innerWidth+_margin.right},#{_innerHeight/2})rotate(90)")
       _overlay = _spacedContainer.select('.overlay').attr('width', _innerWidth).attr('height', _innerHeight)
+
       return me
 
     me.element = (elem) ->
@@ -89,7 +106,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
         if _elementSelection.empty()
           $log.error "Error: Element #{_element} does not exist"
         else
-          _genChart()
+          _genChartFrame()
         return me
 
     me.height = () ->
@@ -135,7 +152,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
           if s.showAxis()
             if s.axisOrient() isnt s.axisOrientOld()
               s.axis().scale(s.scale())
-              a = _spacedContainer.select(".axis.#{s.axisOrient()}")
+              a = _getAxis(s.axisOrient())
               if s.showGrid()
                 s.axis().tickSize(if s.isHorizontal() then -_innerHeight else -_innerWidth).tickPadding(6)
               else
@@ -144,21 +161,18 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
               a.transition().duration(d3Animation.duration).call(s.axis())
               if s.axisLabel()
                 offs = axisConfig[s.kind()].labelOffset[s.axisOrient()]
-                ls = _spacedContainer.select(".label.#{s.axisOrient()}").selectAll('.label-text').data([s.axisLabel()])
-                ls.enter().append('text').attr('class','label-text').attr('dy', (d) -> offs)
-                ls.text((d) -> d).attr('text-anchor','middle').style('font-size', axisConfig.labelFontSize)
-                ls.exit().remove()
-              a = _spacedContainer.select(".axis.#{s.axisOrientOld()}")
-              a.selectAll('.tick').remove()
-              a.selectAll('.domain').remove()
-              l = _spacedContainer.select(".label.#{s.axisOrientOld()}").selectAll('.label-text').remove()
+                lbl = _getLabel(s.axisOrient())
+                txt = lbl.selectAll('.label-text')
+                if txt.empty()
+                  txt = lbl.append('text').attr('class','label-text').attr('dy', (d) -> offs)
+                txt.text(s.axisLabel()).attr('text-anchor','middle').style('font-size', axisConfig.labelFontSize)
+              _removeAxis(s.axisOrientOld())
+              _removeLabel(s.axisOrientOld())
               s.axisOrientOld(s.axisOrient())
           else
             if s.axisOrient()
-              a = _spacedContainer.select(".axis.#{s.axisOrient()}")
-              a.selectAll('.tick').remove()
-              a.selectAll('.domain').remove()
-              l = _spacedContainer.select(".label.#{s.axisOrient()}").selectAll('.label-text').remove()
+              _removeAxis(s.axisOrient())
+              _removeLabel(s.axisOrient())
               s.axisOrientOld(undefined)
 
 
