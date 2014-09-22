@@ -19,6 +19,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
 
     _showAxis = false
     _axisOrient = undefined
+    _axisOrientOld = undefined
     _axis = undefined
     _axisLabel = undefined
     _showGrid = false
@@ -84,6 +85,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
         _isHorizontal = trueFalse
         if trueFalse
           _isVertical = false
+        return me
 
     me.isVertical = (trueFalse) ->
       if arguments.length is 0 then return _isVertical
@@ -91,6 +93,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
         _isVertical = trueFalse
         if trueFalse
           _isHorizontal = false
+        return me
 
     me.scaleType = (type) ->
       if arguments.length is 0 then return _scaleType
@@ -129,7 +132,6 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
           _domainCalc = rule
         else
           $log.error 'illegal domain calculation rule:', rule, " expected 'min', 'max', 'extent', 'total' or 'totalExtent'"
-        me.parent().events().redraw(false)
         return me
 
     me.getDomain = (data) ->
@@ -206,8 +208,6 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
       else
         Object.keys(data[0]).filter((d) -> not (d in _layerExclude))
 
-    me.layers = (data) ->
-
 
     me.dataFormat = (format) ->
       if arguments.length is 0 then return _dataFormatString
@@ -249,6 +249,12 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
       if arguments.length is 0 then return _axisOrient
       else
         _axisOrient = val
+        return me #to enable chaining
+
+    me.axisOrientOld = (val) ->
+      if arguments.length is 0 then return _axisOrientOld
+      else
+        _axisOrientOld = val
         return me #to enable chaining
 
     me.axis = () ->

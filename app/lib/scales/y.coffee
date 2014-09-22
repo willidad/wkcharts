@@ -100,13 +100,15 @@ angular.module('wk.chart').directive 'y', ($log, scale, legend) ->
           l.redraw()
 
       attrs.$observe 'axis', (val) ->
-        me.showAxis(false)
-        if val isnt undefined and val isnt 'false'
-          if val in ['left', 'right']
-            me.axisOrient(val).showAxis(true)
+        if val isnt undefined
+          if val isnt 'false'
+            if val in ['left', 'right']
+              me.axisOrient(val).showAxis(true)
+            else
+              me.axisOrient('left').showAxis(true)
           else
-            me.axisOrient('left').showAxis(true)
-        me.update()
+            me.showAxis(false)
+          me.update()
 
       attrs.$observe 'tickFormat', (val) ->
         if val isnt undefined
@@ -123,6 +125,6 @@ angular.module('wk.chart').directive 'y', ($log, scale, legend) ->
 
       attrs.$observe 'label', (val) ->
         if val isnt undefined and val.length > 0
-          me.axisLabel(val)
+          me.axisLabel(val).drawAxis()
 
   }

@@ -16,7 +16,7 @@ angular.module('wk.chart').directive 'line', ($log) ->
 
       ttMove = (x) ->
         bisect = d3.bisector((d) -> d.x).left
-        idx = bisect(_layout[0].value, x)
+        idx = bisect(_layout[0].value, x) - 1
         idx = if idx < 0 then 0 else if idx >= _layout[0].value.length then _layout[0].value.length - 1 else idx
         ttLayers = _layout.map((l) -> {name:l.key, value:l.value[idx].y, color:{'background-color': l.color}})
         @headerValue = x

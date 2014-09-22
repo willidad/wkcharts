@@ -133,27 +133,33 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
             s.range([_innerHeight, 0])
 
           if s.showAxis()
-            s.axis().scale(s.scale())
-            a = _spacedContainer.select(".axis.#{s.axisOrient()}")
-            if s.showGrid()
-              s.axis().tickSize(if s.isHorizontal() then -_innerHeight else -_innerWidth).tickPadding(6)
-            else
-              s.axis().tickSize(6)
-            s.axis().orient(s.axisOrient())
-            a.transition().duration(d3Animation.duration).call(s.axis())
-            $log.warn 'drawing axis', ".axis.#{s.axisOrient()}", s.axis().orient()
-            if s.axisLabel()
-              offs = axisConfig[s.kind()].labelOffset[s.axisOrient()]
-              ls = _spacedContainer.select(".label.#{s.axisOrient()}").selectAll('.label-text').data([s.axisLabel()])
-              ls.enter().append('text').attr('class','label-text').attr('dy', (d) -> offs)
-              ls.text((d) -> d).attr('text-anchor','middle').style('font-size', axisConfig.labelFontSize)
-              ls.exit().remove()
+            if s.axisOrient() isnt s.axisOrientOld()
+              s.axis().scale(s.scale())
+              a = _spacedContainer.select(".axis.#{s.axisOrient()}")
+              if s.showGrid()
+                s.axis().tickSize(if s.isHorizontal() then -_innerHeight else -_innerWidth).tickPadding(6)
+              else
+                s.axis().tickSize(6)
+              s.axis().orient(s.axisOrient())
+              a.transition().duration(d3Animation.duration).call(s.axis())
+              if s.axisLabel()
+                offs = axisConfig[s.kind()].labelOffset[s.axisOrient()]
+                ls = _spacedContainer.select(".label.#{s.axisOrient()}").selectAll('.label-text').data([s.axisLabel()])
+                ls.enter().append('text').attr('class','label-text').attr('dy', (d) -> offs)
+                ls.text((d) -> d).attr('text-anchor','middle').style('font-size', axisConfig.labelFontSize)
+                ls.exit().remove()
+              a = _spacedContainer.select(".axis.#{s.axisOrientOld()}")
+              a.selectAll('.tick').remove()
+              a.selectAll('.domain').remove()
+              l = _spacedContainer.select(".label.#{s.axisOrientOld()}").selectAll('.label-text').remove()
+              s.axisOrientOld(s.axisOrient())
           else
             if s.axisOrient()
               a = _spacedContainer.select(".axis.#{s.axisOrient()}")
               a.selectAll('.tick').remove()
               a.selectAll('.domain').remove()
               l = _spacedContainer.select(".label.#{s.axisOrient()}").selectAll('.label-text').remove()
+              s.axisOrientOld(undefined)
 
 
     me.draw = (data, doNotAnimate) ->
