@@ -20,7 +20,7 @@ angular.module('wk.chart').directive 'area', ($log, utils) ->
         bisect = d3.bisector((d) -> d.x).left
         idx = bisect(layerData[0].layer, x)
         idx = if idx < 0 then 0 else if idx >= layerData[0].layer.length then layerData[0].layer.length - 1 else idx
-        ttLayers = layerData.map((l) -> {name:l.key, value:l.layer[idx].yy, color: l.color})
+        ttLayers = layerData.map((l) -> {name:l.key, value:l.layer[idx].yy, color: {'background-color': l.color}})
         #$log.info 'tooltip mouse move', x, layers
         @headerValue = x
         @layers = @layers.concat(ttLayers)

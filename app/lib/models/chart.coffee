@@ -8,15 +8,11 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, toolt
     _ownedScales = scaleList()
 
     _container = undefined
-    _dataFn = (data) -> data
     _data = undefined
-    _dataTransformed = undefined
     _showTooltip = false
-    _tooltip = tooltip()
-    _noop = () ->
 
     _brush = d3.dispatch('draw', 'change')
-    _chartEvents = d3.dispatch('configure', 'draw', 'redraw', 'update')
+    _chartEvents = d3.dispatch('configure', 'draw', 'redraw', 'drawAxis', 'update')
 
     me = () ->
 
@@ -68,29 +64,36 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, toolt
       if arguments.length is 0 then return _showTooltip
       else
         _showTooltip = trueFalse
+
+        for c in _containers
+          c.setTooltip(_showTooltip)
         return me
 
-    me.tooltip = () ->
-      if _showTooltip then _tooltip else _noop
+    #me.tooltip = () ->
+    # # if _showTooltip then _tooltip else _noop
 
 
     me.brush = () ->
       return _brush
 
     me.draw = (data) ->
+      _data = data
       # set domain for shared scales (other scales will be set in layout draw (called from container)
       for id, s of _ownedScales.getOwned()
         if s.resetOnNewData()
           s.scale().domain(s.getDomain(data))
-
       for c in _containers
-        if me.showTooltip()
-          c.setTooltip(_tooltip)
         c.sizeContainer()
         c.prepData(data)
+        c.drawAxis()
         c.draw(data)
 
       me.events().draw(data)
+      me.events().on 'drawAxis', () ->
+        for c in _containers
+          c.drawAxis()
+      me.events().on 'update', () ->
+        me.draw(_data)
 
       return me
 

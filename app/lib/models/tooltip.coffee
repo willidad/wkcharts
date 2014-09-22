@@ -5,15 +5,18 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
     _x = undefined
     _data = undefined
     _refreshMove = false
+    _active = false
 
     _templ = $templateCache.get(templateDir + 'toolTip.jade')
     _templScope = $rootScope.$new(true)
     _compiledTempl = $compile(_templ)(_templScope)
     body = $document.find('body')
-    body.append(_compiledTempl)
+
     bodyRect = body[0].getBoundingClientRect()
 
     mouseEnter = () ->
+      if not _active then return
+      body.append(_compiledTempl)
       _templScope.layers = []
       if _x
         xValue = _x.scale().invert(d3.mouse(this)[0])
@@ -35,6 +38,7 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       _templScope.$apply()
 
     mouseMove = () ->
+      if not _active then return
       if _refreshMove
         _templScope.layers = []
         if _x
@@ -57,8 +61,10 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       _templScope.$apply()
 
     mouseLeave = () ->
+      if not _active then return
       _templScope.ttShow = false
       _templScope.$apply()
+      _compiledTempl.remove()
 
     me = (selection) ->
       if arguments.length is 0 then return me
@@ -77,12 +83,18 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       else
         _refreshMove = trueFalse
 
-
     me.x = (x) ->
       if arguments.length is 0  then return _x
       else
         _x = x
         return me
+
+    me.active = (val) ->
+      if arguments.length is 0 then return _active
+      else
+        _active = val
+        return me #to enable chaining
+
 
     me.data = (data) ->
       if arguments.length is 0 then return _data

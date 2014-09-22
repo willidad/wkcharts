@@ -1,10 +1,10 @@
-angular.module('wk.chart').directive 'axis', ($log) ->
+angular.module('wk.chart').directive 'aaxis', ($log) ->
   return {
     restrict: 'A'
-    require: ['axis', '?x', '?y']
+    require: ['aaxis', '?x', '?y']
     controller: ()->
 
-    link: (scope,element,attrs,controllers) ->
+    link: (scope, element, attrs, controllers) ->
       me = controllers[0]
       x = controllers[1]
       y = controllers[2]
@@ -16,21 +16,18 @@ angular.module('wk.chart').directive 'axis', ($log) ->
       $log.log 'linking axis for', owner.id()
 
       attrs.$observe 'axis', (val) ->
-        if val isnt undefined
-          owner.showAxis(true)
+        owner.showAxis(false)
+        if val isnt undefined and val isnt 'false'
           if y
             if val in ['left', 'right']
-              owner.axis().orient(val)
+              owner.axisOrient(val).showAxis(true)
             else
-              owner.axis().orient('left')
-
+              owner.axisOrient('left').showAxis(true)
           if x
             if val in ['top', 'bottom']
-              owner.axis().orient(val)
+              owner.axisOrient(val).showAxis(true)
             else
-              owner.axis().orient('bottom')
-
-          $log.log 'Axis set', owner.id()
+              owner.axisOrient('bottom').showAxis(true)
 
       attrs.$observe 'tickFormat', (val) ->
         if val isnt undefined
@@ -43,7 +40,6 @@ angular.module('wk.chart').directive 'axis', ($log) ->
       attrs.$observe 'grid', (val) ->
         if val isnt undefined
           owner.showGrid(val is '' or val is 'true')
-          null
 
       attrs.$observe 'label', (val) ->
         if val isnt undefined and val.length > 0

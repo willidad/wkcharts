@@ -71,4 +71,33 @@ angular.module('wk.chart').directive 'x', ($log, scale) ->
       attrs.$observe 'domainRange', (val) ->
         if val
           me.domainCalc(val)
+
+      attrs.$observe 'axis', (val) ->
+        me.showAxis(false)
+        if val isnt undefined and val isnt 'false'
+          if val in ['top', 'bottom']
+            me.axisOrient(val).showAxis(true)
+          else
+            me.axisOrient('bottom').showAxis(true)
+        me.update()
+
+      attrs.$observe 'tickFormat', (val) ->
+        if val isnt undefined
+          me.axis().tickFormat(d3.format(val)).drawAxis()
+
+      attrs.$observe 'ticks', (val) ->
+        if val isnt undefined
+          me.axis().ticks(+val)
+          me.drawAxis()
+
+      attrs.$observe 'grid', (val) ->
+        if val isnt undefined
+          me.showGrid(val is '' or val is 'true').drawAxis()
+
+      attrs.$observe 'label', (val) ->
+        if val isnt undefined
+          if val.length > 0
+            me.axisLabel(val).drawAxis()
+          else
+            me.axisLabel('').drawAxis()
   }

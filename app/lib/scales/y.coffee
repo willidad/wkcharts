@@ -77,23 +77,52 @@ angular.module('wk.chart').directive 'y', ($log, scale, legend) ->
 
       attrs.$observe 'legend', (val) ->
         if val isnt undefined
-          l = legend()
-          l.position('top-right')
-          switch val
-            when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
-              l.position(val)
-            when ''
+          l = me.legend()
+          if val isnt 'false'
+            l.position('top-right').show(true)
+            switch val
+              when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
+                l.position(val).div(undefined)
+              when ''
 
-            else
-              legendDiv = d3.select(val)
-              if legendDiv.empty()
-                $log.warn 'legend reference does not exist:', val
               else
-                l.div(legendDiv)
-                l.position('top-left')
+                legendDiv = d3.select(val)
+                if legendDiv.empty()
+                  $log.warn 'legend reference does not exist:', val
+                else
+                  l.div(legendDiv).position('top-left')
+          else
+            me.legend().show(false)
 
           l.scale(me).layout(layout)
           if me.parent()
             l.register(me.parent())
+          l.redraw()
+
+      attrs.$observe 'axis', (val) ->
+        me.showAxis(false)
+        if val isnt undefined and val isnt 'false'
+          if val in ['left', 'right']
+            me.axisOrient(val).showAxis(true)
+          else
+            me.axisOrient('left').showAxis(true)
+        me.update()
+
+      attrs.$observe 'tickFormat', (val) ->
+        if val isnt undefined
+          me.axis().tickFormat(d3.format(val))
+
+      attrs.$observe 'ticks', (val) ->
+        if val isnt undefined
+          me.axis().ticks(val)
+          me.drawAxis()
+
+      attrs.$observe 'grid', (val) ->
+        if val isnt undefined
+          me.showGrid(val is '' or val is 'true').drawAxis()
+
+      attrs.$observe 'label', (val) ->
+        if val isnt undefined and val.length > 0
+          me.axisLabel(val)
 
   }

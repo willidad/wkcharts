@@ -1,4 +1,4 @@
-angular.module('wk.chart').factory 'scale', ($log) ->
+angular.module('wk.chart').factory 'scale', ($log, legend) ->
 
   scale = () ->
     _id = ''
@@ -18,6 +18,7 @@ angular.module('wk.chart').factory 'scale', ($log) ->
     _dataFormatFn = (data) -> if isNaN(+data) then data else +data
 
     _showAxis = false
+    _axisOrient = undefined
     _axis = undefined
     _axisLabel = undefined
     _showGrid = false
@@ -25,7 +26,7 @@ angular.module('wk.chart').factory 'scale', ($log) ->
     _isVertical = false
     _kind = undefined
     _parent = undefined
-    _layerRef = {}
+    _legend = legend()
 
     me = () ->
 
@@ -70,6 +71,9 @@ angular.module('wk.chart').factory 'scale', ($log) ->
       else
         _parent = parent
         return me
+
+    me.legend = () ->
+      return _legend
 
     me.isOrdinal = () ->
       _isOrdinal
@@ -239,8 +243,13 @@ angular.module('wk.chart').factory 'scale', ($log) ->
           _axis = d3.svg.axis()
         else
           _axis = undefined
-        me.parent().events().redraw(false)
         return me
+
+    me.axisOrient = (val) ->
+      if arguments.length is 0 then return _axisOrient
+      else
+        _axisOrient = val
+        return me #to enable chaining
 
     me.axis = () ->
       return _axis
@@ -249,14 +258,21 @@ angular.module('wk.chart').factory 'scale', ($log) ->
       if arguments.length is 0 then return _axisLabel
       else
         _axisLabel = text
-        me.parent().events().redraw(false)
         return me
 
     me.showGrid = (trueFalse) ->
       if arguments.length is 0 then return _showGrid
       else
-        me.parent().events().redraw(false)
         _showGrid = trueFalse
+        return me
+
+    me.update = () ->
+      me.parent().events().update()
+      return me
+
+    me.drawAxis = () ->
+      me.parent().events().drawAxis()
+      return me
 
     return me
 

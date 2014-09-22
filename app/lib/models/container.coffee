@@ -19,6 +19,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     _innerHeight = 0
     _data = undefined
     _overlay = undefined
+    _tooltip = tooltip()
 
     me = ()->
 
@@ -54,11 +55,12 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     me.sizeContainer = () ->
       #collect axis and label information about layouts registered with container
       $log.log 'sizing container. Owner:', me.id()
+      _margin = angular.copy(d3ChartMargins.default)
       for l in _layouts
         for k, s of l.scales().allKinds()  # shared scales will be hit multiple times. ist this a problem?
-          $log.log ' scaling:', s.id(), s.showAxis()
+          $log.log ' scaling:', s.id(), s.showAxis(), s.axisOrient()
           if s.showAxis()
-            axisPos = s.axis().orient()
+            axisPos = s.axisOrient()
             _margin[axisPos] = d3ChartMargins.axis[axisPos]
             if s.axisLabel()
               _margin[axisPos] += d3ChartMargins.label[axisPos]
@@ -111,19 +113,19 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
             s.scale().domain(s.getDomain(data))
         l.prepareData(data)
 
-    me.setTooltip = () ->
-      tt = tooltip()
+    me.setTooltip = (trueFalse) ->
       for l in _layouts
-        if not l.isBrush()
+        if not l.isBrush() and trueFalse
           _overlay.style('pointer-events', 'auto')
-          l.setTooltip(tt, _overlay)
+          _tooltip.active(true)
+          l.setTooltip(_tooltip, _overlay)
+        else
+          _overlay.style('pinter-events', 'none')
+          _tooltip.active(false)
 
-    me.draw = (data, doNotAnimate) ->
-      _data = data
-      $log.log 'Drawing container Layout', me.id()
+    me.drawAxis = () ->
+      # set scales before drawing the axis
       for l in _layouts
-        # set scales before drawing the axis
-
         for k, s of l.scales().allKinds()
           if s.isHorizontal()
             s.range([0, _innerWidth])
@@ -132,16 +134,32 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
 
           if s.showAxis()
             s.axis().scale(s.scale())
-            a = _spacedContainer.select(".axis.#{s.axis().orient()}")
+            a = _spacedContainer.select(".axis.#{s.axisOrient()}")
             if s.showGrid()
               s.axis().tickSize(if s.isHorizontal() then -_innerHeight else -_innerWidth).tickPadding(6)
+            else
+              s.axis().tickSize(6)
+            s.axis().orient(s.axisOrient())
             a.transition().duration(d3Animation.duration).call(s.axis())
+            $log.warn 'drawing axis', ".axis.#{s.axisOrient()}", s.axis().orient()
             if s.axisLabel()
-              offs = axisConfig[s.kind()].labelOffset[s.axis().orient()]
-              ls = _spacedContainer.select(".#{s.kind()}.label.#{s.axis().orient()}").selectAll('.label-text').data([s.axisLabel()])
+              offs = axisConfig[s.kind()].labelOffset[s.axisOrient()]
+              ls = _spacedContainer.select(".label.#{s.axisOrient()}").selectAll('.label-text').data([s.axisLabel()])
               ls.enter().append('text').attr('class','label-text').attr('dy', (d) -> offs)
               ls.text((d) -> d).attr('text-anchor','middle').style('font-size', axisConfig.labelFontSize)
               ls.exit().remove()
+          else
+            if s.axisOrient()
+              a = _spacedContainer.select(".axis.#{s.axisOrient()}")
+              a.selectAll('.tick').remove()
+              a.selectAll('.domain').remove()
+              l = _spacedContainer.select(".label.#{s.axisOrient()}").selectAll('.label-text').remove()
+
+
+    me.draw = (data, doNotAnimate) ->
+      _data = data
+      $log.log 'Drawing container Layout', me.id()
+      for l in _layouts
         l.draw(data, doNotAnimate)
       return me
 

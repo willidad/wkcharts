@@ -15,7 +15,7 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
       _tooltip = ()->
 
       ttEnter = (data) ->
-        ttLayers = data.layers.map((l) -> {name:l.layerKey, value:l.value, color: l.color})
+        ttLayers = data.layers.map((l) -> {name:l.layerKey, value:l.value, color: {'background-color': l.color}})
         $log.info 'ttEnter', data.key, layers
         @headerValue = data.key
         @layers = @layers.concat(ttLayers)

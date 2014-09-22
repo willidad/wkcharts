@@ -8,8 +8,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
     _data = undefined
     _owner = undefined
     _scaleList = scaleList()
-    _layoutEvents = d3.dispatch('configure', 'draw', 'prepData', 'brush', 'redraw', 'update', 'tooltip')
-    _showTooltip = false
+    _layoutEvents = d3.dispatch('configure', 'draw', 'prepData', 'brush', 'redraw', 'drawAxis', 'update', 'tooltip')
 
     me = () ->
 
@@ -99,7 +98,8 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
         _drawBrushFn.apply(brushArea, args)
 
       _layoutEvents.on 'redraw', me.redraw
-      _layoutEvents.on 'update', me.update
+      _layoutEvents.on 'update', me.owner().events().update
+      _layoutEvents.on 'drawAxis', me.owner().events().drawAxis
 
     me.redraw = (notAnimated) ->
       if _data

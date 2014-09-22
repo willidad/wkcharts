@@ -1,0 +1,79 @@
+.col-lg-6(ng-init="sTooltips=true;xAxis=true;yAxis=true;xGrid=true;yGrid=false;xLabel='Date';yLabel='Temperature (F)'; xTicks=10; yTicks=7; legendPos='top-left'")
+    .box
+        .box80
+            chart(data="combo", tooltips="{{sTooltips}}")
+                x(axis="{{xAxis}}", brushed, type="time", property="date", domain-range="extent", format="%Y/%m/%d", grid="{{xGrid}}", label="{{xLabel}}", ticks="{{xTicks}}")
+                color(type="category10")
+                layout(line)
+                    y(axis="{{yAxis}}", type="linear", property="{{props}}", layer-property="close", domain-range="extent", grid="{{yGrid}}", label="{{yLabel}}", legend="{{legendPos}}", ticks="{{yTicks}}")
+                    color(type="category10")
+                layout(area, container="#chart1")
+                    y(axis, type="linear", layer-property="volume", domain-range="max", ticks="5", tick-format=".2s", grid)
+                layout(area, container="#chart2")
+                    y(type="linear", property="msft", layer-property="close", domain-range="extent")
+                    x(axis, brush, type="time", property="date", domain-range="extent", format="%Y/%m/%d")
+        .box20
+                #chart2.d3-chart
+    .box
+        table.table.table-condensed
+            tr
+                td Show tooltips
+                td(colspan="3")
+                    input(type="checkbox", ng-model="sTooltips")
+                td Legend position
+                td
+                    select(ng-model="legendPos")
+                        option true
+                        option
+                        option false
+                        option top-left
+                        option top-right
+                        option bottom-left
+                        option bottom-right
+                        option #legend
+            tr
+                td Show: x-axis
+                td
+                    input(type="checkbox", ng-model="xAxis")
+                td x-grid
+                td
+                    input(type="checkbox", ng-model="xGrid")
+                td x-label
+                td
+                    input(type="text", ng-model="xLabel")
+                td x-ticks
+                td
+                    input(type="text", ng-model="xTicks", style="width:50px")
+            tr
+                td Show: y-axis
+                td
+                    input(type="checkbox", ng-model="yAxis")
+                td y-grid
+                td
+                    input(type="checkbox", ng-model="yGrid")
+                td y-label
+                td
+                    input(type="text", ng-model="yLabel")
+                td y-ticks
+                td
+                    input(type="text", ng-model="yTicks", style="width:50px")
+            tr
+                td Property Selection
+                td(colspan="8")
+                    btn-group
+                        label.btn.btn-primary(ng-model="checkModel[0]",btn-checkbox) hpq
+                        label.btn.btn-primary(ng-model="checkModel[1]",btn-checkbox) msft
+                        label.btn.btn-primary(ng-model="checkModel[2]",btn-checkbox) intc
+            tr
+                td(colspan="6")
+                    pre {{props}}
+
+.col-lg-3
+    .box
+        .box20
+            #chart1.d3-chart(style="height:150px")
+        .box80#legend
+
+
+
+
