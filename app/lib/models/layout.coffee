@@ -80,7 +80,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
       if drawArea.empty()
         drawArea = container.append('g').attr('class', (d) -> me.id())
 
-      options = {height:_container.height(), margins:_container.margins(), duration: 0}
+      options = {height:_container.height(), width:_container.width(), margins:_container.margins(), duration: 0}
 
       if notAnimated
         options.duration = 0

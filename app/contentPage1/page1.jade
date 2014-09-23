@@ -1,12 +1,11 @@
 .col-lg-6
     .box
-        //d3-chart(scatter-chart, data="scatterData", tool-tip)
-            x(axis, property="x", scale="linear", label="abc", show-grid)
-            y(axis, property="y", scale="linear", show-grid)
-            color(property="group", scale="category10", show-legend ="#scatter-legend", label="Scatter Group Values")
-            size(property="size", range="20,200")
-            shape(property="shape", show-legend="#shape-legend", label="Scatter Shape Values")
-
+        chart(layout, scatter, data="scatterData", tooltips, deep-watch)
+            x(axis, property="x", type="linear", show-label, label="abc", grid, domain-range="extent")
+            y(axis, property="y", type="linear", grid, domain-range="extent")
+            color(property="group", type="category10", legend ="#scatter-legend", label="Scatter Group Values")
+            size(property="size", range="2,30", domain-range="extent")
+            shape(property="shape", legend="#shape-legend", label="Scatter Shape Values")
 
     .box
         chart(layout, line, data="temperatureData")

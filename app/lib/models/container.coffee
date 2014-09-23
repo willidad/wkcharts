@@ -112,6 +112,9 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     me.height = () ->
       return _innerHeight
 
+    me.width = () ->
+      return _innerWidth
+
     me.margins = () ->
       return _margin
 

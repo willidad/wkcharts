@@ -1,8 +1,8 @@
 .col-lg-6
     .box
-        //d3-chart(clustered-bar-chart, data="shortDataFilter", tool-tip)
-            x(property="State", scale="ordinal", axis="bottom", label="{{title}}", ticks="10")
-            y(axis, scale="linear", ticks="10", tick-format=".2s", show-grid)
+        chart(layout, clustered-bar, data="shortDataFilter", tooltips)
+            x(property="State", type="ordinal", axis="bottom", show-label, label="{{title}}", ticks="10")
+            y(axis, type="linear", ticks="10", tick-format=".2s", grid)
             color(scale="category20")
     .box
         chart(data="shortDataFilter")

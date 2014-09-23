@@ -1,9 +1,9 @@
 .col-lg-6
     .box
         .col-lg-3
-            //d3-chart(gauge-chart, data="simpleData", tool-tip)
+            chart(layout, gauge, data="simpleData")
                 y(property="value", domain="0,100", axis)
-                color(scale="threshold", range="green,yellow,orange,red", domain="{{limit}}")
+                color(type="threshold", range="green,yellow,orange,red", domain="{{limit}}")
         .col-lg-6
             table.table.table-condensed
                 tr

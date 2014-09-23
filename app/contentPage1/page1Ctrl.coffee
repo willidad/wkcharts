@@ -102,7 +102,7 @@ angular.module 'app'
       $scope.scatterData[j].y = random()
       $scope.scatterData[j].size = Math.random()
       #$scope.scatterData[j].shape = shapes[Math.floor(Math.random() * shapes.length)]
-    , d3Animation.duration + 100, 50)
+    , 500, 50)
 
     $scope.simpleData = {value:19}
     $scope.limit = [20,50,70]

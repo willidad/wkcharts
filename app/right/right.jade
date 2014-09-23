@@ -1,7 +1,7 @@
 .box
-    //d3-chart(pie-chart, data="selData", tool-tip)
-        color(scale="category20", property="age")
-        y(scale="linear",property="population")
+    chart(layout, pie, data="selData", tooltips)
+        color(type="category20", property="age")
+        y(type="linear",property="population")
 
 .box
     table.table.table-condensed
@@ -15,7 +15,7 @@
     button.btn.btn-primary(ng-click="selChange()") Update Chart
 
 .box(style="height:230px;margin-top:30px")
-    //d3-chart(bar-chart, data="selData", tool-tip)
-        x(property="age", scale="category10", axis="top", label="Age")
-        y(axis="right", tick-format=".2s", label="Population", property="population")
-        color(scale="category20", property="age")
+    chart(layout, simple-bar, data="selData", tooltips)
+        x(property="age", type="category10", axis="top", show-label, label="Age")
+        y(axis="right", tick-format=".2s", show-label, label="Population", property="population")
+        color(type="category20", property="age")

@@ -16,6 +16,7 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
       me = controller
 
       deepWatch = false
+      dataWatcher = undefined
       element.addClass(me.id())
 
       $log.log 'linking chart id:', me.id()
@@ -33,11 +34,13 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
       attrs.$observe 'deepWatch', (val) ->
         if val isnt undefined and val isnt 'false'
           deepWatch = true
-
-      scope.$watch 'data', (val) ->
-        if val
-          $log.log 'data changed, chart id:', me.id()
-          me.draw(val)
-      , deepWatch
-
+        else
+          deepWatch = false
+        if dataWatcher
+          dataWatcher()
+        dataWatcher = scope.$watch 'data', (val) ->
+          if val
+            $log.log 'data changed, chart id:', me.id()
+            me.draw(val)
+        , deepWatch
   }

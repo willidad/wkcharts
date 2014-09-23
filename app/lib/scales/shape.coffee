@@ -20,8 +20,8 @@ angular.module('wk.chart').directive 'shape', ($log, scale, d3Shapes) ->
       name = 'shape'
       me.kind(name)
       me.parent(layout or chart)
-      me.scaletype('ordinal')
-      me.range(d3Shapes)
+      me.scaleType('ordinal')
+      me.scale().range(d3Shapes)
       element.addClass(me.id())
 
       chart.addScale(me, layout)
