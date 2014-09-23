@@ -62,6 +62,9 @@ angular.module('wk.chart').directive 'area', ($log, utils) ->
 
       draw = (data, options, x, y, color) ->
         #$log.log "rendering Area Chart"
+
+        if _tooltip then _tooltip.x(x).data(data)
+
         layoutNew = layout(layerData)
 
         if not layers

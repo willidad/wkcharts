@@ -84,7 +84,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
           if s.showAxis()
             axisPos = s.axisOrient()
             _margin[axisPos] = d3ChartMargins.axis[axisPos]
-            if s.axisLabel()
+            if s.showLabel()
               _margin[axisPos] += d3ChartMargins.label[axisPos]
       #$log.debug _margin
 
@@ -137,11 +137,13 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
           _tooltip.active(true)
           l.setTooltip(_tooltip, _overlay)
         else
-          _overlay.style('pinter-events', 'none')
+          _overlay.style('pointer-events', 'none')
           _tooltip.active(false)
 
     me.drawAxis = () ->
       # set scales before drawing the axis
+      _tooltip.horizontalRange([0, _innerWidth])
+      _tooltip.verticalRange([_innerHeight, 0])
       for l in _layouts
         for k, s of l.scales().allKinds()
           if s.isHorizontal()
@@ -150,30 +152,32 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
             s.range([_innerHeight, 0])
 
           if s.showAxis()
-            if s.axisOrient() isnt s.axisOrientOld()
-              s.axis().scale(s.scale())
-              a = _getAxis(s.axisOrient())
-              if s.showGrid()
-                s.axis().tickSize(if s.isHorizontal() then -_innerHeight else -_innerWidth).tickPadding(6)
-              else
-                s.axis().tickSize(6)
-              s.axis().orient(s.axisOrient())
-              a.transition().duration(d3Animation.duration).call(s.axis())
-              if s.axisLabel()
-                offs = axisConfig[s.kind()].labelOffset[s.axisOrient()]
-                lbl = _getLabel(s.axisOrient())
-                txt = lbl.selectAll('.label-text')
-                if txt.empty()
-                  txt = lbl.append('text').attr('class','label-text').attr('dy', (d) -> offs)
-                txt.text(s.axisLabel()).attr('text-anchor','middle').style('font-size', axisConfig.labelFontSize)
-              _removeAxis(s.axisOrientOld())
-              _removeLabel(s.axisOrientOld())
-              s.axisOrientOld(s.axisOrient())
-          else
-            if s.axisOrient()
-              _removeAxis(s.axisOrient())
+            s.axis().scale(s.scale())
+            a = _getAxis(s.axisOrient())
+            if s.showGrid()
+              s.axis().tickSize(if s.isHorizontal() then -_innerHeight else -_innerWidth).tickPadding(6)
+            else
+              s.axis().tickSize(6)
+            s.axis().orient(s.axisOrient())
+            a.transition().duration(d3Animation.duration).call(s.axis())
+            a.selectAll('.tick').style('pointer-events', 'none')  # avoid fading of tooltip wne hovering over grid lines
+            if s.showLabel()
+              offs = axisConfig[s.kind()].labelOffset[s.axisOrient()]
+              lbl = _getLabel(s.axisOrient())
+              txt = lbl.selectAll('.label-text')
+              if txt.empty()
+                txt = lbl.append('text').attr('class','label-text').attr('dy', (d) -> offs)
+              txt.text(s.axisLabel()).attr('text-anchor','middle').style('font-size', axisConfig.labelFontSize)
+            else
               _removeLabel(s.axisOrient())
-              s.axisOrientOld(undefined)
+          if s.axisOrientOld() and s.axisOrientOld() isnt s.axisOrient()
+            me.removeAxis(s.axisOrientOld())
+            _removeLabel(s.axisOrientOld())
+            #s.axisOrientOld(undefined)
+
+    me.removeAxis = (orient) ->
+      _removeAxis(orient)
+      _removeLabel(orient)
 
 
     me.draw = (data, doNotAnimate) ->

@@ -1,33 +1,32 @@
-angular.module('wk.chart').directive 'color', ($log, scale, legend) ->
+angular.module('wk.chart').directive 'shape', ($log, scale, d3Shapes) ->
   scaleCnt = 0
   return {
     restrict: 'E'
-    require: ['color','^chart', '?^layout']
+    require: ['shape','^chart', '?^layout']
     controller: ($element) ->
       me = scale()
-      $log.log 'creating controller scaleColor'
+      $log.log 'creating controller scaleSize'
       return me
 
     link: (scope, element, attrs, controllers) ->
       me = controllers[0]
       chart = controllers[1]
       layout = controllers[2]
-      l = undefined
 
       if not (chart or layout)
         $log.error 'scale needs to be contained in a chart or layout directive '
         return
 
-      name = 'color'
+      name = 'shape'
       me.kind(name)
       me.parent(layout or chart)
-      me.scaleType('category20')
+      me.scaletype('ordinal')
+      me.range(d3Shapes)
       element.addClass(me.id())
 
       chart.addScale(me, layout)
-      chart.events().on 'configure', () ->
-        $log.log 'Color Container ', me.parent().container()
-      #$log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
+
+      $log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
 
       #---Directive Attributes handling --------------------------------------------------------------------------------
 
@@ -44,8 +43,8 @@ angular.module('wk.chart').directive 'color', ($log, scale, legend) ->
             me.scaleType(val)
           else
             ## no scale defined, use default
-            $log.error "Error: illegal scale value: #{val}. Using 'category20' scale instead"
-            me.scaleType('category20')
+            $log.error "Error: illegal scale value: #{val}. Using 'ordinal' scale instead"
+            me.scaletype('ordinal')
 
       attrs.$observe 'property', (val) ->
         me.property(parseList(val))
@@ -55,11 +54,10 @@ angular.module('wk.chart').directive 'color', ($log, scale, legend) ->
         if Array.isArray(range)
           me.range(range)
 
-
       attrs.$observe 'format', (val) ->
         if val
           if me.scaleType() is 'time'
-            me.dataFormat(d3.time.format(val))
+            me.dataFormat(val)
 
       attrs.$observe 'domain', (val) ->
         if val
@@ -67,31 +65,17 @@ angular.module('wk.chart').directive 'color', ($log, scale, legend) ->
           parsedList = parseList(val)
           if Array.isArray(parsedList)
             me.domain(parsedList)
-            domainAttr = parsedList
           else
             $log.error "domain #{name}: must be array, or comma-separated list, got", val
 
-      attrs.$observe 'legend', (val) ->
-        if val isnt undefined
-          l = legend()
-          l.position('top-right')
-          switch val
-            when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
-              l.position(val)
-            when ''
-
-            else
-              legendDiv = d3.select(val)
-              if legendDiv.empty()
-                $log.warn 'legend reference does not exist:', val
-              else
-                l.div(legendDiv)
-          #$log.info 'Legend', l.position()
-          l.scale(me)
-          if me.parent()
-            l.register(me.parent())
+      attrs.$observe 'domainRange', (val) ->
+        if val
+          me.domainCalc(val)
 
       attrs.$observe 'label', (val) ->
-        if val isnt undefined and val.length > 0 and l
-          l.label(val)
+        if val isnt undefined
+          if val.length > 0
+            me.axisLabel(val).drawAxis()
+          else
+            me.axisLabel('').drawAxis()
   }

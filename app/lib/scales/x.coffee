@@ -33,6 +33,7 @@ angular.module('wk.chart').directive 'x', ($log, scale) ->
       parseList = (val) ->
         if val
           l = val.trim().replace(/^\[|\]$/g, '').split(',').map((d) -> d.replace(/^[\"|']|[\"|']$/g, ''))
+          l = l.map((d) -> if isNaN(d) then d else +d)
           return if l.length is 1 then return l[0] else l
         return undefined
 
@@ -42,8 +43,8 @@ angular.module('wk.chart').directive 'x', ($log, scale) ->
             me.scaleType(val)
           else
             ## no scale defined, use default
-            $log.error "Error: illegal scale value: #{val}. Using #{defaultScale} scale instead"
-            me.scaletype('linear')
+            $log.error "Error: illegal scale value: #{val}. Using 'linear' scale instead"
+            me.scaleType('linear')
 
       attrs.$observe 'property', (val) ->
         me.property(parseList(val))
@@ -73,20 +74,22 @@ angular.module('wk.chart').directive 'x', ($log, scale) ->
           me.domainCalc(val)
 
       attrs.$observe 'axis', (val) ->
-        me.showAxis(false)
-        if val isnt undefined and val isnt 'false'
-          if val in ['top', 'bottom']
-            me.axisOrient(val).showAxis(true)
+        if val isnt undefined
+          if val isnt 'false'
+            if val in ['top', 'bottom']
+              me.axisOrient(val).showAxis(true)
+            else
+              me.axisOrient('bottom').showAxis(true)
           else
-            me.axisOrient('bottom').showAxis(true)
-        me.update()
+            me.showAxis(false).axisOrient(undefined)
+          me.update()
 
       attrs.$observe 'tickFormat', (val) ->
-        if val isnt undefined
+        if val isnt undefined and me.axis()
           me.axis().tickFormat(d3.format(val)).drawAxis()
 
       attrs.$observe 'ticks', (val) ->
-        if val isnt undefined
+        if val isnt undefined and me.axis()
           me.axis().ticks(+val)
           me.drawAxis()
 
@@ -96,8 +99,9 @@ angular.module('wk.chart').directive 'x', ($log, scale) ->
 
       attrs.$observe 'label', (val) ->
         if val isnt undefined
-          if val.length > 0
-            me.axisLabel(val).drawAxis()
-          else
-            me.axisLabel('').drawAxis()
+          me.axisLabel(val).drawAxis()
+
+      attrs.$observe 'showLabel', (val) ->
+        if val isnt undefined
+          me.showLabel(val is '' or val is 'true').update()
   }

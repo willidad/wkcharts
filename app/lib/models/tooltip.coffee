@@ -6,6 +6,8 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
     _data = undefined
     _refreshMove = false
     _active = false
+    _horizontalRange = []
+    _verticalRange = []
 
     _templ = $templateCache.get(templateDir + 'toolTip.jade')
     _templScope = $rootScope.$new(true)
@@ -19,6 +21,7 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       body.append(_compiledTempl)
       _templScope.layers = []
       if _x
+        _x.scale().range(if _x.isHorizontal() then _horizontalRange else _verticalRange)
         xValue = _x.scale().invert(d3.mouse(this)[0])
         _events.enter.apply(_templScope,[xValue])
       else
@@ -42,6 +45,7 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       if _refreshMove
         _templScope.layers = []
         if _x
+          _x.scale().range(if _x.isHorizontal() then _horizontalRange else _verticalRange)
           xValue = _x.scale().invert(d3.mouse(this)[0])
           _events.move.apply(_templScope,[xValue])
         else
@@ -88,6 +92,18 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       else
         _x = x
         return me
+
+    me.horizontalRange = (val) ->
+      if arguments.length is 0 then return _horizontalRange
+      else
+        _horizontalRange = val
+        return me #to enable chaining
+
+    me.verticalRange = (val) ->
+      if arguments.length is 0 then return _verticalRange
+      else
+        _verticalRange = val
+        return me #to enable chaining
 
     me.active = (val) ->
       if arguments.length is 0 then return _active

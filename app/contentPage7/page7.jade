@@ -1,13 +1,13 @@
-.col-lg-6(ng-init="sTooltips=true;xAxis=true;yAxis=true;xGrid=true;yGrid=false;xLabel='Date';yLabel='Temperature (F)'; xTicks=10; yTicks=7; legendPos='top-left'")
+.col-lg-6(ng-init="sTooltips=true;xAxis=true;yAxis=true;xGrid=true;yGrid=false;xLabel='Date';yLabel='Temperature (F)'; xTicks=10; yTicks=7; legendPos='top-left';xLblShow=true;yLblShow=false")
     .box
         .box80
             chart(data="combo", tooltips="{{sTooltips}}")
-                x(axis="{{xAxis}}", brushed, type="time", property="date", domain-range="extent", grid="{{xGrid}}", label="{{xLabel}}", ticks="{{xTicks}}")
+                x(axis="{{xAxis}}", brushed, type="time", property="date", domain-range="extent", grid="{{xGrid}}", show-label="{{xLblShow}}", label="{{xLabel}}", ticks="{{xTicks}}")
                 color(type="category10")
                 layout(line)
-                    y(axis="{{yAxis}}", type="linear", property="{{props}}", layer-property="close", domain-range="extent", grid="{{yGrid}}", label="{{yLabel}}", legend="{{legendPos}}", ticks="{{yTicks}}")
-                //layout(area, container="#chart1")
-                    y(axis="right", type="linear", layer-property="volume", domain-range="max", ticks="5", tick-format=".2s", grid)
+                    y(axis="{{yAxis}}", type="linear", property="{{props}}", layer-property="close", domain-range="extent", grid="{{yGrid}}", label="{{yLabel}}", show-label="{{yLblShow}}", legend="{{legendPos}}", ticks="{{yTicks}}")
+                layout(area, container="#chart1")
+                    y(axis="right", type="linear", property="{{props}}", layer-property="volume", domain-range="max", ticks="5", tick-format=".2s", grid)
                 layout(area, container="#chart2")
                     y(type="linear", property="msft", layer-property="close", domain-range="extent")
                     x(axis, brush, type="time", property="date", domain-range="extent")
@@ -19,7 +19,7 @@
                 td Show tooltips
                 td(colspan="3")
                     input(type="checkbox", ng-model="sTooltips")
-                td Legend position
+                td(colspan="2") Legend position
                 td
                     select(ng-model="legendPos")
                         option true
@@ -44,6 +44,8 @@
                     input(type="checkbox", ng-model="xGrid")
                 td x-label
                 td
+                    input(type="checkbox", ng-model="xLblShow")
+                td
                     input(type="text", ng-model="xLabel")
                 td x-ticks
                 td
@@ -61,6 +63,8 @@
                 td
                     input(type="checkbox", ng-model="yGrid")
                 td y-label
+                td
+                    input(type="checkbox", ng-model="yLblShow")
                 td
                     input(type="text", ng-model="yLabel")
                 td y-ticks

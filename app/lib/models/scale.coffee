@@ -21,6 +21,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
     _axisOrient = undefined
     _axisOrientOld = undefined
     _axis = undefined
+    _showLabel = false
     _axisLabel = undefined
     _showGrid = false
     _isHorizontal = false
@@ -121,7 +122,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
       if arguments.length is 0 then return _domain
       else
         _domain = dom
-        me.setDomain()
+        me.parent().events().update(false)
         return me
 
     me.domainCalc = (rule) ->
@@ -248,6 +249,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
     me.axisOrient = (val) ->
       if arguments.length is 0 then return _axisOrient
       else
+        _axisOrientOld = _axisOrient
         _axisOrient = val
         return me #to enable chaining
 
@@ -259,6 +261,12 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
 
     me.axis = () ->
       return _axis
+
+    me.showLabel = (val) ->
+      if arguments.length is 0 then return _showLabel
+      else
+        _showLabel = val
+        return me #to enable chaining
 
     me.axisLabel = (text) ->
       if arguments.length is 0 then return _axisLabel
