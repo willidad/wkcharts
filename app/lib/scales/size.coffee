@@ -1,4 +1,4 @@
-angular.module('wk.chart').directive 'size', ($log, scale) ->
+angular.module('wk.chart').directive 'size', ($log, scale, scaleUtils) ->
   scaleCnt = 0
   return {
     restrict: 'E'
@@ -29,52 +29,6 @@ angular.module('wk.chart').directive 'size', ($log, scale) ->
 
       #---Directive Attributes handling --------------------------------------------------------------------------------
 
-      parseList = (val) ->
-        if val
-          l = val.trim().replace(/^\[|\]$/g, '').split(',').map((d) -> d.replace(/^[\"|']|[\"|']$/g, ''))
-          l = l.map((d) -> if isNaN(d) then d else +d)
-          return if l.length is 1 then return l[0] else l
-        return undefined
-
-      attrs.$observe 'type', (val) ->
-        if val isnt undefined
-          if d3.scale.hasOwnProperty(val) or val is 'time'
-            me.scaleType(val)
-          else
-            ## no scale defined, use default
-            $log.error "Error: illegal scale value: #{val}. Using 'linear' scale instead"
-            me.scaleType('linear')
-
-      attrs.$observe 'property', (val) ->
-        me.property(parseList(val))
-
-      attrs.$observe 'range', (val) ->
-        range = parseList(val)
-        if Array.isArray(range)
-          me.range(range)
-
-      attrs.$observe 'format', (val) ->
-        if val
-          if me.scaleType() is 'time'
-            me.dataFormat(val)
-
-      attrs.$observe 'domain', (val) ->
-        if val
-          $log.info 'domain', val
-          parsedList = parseList(val)
-          if Array.isArray(parsedList)
-            me.domain(parsedList)
-          else
-            $log.error "domain #{name}: must be array, or comma-separated list, got", val
-
-      attrs.$observe 'domainRange', (val) ->
-        if val
-          me.domainCalc(val)
-
-      attrs.$observe 'label', (val) ->
-        if val isnt undefined
-          if val.length > 0
-            me.axisLabel(val).drawAxis()
-          else
-            me.axisLabel('').drawAxis()
+      scaleUtils.observeSharedAttributes(attrs, me)
+      scaleUtils.observeLegendAttributes(attrs, me)
   }

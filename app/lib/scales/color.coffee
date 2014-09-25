@@ -1,4 +1,4 @@
-angular.module('wk.chart').directive 'color', ($log, scale, legend) ->
+angular.module('wk.chart').directive 'color', ($log, scale, legend, scaleUtils) ->
   scaleCnt = 0
   return {
     restrict: 'E'
@@ -31,67 +31,7 @@ angular.module('wk.chart').directive 'color', ($log, scale, legend) ->
 
       #---Directive Attributes handling --------------------------------------------------------------------------------
 
-      parseList = (val) ->
-        if val
-          l = val.trim().replace(/^\[|\]$/g, '').split(',').map((d) -> d.replace(/^[\"|']|[\"|']$/g, ''))
-          l = l.map((d) -> if isNaN(d) then d else +d)
-          return if l.length is 1 then return l[0] else l
-        return undefined
+      scaleUtils.observeSharedAttributes(attrs, me)
+      scaleUtils.observeLegendAttributes(attrs, me)
 
-      attrs.$observe 'type', (val) ->
-        if val isnt undefined
-          if d3.scale.hasOwnProperty(val) or val is 'time'
-            me.scaleType(val)
-          else
-            ## no scale defined, use default
-            $log.error "Error: illegal scale value: #{val}. Using 'category20' scale instead"
-            me.scaleType('category20')
-
-      attrs.$observe 'property', (val) ->
-        me.property(parseList(val))
-
-      attrs.$observe 'range', (val) ->
-        range = parseList(val)
-        if Array.isArray(range)
-          me.range(range)
-
-
-      attrs.$observe 'format', (val) ->
-        if val
-          if me.scaleType() is 'time'
-            me.dataFormat(d3.time.format(val))
-
-      attrs.$observe 'domain', (val) ->
-        if val
-          $log.info 'domain', val
-          parsedList = parseList(val)
-          if Array.isArray(parsedList)
-            me.domain(parsedList)
-            domainAttr = parsedList
-          else
-            $log.error "domain #{name}: must be array, or comma-separated list, got", val
-
-      attrs.$observe 'legend', (val) ->
-        if val isnt undefined
-          l = legend()
-          l.position('top-right')
-          switch val
-            when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
-              l.position(val)
-            when ''
-
-            else
-              legendDiv = d3.select(val)
-              if legendDiv.empty()
-                $log.warn 'legend reference does not exist:', val
-              else
-                l.div(legendDiv)
-          #$log.info 'Legend', l.position()
-          l.scale(me)
-          if me.parent()
-            l.register(me.parent())
-
-      attrs.$observe 'label', (val) ->
-        if val isnt undefined and val.length > 0 and l
-          l.label(val)
   }
