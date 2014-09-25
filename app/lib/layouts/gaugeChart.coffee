@@ -71,7 +71,7 @@ angular.module('wk.chart').directive 'gauge', ($log, utils) ->
 
       layout.events().on 'configure', ->
         this.requiredScales(['y', 'color'])
-        this.getKind('y').domainCalc('extent').resetOnNewData(true)
+        @getKind('color').resetOnNewData(true)
 
       layout.events().on 'draw', draw
 

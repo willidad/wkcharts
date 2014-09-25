@@ -68,7 +68,6 @@ angular.module('wk.chart').directive 'y', ($log, scale, legend) ->
           parsedList = parseList(val)
           if Array.isArray(parsedList)
             me.domain(parsedList)
-            domainAttr = parsedList
           else
             $log.error "domain #{name}: must be array, or comma-separated list, got", val
 
