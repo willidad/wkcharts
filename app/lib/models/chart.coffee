@@ -87,8 +87,8 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, toolt
         c.prepData(data)
         c.drawAxis()
         c.draw(data)
-
-      me.events().draw(data)
+      options = {height:_container.height(), width:_container.width(), margins:_container.margins(), duration: 0}
+      me.events().draw(data, options)
       me.events().on 'drawAxis', () ->
         for c in _containers
           c.drawAxis()

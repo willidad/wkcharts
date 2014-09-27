@@ -1,11 +1,13 @@
 .d3ChartsToolTip(ng-show="ttShow", ng-style="position")
     table.table.table-condensed.table-bordered
-        thead
+        thead(ng-show="headerValue")
             tr
                 th(colspan="2") {{headerName}}
-                th {{headerValue | ttFormat}}
+                th {{headerValue}}
         tbody
             tr(ng-repeat="ttRow in layers")
-                td(ng-style="ttRow.color")
+                td(ng-style="ttRow.color", ng-class="ttRow.class")
+                    svg(ng-if="ttRow.path",style="height:20px; width:15px;")
+                        path(d="{{ttRow.path}}",transform="translate(8,10)")
                 td {{ttRow.name}}
-                td {{ttRow.value | ttFormat}}
+                td {{ttRow.value}}

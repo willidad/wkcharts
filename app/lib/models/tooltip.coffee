@@ -8,6 +8,7 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
     _active = false
     _horizontalRange = []
     _verticalRange = []
+    _showScales = []
 
     _templ = $templateCache.get(templateDir + 'toolTip.jade')
     _templScope = $rootScope.$new(true)
@@ -16,16 +17,24 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
 
     bodyRect = body[0].getBoundingClientRect()
 
+    setLayerData = (data, scales, headerScale) ->
+      if headerScale
+        @headerName = scales[headerScale].property()
+        @headerValue = scales[headerScale].formattedValue(data)
+
     mouseEnter = () ->
       if not _active then return
       body.append(_compiledTempl)
       _templScope.layers = []
       if _x
         _x.scale().range(if _x.isHorizontal() then _horizontalRange else _verticalRange)
-        xValue = _x.scale().invert(d3.mouse(this)[0])
-        _events.enter.apply(_templScope,[xValue])
+        axisX = d3.mouse(this)[0]
+        xValue = _x.scale().invert(axisX)
+        _events.enter.apply(_templScope,[xValue, axisX, this])
       else
         _events.enter.apply(_templScope, [d3.select(this).data()[0]])
+
+      _templScope.ttShow = true
       _templScope.$apply()
       rect = _compiledTempl[0].getBoundingClientRect()
       clientX = if bodyRect.right - 20 > d3.event.clientX + rect.width + 10 then d3.event.clientX + 10 else d3.event.clientX - rect.width - 10
@@ -37,7 +46,7 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
         'z-index': 1500
         opacity: 1
       }
-      _templScope.ttShow = true
+
       _templScope.$apply()
 
     mouseMove = () ->
@@ -45,9 +54,10 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       if _refreshMove
         _templScope.layers = []
         if _x
+          axisX = d3.mouse(this)[0]
           _x.scale().range(if _x.isHorizontal() then _horizontalRange else _verticalRange)
-          xValue = _x.scale().invert(d3.mouse(this)[0])
-          _events.move.apply(_templScope,[xValue])
+          xValue = _x.scale().invert(axisX)
+          _events.move.apply(_templScope,[xValue, axisX, this])
         else
           _events.move.apply(_templScope, [d3.select(this).data()[0]])
 
@@ -66,9 +76,15 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
 
     mouseLeave = () ->
       if not _active then return
+      if _x
+        axisX = d3.mouse(this)[0]
+        xValue = _x.scale().invert(d3.mouse(this)[0])
+        _events.leave.apply(_templScope, [xValue, axisX, this])
       _templScope.ttShow = false
       _templScope.$apply()
       _compiledTempl.remove()
+
+    #-------------------------------------------------------------------------------------------------------------------
 
     me = (selection) ->
       if arguments.length is 0 then return me
@@ -111,6 +127,11 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
         _active = val
         return me #to enable chaining
 
+    me.showScales = (val) ->
+      if arguments.length is 0 then return _showScales
+      else
+        _showScales = val
+        return me #to enable chaining
 
     me.data = (data) ->
       if arguments.length is 0 then return _data

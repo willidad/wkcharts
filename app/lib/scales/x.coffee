@@ -5,7 +5,7 @@ angular.module('wk.chart').directive 'x', ($log, scale, scaleUtils) ->
     require: ['x','^chart', '?^layout']
     controller: ($element) ->
       me = scale()
-      $log.log 'creating controller scaleX'
+      #$log.log 'creating controller scaleX'
       return me
 
     link: (scope, element, attrs, controllers) ->
@@ -20,13 +20,14 @@ angular.module('wk.chart').directive 'x', ($log, scale, scaleUtils) ->
       name = 'x'
       me.kind(name)
       me.parent(layout or chart)
+      me.scaleType('linear')
       me.resetOnNewData(true)
       me.isHorizontal(true)
       element.addClass(me.id())
 
       chart.addScale(me, layout)
 
-      $log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
+      #$log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
 
       #---Directive Attributes handling --------------------------------------------------------------------------------
 

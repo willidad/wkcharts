@@ -1,0 +1,10 @@
+.d3ChartColorLegend(ng-style="position", ng-show="showLegend")
+    .legend-title(ng-show="title") {{title}}
+    ul.list-unstyled
+        li(ng-repeat="legendRow in legendRows track by legendRow.value", class="d3ChartColorLegendItem")
+            span(ng-if="legendRow.color", ng-style="legendRow.color") &nbsp;&nbsp;&nbsp;
+            svg(ng-if="legendRow.path",style="height:25px; width:20px;")
+                path(d="{{legendRow.path}}",transform="translate(10,18)")
+            &nbsp;{{legendRow.value}}
+
+

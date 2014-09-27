@@ -8,16 +8,17 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
 
     arcs = null
     oldKeys = []
+    _scaleList = []
 
     #-------------------------------------------------------------------------------------------------------------------
 
     _tooltip = ()->
 
     ttEnter = (data) ->
-      #ttLayers = data.layers.map((l) -> {name:l.layerKey, value:l.value, color: {'background-color': l.color}})
-      #$log.info 'ttEnter', data.key, layers
-      #@headerValue = data.key
-      #@layers = @layers.concat(ttLayers)
+      @headerName = _scaleList.color.axisLabel()
+      @headerValue = _scaleList.y.axisLabel()
+      @layers.push({name: _scaleList.color.formattedValue(data.data), value: _scaleList.y.formattedValue(data.data), color:{'background-color': _scaleList.color.map(data.data)}})
+      null
 
     setTooltip = (tooltip) ->
       _tooltip = tooltip
@@ -121,7 +122,7 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
     #-------------------------------------------------------------------------------------------------------------------
 
     layout.events().on 'configure', ->
-      this.requiredScales(['y', 'color'])
+      _scaleList = this.getScales(['y', 'color'])
 
     layout.events().on 'draw', draw
 

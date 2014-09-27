@@ -76,11 +76,11 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
 
     me.sizeContainer = () ->
       #collect axis and label information about layouts registered with container
-      $log.log 'sizing container. Owner:', me.id()
+      #$log.log 'sizing container. Owner:', me.id()
       _margin = angular.copy(d3ChartMargins.default)
       for l in _layouts
         for k, s of l.scales().allKinds()  # shared scales will be hit multiple times. ist this a problem?
-          $log.log ' scaling:', s.id(), s.showAxis(), s.axisOrient()
+          #$log.log ' scaling:', s.id(), s.showAxis(), s.axisOrient()
           if s.showAxis()
             axisPos = s.axisOrient()
             _margin[axisPos] = d3ChartMargins.axis[axisPos]
@@ -176,7 +176,6 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
           if s.axisOrientOld() and s.axisOrientOld() isnt s.axisOrient()
             me.removeAxis(s.axisOrientOld())
             _removeLabel(s.axisOrientOld())
-            #s.axisOrientOld(undefined)
 
     me.removeAxis = (orient) ->
       _removeAxis(orient)
@@ -185,7 +184,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
 
     me.draw = (data, doNotAnimate) ->
       _data = data
-      $log.log 'Drawing container Layout', me.id()
+      #$log.log 'Drawing container Layout', me.id()
       for l in _layouts
         l.draw(data, doNotAnimate)
       return me

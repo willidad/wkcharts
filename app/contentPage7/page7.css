@@ -11,3 +11,7 @@
     stroke-width:4;
     fill:darkgrey;
 }
+
+.col-lg-6.h50 {
+    height:50%;
+}

@@ -7,17 +7,21 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
 
       _tooltip = undefined
       _id = 'scatter' + scatterCnt++
+      _scaleList = []
+
 
       prepData = (x, y, color, size, shape) ->
 
       ttEnter = (data) ->
-        $log.log data
-        @layers = d3.entries(data)
-        #this.headerName = d3Chart.scales.color.property
-        #this.headerValue = d3Chart.scales.color.value(data)
-        #this.layers.push({name:d3Chart.scales.x.property, value:d3Chart.scales.x.value(data), color:d3Chart.scales.color.map(data)})
-        #this.layers.push({name:d3Chart.scales.y.property, value:d3Chart.scales.y.value(data), color:d3Chart.scales.color.map(data)})
-        #this.layers.push({name:d3Chart.scales.size.property, value:d3Chart.scales.size.value(data), color:d3Chart.scales.color.map(data)})
+        for sName, scale of _scaleList
+          @layers.push({
+            name: scale.axisLabel(),
+            value: scale.formattedValue(data),
+            color: if sName is 'color' then {'background-color':scale.map(data)} else undefined,
+            path: if sName is 'shape' then d3.svg.symbol().type(scale.map(data)).size(80)() else undefined
+            class: if sName is 'shape' then 'tt-svg-shape' else ''
+          })
+
 
       setTooltip = (tooltip) ->
         _tooltip = tooltip
@@ -28,20 +32,26 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
 
       initialShow = true
 
+
+
       draw = (data, options, x, y, color, size, shape) ->
         #$log.debug 'drawing scatter chart'
+        init = (s) ->
+          if initialShow
+            s.style('fill', color.map)
+            .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})").style('opacity', 1)
+          initialShow = false
 
         points = @selectAll('.points')
           .data(data)
         points.enter()
           .append('path').attr('class', 'points')
           .call(_tooltip)
-          .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})")#.call(init)
-
+          .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})").call(init)
         points
+          .transition().duration(options.duration)
           .attr('d', d3.svg.symbol().type((d) -> shape.map(d)).size((d) -> size.map(d) * size.map(d)))
           .style('fill', color.map)
-          .transition().duration(options.duration)
           .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})").style('opacity', 1)
 
         points.exit().remove()
@@ -50,7 +60,7 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
       #-----------------------------------------------------------------------------------------------------------------
 
       layout.events().on 'configure', ->
-        @requiredScales(['x', 'y', 'color', 'size', 'shape'])
+        _scaleList = @getScales(['x', 'y', 'color', 'size', 'shape'])
         @getKind('y').domainCalc('extent').resetOnNewData(true)
         @getKind('x').resetOnNewData(true).domainCalc('extent')
 

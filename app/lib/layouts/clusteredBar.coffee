@@ -48,11 +48,12 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
       #-----------------------------------------------------------------------------------------------------------------
 
       _tooltip = ()->
+      _scaleList = {}
 
       ttEnter = (data) ->
-        ttLayers = data.layers.map((l) -> {name:l.layerKey, value:l.value, color: {'background-color': l.color}})
-        $log.info 'ttEnter', data.key, layers
-        @headerValue = data.key
+        ttLayers = data.layers.map((l) -> {name:l.layerKey, value:_scaleList.y.formatValue(l.value), color: {'background-color': l.color}})
+        @headerName = _scaleList.x.axisLabel()
+        @headerValue = _scaleList.x.formatValue(data.key)
         @layers = @layers.concat(ttLayers)
 
       setTooltip = (tooltip) ->
@@ -73,12 +74,11 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
         xDeletedSucc = utils.diff(xKeysOld, xKeysNew,1)
         xAddedPred = utils.diff(xKeysNew,xKeysOld,-1)
 
-
         clusterX = d3.scale.ordinal().domain(y.layerKeys(data)).rangeBands([0,x.scale().rangeBand()], 0.1)
 
         cluster = data.map((d) -> l = {
           key:x.value(d), data:d, x:x.map(d), width: x.scale().rangeBand(x.value(d))
-          layers: layerKeysNew.map((k) -> {layerKey: k, key:x.value(d), value: d[k], x:clusterX(k), y: y.scale()(d[k]), height:y.scale()(0) - y.scale()(d[k]), width:clusterX.rangeBand(k)})}
+          layers: layerKeysNew.map((k) -> {layerKey: k, color:color.scale()(k), key:x.value(d), value: d[k], x:clusterX(k), y: y.scale()(d[k]), height:y.scale()(0) - y.scale()(d[k]), width:clusterX.rangeBand(k)})}
         )
 
         if not layers
@@ -88,12 +88,13 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
 
         if clusterOld.length is 0
           layers.enter().append('g')
-          .attr('class', 'layer')
-          .attr('transform',(d) -> "translate(#{d.x},0) scale(1,1)")
-          .style('opacity', 0)
+            .attr('class', 'layer').call(_tooltip)
+            .attr('transform',(d) -> "translate(#{d.x},0) scale(1,1)")
+            .style({opacity: 0})
+
         else
           layers.enter().append('g')
-            .attr('class', 'layer')
+            .attr('class', 'layer').call(_tooltip)
             .attr('transform', (d)-> "translate(#{getXPredX(xAddedPred[d.key], clusterOld)}, 0) scale(1,1)")
 
         layers
@@ -103,7 +104,7 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
 
         layers.exit()
           .transition().duration(options.duration)
-            .attr('transform',(d, i) -> "translate(#{getXSuccX(xDeletedSucc[d.key], cluster)},#{y.scale()(0)}) scale(0,0)")
+            .attr('transform',(d) -> "translate(#{getXSuccX(xDeletedSucc[d.key], cluster)},#{y.scale()(0)}) scale(0,0)")
             .remove()
 
         enterScale = 0
@@ -117,7 +118,6 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
         if clusterOld.length is 0
           bars.enter().append('rect')
           .attr('class', 'bar')
-          .call(_tooltip)
         else
           bars.enter().append('rect')
             .attr('class', 'bar')
@@ -125,7 +125,7 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
             .attr('width',  0)
             .attr('height', 0)
             .attr('y', y.scale()(0))
-            .call(_tooltip)
+
 
         bars.style('fill', (d) -> color.scale()(d.layerKey)).transition().duration(options.duration)
           .attr('width', (d) -> d.width)
@@ -148,10 +148,10 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
       #-------------------------------------------------------------------------------------------------------------------
 
       host.events().on 'configure', ->
-        this.requiredScales(['x', 'y', 'color'])
-        this.getKind('y').domainCalc('max').resetOnNewData(true)
-        this.getKind('x').resetOnNewData(true)
-        this.layerScale('color')
+        _scaleList = @getScales(['x', 'y', 'color'])
+        @getKind('y').domainCalc('max').resetOnNewData(true)
+        @getKind('x').resetOnNewData(true)
+        @layerScale('color')
 
       host.events().on 'draw', draw
 

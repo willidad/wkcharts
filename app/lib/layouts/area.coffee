@@ -14,21 +14,47 @@ angular.module('wk.chart').directive 'area', ($log, utils) ->
       deletedSucc = {}
       addedPred = {}
       _tooltip = undefined
+      _ttHighlight = undefined
+      _circles = undefined
+      _scaleList = {}
+      scaleY = undefined
       _id = 'area' + areaCntr++
 
-      ttMove = (x) ->
+      ttEnter = (x, axisX, cntnr) ->
+        cntnrSel = d3.select(cntnr)
+        cntnrHeight = cntnrSel.attr('height')
+        parent = d3.select(cntnr.parentElement)
+        _ttHighlight = parent.append('g')
+        _ttHighlight.append('line').attr({y1:0, y2:cntnrHeight}).style({'pointer-events':'none', stroke:'lightgrey', 'stroke-width':1})
+        _circles = _ttHighlight.selectAll('circle').data(layoutNew,(d) -> d.key)
+        _circles.enter().append('circle').attr('r', 5).attr('fill', (d)-> d.color).attr('fill-opacity', 0.6).attr('stroke', 'black').style('pointer-events','none')
+
+
+      ttMove = (x, axisX, cntnr) ->
         bisect = d3.bisector((d) -> d.x).left
         idx = bisect(layerData[0].layer, x)
         idx = if idx < 0 then 0 else if idx >= layerData[0].layer.length then layerData[0].layer.length - 1 else idx
-        ttLayers = layerData.map((l) -> {name:l.key, value:l.layer[idx].yy, color: {'background-color': l.color}})
+        ttLayers = layerData.map((l) -> {name:l.key, value:_scaleList.y.formatValue(l.layer[idx].yy), color: {'background-color': l.color}})
         #$log.info 'tooltip mouse move', x, layers
-        @headerValue = x
+
+        _circles.attr('cy', (d) ->
+          null
+          scaleY(d.layer[idx].y + d.layer[idx].y0))
+        _ttHighlight.attr('transform', "translate(#{axisX})")
+
+        @headerName = _scaleList.x.axisLabel()
+        @headerValue = _scaleList.x.formatValue(x)
         @layers = @layers.concat(ttLayers)
+
+      ttLeave = (x, axisX, cntnr)->
+        _ttHighlight.remove()
 
       setTooltip = (tooltip, overlay) ->
         _tooltip = tooltip
         tooltip(overlay)
         tooltip.on "move.#{_id}", ttMove
+        tooltip.on "enter.#{_id}", ttEnter
+        tooltip.on "leave.#{_id}", ttLeave
         tooltip.refreshOnMove(true)
 
       #-------------------------------------------------------------------------------------------------------------------
@@ -118,10 +144,10 @@ angular.module('wk.chart').directive 'area', ($log, utils) ->
         host.events().redraw()
 
       host.events().on 'configure', ->
-        this.requiredScales(['x', 'y', 'color'])
-        this.layerScale('color')
-        this.getKind('y').domainCalc('total').resetOnNewData(true)
-        this.getKind('x').resetOnNewData(true).domainCalc('extent')
+        _scaleList = @getScales(['x', 'y', 'color'])
+        @layerScale('color')
+        @getKind('y').domainCalc('total').resetOnNewData(true)
+        @getKind('x').resetOnNewData(true).domainCalc('extent')
 
       host.events().on 'draw', draw
 

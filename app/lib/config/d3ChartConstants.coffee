@@ -98,3 +98,8 @@ charts.constant 'd3ScaleMap', [
   scaleShape: 'shape'
 ]
 
+charts.constant 'formatDefaults', {
+  date: '%d.%m.%Y'
+  number :  ',.2f'
+}
+

@@ -20,6 +20,7 @@ angular.module('wk.chart').directive 'y', ($log, scale, legend, scaleUtils) ->
       name = 'y'
       me.kind(name)
       me.parent(layout or chart)
+      me.scaleType('linear')
       me.isVertical(true)
       me.resetOnNewData(true)
       element.addClass(me.id())
@@ -43,5 +44,5 @@ angular.module('wk.chart').directive 'y', ($log, scale, legend, scaleUtils) ->
           me.update()
 
       scaleUtils.observeAxisAttributes(attrs, me)
-      scaleUtils.observeLegendAttributes(attrs, me)
+      scaleUtils.observeLegendAttributes(attrs, me, layout)
   }

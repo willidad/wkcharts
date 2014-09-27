@@ -74,7 +74,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
 
     me.draw = (data, notAnimated) ->
       _data = data
-      $log.log 'drawing layout:', me.id()
+      #$log.log 'drawing layout:', me.id()
       container = _container.getChartArea()
       drawArea = container.select(".#{me.id()}")
       if drawArea.empty()

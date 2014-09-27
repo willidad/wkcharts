@@ -18,7 +18,7 @@ angular.module('app').controller 'Page6Ctrl', ($log, $scope, $interval) ->
           googl = rows #.sort((a,b) -> b.date > a.date)
 
           $scope.combo = d3.zip(hpq,intc, msft).map((d) -> {date:d[0].date, hpq:d[0], intc:d[1], msft:d[2]})
-          $log.log $scope.combo
+          #$log.log $scope.combo
           $scope.$apply()
         )
       )

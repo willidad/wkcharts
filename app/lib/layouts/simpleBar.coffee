@@ -11,6 +11,7 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
     bars = null
     oldLayout = []
     oldKeys = []
+    _scaleList = {}
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -33,10 +34,11 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
     _tooltip = ()->
 
     ttEnter = (data) ->
-      #ttLayers = data.layers.map((l) -> {name:l.layerKey, value:l.value, color: {'background-color': l.color}})
-      #$log.info 'ttEnter', data.key, layers
-      #@headerValue = data.key
-      #@layers = @layers.concat(ttLayers)
+      @headerName = _scaleList.x.axisLabel()
+      @headerValue = _scaleList.y.axisLabel()
+      @layers.push({name: _scaleList.color.formattedValue(data.data), value: _scaleList.y.formattedValue(data.data), color:{'background-color': _scaleList.color.map(data.data)}})
+
+
 
     setTooltip = (tooltip) ->
       _tooltip = tooltip
@@ -50,7 +52,7 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
         bars = @selectAll('.bars')
       #$log.log "rendering stacked-bar"
 
-      layout = data.map((d) -> {key:x.value(d), value:y.value(d), x:x.map(d), y:y.map(d), color:color.map(d), width:x.scale().rangeBand(x.value(d))})
+      layout = data.map((d) -> {data:d, key:x.value(d), value:y.value(d), x:x.map(d), y:y.map(d), color:color.map(d), width:x.scale().rangeBand(x.value(d))})
       newKeys = layout.map((d) -> d.key)
 
       deletedSucc = utils.diff(oldKeys, newKeys, 1)
@@ -88,9 +90,9 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
     #-------------------------------------------------------------------------------------------------------------------
 
     host.events().on 'configure', ->
-      this.requiredScales(['x', 'y', 'color'])
-      this.getKind('y').domainCalc('total').resetOnNewData(true)
-      this.getKind('x').resetOnNewData(true)
+      _scaleList = @getScales(['x', 'y', 'color'])
+      @getKind('y').domainCalc('total').resetOnNewData(true)
+      @getKind('x').resetOnNewData(true)
 
     host.events().on 'draw', draw
 

@@ -5,7 +5,7 @@ angular.module('wk.chart').directive 'color', ($log, scale, legend, scaleUtils) 
     require: ['color','^chart', '?^layout']
     controller: ($element) ->
       me = scale()
-      $log.log 'creating controller scaleColor'
+      #$log.log 'creating controller scaleColor'
       return me
 
     link: (scope, element, attrs, controllers) ->
@@ -25,13 +25,12 @@ angular.module('wk.chart').directive 'color', ($log, scale, legend, scaleUtils) 
       element.addClass(me.id())
 
       chart.addScale(me, layout)
-      chart.events().on 'configure', () ->
-        $log.log 'Color Container ', me.parent().container()
+
       #$log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
 
       #---Directive Attributes handling --------------------------------------------------------------------------------
 
       scaleUtils.observeSharedAttributes(attrs, me)
-      scaleUtils.observeLegendAttributes(attrs, me)
+      scaleUtils.observeLegendAttributes(attrs, me, layout)
 
   }

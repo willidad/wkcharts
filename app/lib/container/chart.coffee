@@ -9,7 +9,7 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
       me = chart().id("chart#{chartCnt++}")
       me.container(container())
       me.addContainer(me.container())
-      $log.log 'creating controller', me.id()
+      #$log.log 'creating controller', me.id()
       return me
 
     link: (scope, element, attrs, controller) ->
@@ -19,7 +19,7 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
       dataWatcher = undefined
       element.addClass(me.id())
 
-      $log.log 'linking chart id:', me.id()
+      #$log.log 'linking chart id:', me.id()
 
       me.container().element(element[0])
 
@@ -40,7 +40,7 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
           dataWatcher()
         dataWatcher = scope.$watch 'data', (val) ->
           if val
-            $log.log 'data changed, chart id:', me.id()
+            #$log.log 'data changed, chart id:', me.id()
             me.draw(val)
         , deepWatch
   }

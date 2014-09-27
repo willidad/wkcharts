@@ -18,13 +18,13 @@
                 #chart2.d3-chart
     .box
         .box80
-            chart(data="temperature", tooltips)
+            chart(data="temperature", tooltips, date-format="%Y%m%d")
                 layout(line)
                     y(axis, type="linear", domain-range="extent", grid, label="Temperature (F)", legend="#temp-legend")
-                    x(axis, brushed, type="time", property="date", domain-range="extent", format="%Y%m%d", label="Date")
+                    x(axis, brushed, type="time", property="date", domain-range="extent", date-format="%Y%m%d", label="Date")
                 layout(line, container="#brusharea")
                     y(type="linear", domain-range="extent")
-                    x(axis, brush, type="time", property="date", domain-range="extent", format="%Y%m%d")
+                    x(axis, brush, type="time", property="date", domain-range="extent", date-format="%Y%m%d")
                 color(type="category10")
         .box20
             #brusharea.d3-chart

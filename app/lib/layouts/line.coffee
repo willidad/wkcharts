@@ -4,29 +4,58 @@ angular.module('wk.chart').directive 'line', ($log) ->
     restrict: 'A'
     require: 'layout'
     link: (scope, element, attrs, host) ->
-      $log.log 'linking s-line'
+      #$log.log 'linking s-line'
       layerKeys = []
       _layout = []
       _tooltip = undefined
+      _ttHighlight = undefined
+      _circles = undefined
+      _scaleList = {}
       _id = 'line' + lineCntr++
 
       prepData = (x, y, color) ->
         layerKeys = y.layerKeys(@)
         _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:@map((d)-> {x:x.value(d),y:y.layerValue(d, key)})})
 
-      ttMove = (x) ->
+      ttEnter = (x, axisX, cntnr) ->
+        cntnrSel = d3.select(cntnr)
+        cntnrHeight = cntnrSel.attr('height')
+        parent = d3.select(cntnr.parentElement)
+        _ttHighlight = parent.append('g')
+        _ttHighlight.append('line').attr({y1:0, y2:cntnrHeight}).style({'pointer-events':'none', stroke:'lightgrey', 'stroke-width':1})
+        _circles = _ttHighlight.selectAll('circle').data(_layout,(d) -> d.key)
+        _circles.enter().append('circle').attr('r', 5).attr('fill', (d)-> d.color).attr('fill-opacity', 0.6).attr('stroke', 'black').style('pointer-events','none')
+
+        _ttHighlight.attr('transform', "translate(#{axisX})")
+
+      ttMove = (x, axisX,  cntnr) ->
         bisect = d3.bisector((d) -> d.x).left
         idx = bisect(_layout[0].value, x) - 1
         idx = if idx < 0 then 0 else if idx >= _layout[0].value.length then _layout[0].value.length - 1 else idx
-        ttLayers = _layout.map((l) -> {name:l.key, value:l.value[idx].y, color:{'background-color': l.color}})
-        @headerValue = x
+        ttLayers = _layout.map((l) -> {name:l.key, value:_scaleList.y.formatValue(l.value[idx].y), color:{'background-color': l.color}})
+
+        _circles.attr('cy', (d) ->
+          null
+          _scaleList.y.scale()(d.value[idx].y))
+        _ttHighlight.attr('transform', "translate(#{axisX})")
+
+        @headerName = _scaleList.x.axisLabel()
+        @headerValue = _scaleList.x.formatValue(x)
         @layers = @layers.concat(ttLayers)
+
+      ttLeave = (x, axisX, cntnr)->
+        _ttHighlight.remove()
+
+
 
       setTooltip = (tooltip, overlay) ->
         _tooltip = tooltip
         tooltip(overlay)
-        tooltip.on "move.#{_id}", ttMove
         tooltip.refreshOnMove(true)
+        tooltip.on "move.#{_id}", ttMove
+        tooltip.on "enter.#{_id}", ttEnter
+        tooltip.on "leave.#{_id}", ttLeave
+
 
       draw = (data, options, x, y, color) ->
 
@@ -55,10 +84,10 @@ angular.module('wk.chart').directive 'line', ($log) ->
           .remove()
 
       host.events().on 'configure', ->
-        this.requiredScales(['x', 'y', 'color'])
-        this.layerScale('color')
-        this.getKind('y').domainCalc('extent').resetOnNewData(true)
-        this.getKind('x').resetOnNewData(true).domainCalc('extent')
+        _scaleList = @getScales(['x', 'y', 'color'])
+        @layerScale('color')
+        @getKind('y').domainCalc('extent').resetOnNewData(true)
+        @getKind('x').resetOnNewData(true).domainCalc('extent')
 
       host.events().on 'draw', draw
 

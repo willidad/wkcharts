@@ -1,7 +1,16 @@
 angular.module('wk.chart').factory 'legend', ($log, $compile, $rootScope, $templateCache, templateDir) ->
 
+  legendCnt = 0
+
+  uniqueValues = (arr) ->
+    set = {}
+    for e in arr
+      set[e] = 0
+    return Object.keys(set)
+
   legend = () ->
 
+    _id = "legend-#{legendCnt++}"
     _position = 'top-right'
     _scale = undefined
     _templatePath = undefined
@@ -10,11 +19,12 @@ angular.module('wk.chart').factory 'legend', ($log, $compile, $rootScope, $templ
     _parsedTemplate = undefined
     _containerDiv = undefined
     _legendDiv = undefined
-    _label = undefined
+    _title = undefined
     _layout = undefined
     _data = undefined
     _options = undefined
     _show = false
+    _showValues = false
 
     me = {}
 
@@ -28,6 +38,12 @@ angular.module('wk.chart').factory 'legend', ($log, $compile, $rootScope, $templ
       if arguments.length is 0 then return _show
       else
         _show = val
+        return me #to enable chaining
+
+    me.showValues = (val) ->
+      if arguments.length is 0 then return _showValues
+      else
+        _showValues = val
         return me #to enable chaining
 
     me.div = (selection) ->
@@ -48,10 +64,10 @@ angular.module('wk.chart').factory 'legend', ($log, $compile, $rootScope, $templ
         _scale = scale
         return me
 
-    me.label = (label) ->
-      if arguments.length is 0 then return _label
+    me.title = (title) ->
+      if arguments.length is 0 then return _title
       else
-        _label = label
+        _title = title
         return me
 
     me.template = (path) ->
@@ -71,11 +87,19 @@ angular.module('wk.chart').factory 'legend', ($log, $compile, $rootScope, $templ
         if _containerDiv.select('.d3ChartColorLegend').empty()
           angular.element(_containerDiv.node()).append(_parsedTemplate)
 
-        layers = _scale.layerKeys(data)
+        if me.showValues()
+          layers = uniqueValues(_scale.value(data))
+        else
+          layers = _scale.layerKeys(data)
+
         s = _scale.scale()
         if me.layout()?.scales().layerScale()
           s = me.layout().scales().layerScale().scale()
-        _legendScope.legendRows = layers.map((d) -> {value:d, color:{'background-color':s(d)}})
+        if _scale.kind() isnt 'shape'
+          _legendScope.legendRows = layers.map((d) -> {value:d, color:{'background-color':s(d)}})
+        else
+          _legendScope.legendRows = layers.map((d) -> {value:d, path:d3.svg.symbol().type(s(d)).size(80)()})
+          $log.log _legendScope.legendRows
         _legendScope.showLegend = true
         _legendScope.position = {
           position:'absolute'
@@ -83,16 +107,16 @@ angular.module('wk.chart').factory 'legend', ($log, $compile, $rootScope, $templ
         if not _legendDiv
           for p in _position.split('-')
             _legendScope.position[p] = "#{options.margins[p]}px"
-        _legendScope.label = _label
+        _legendScope.title = _title
       else
         _parsedTemplate.remove()
       return me
 
     me.register = (layout) ->
-      layout.events().on 'draw.legend', me.draw
+      layout.events().on "draw.#{_id}", me.draw
       return me
 
-    me.template(templateDir + 'colorLegend.jade')
+    me.template(templateDir + 'legend.jade')
 
     me.redraw = () ->
       if _data and _options

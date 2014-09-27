@@ -7,15 +7,21 @@
 .d3ChartsToolTip > .table {
     margin-bottom: 0;
 }
+.table-condensed > tbody > tr > td.tt-svg-shape {
+    padding-left:0;
+    padding-right:0;
+}
 
 .d3-chart {
     position:relative;
 }
 
-
-
 .d3ChartColorLegend {
     background: rgba(255, 255, 255, 0.5);
+}
+
+.d3ChartColorLegend .legend-title {
+    font-size: 1.3em
 }
 
 .d3ChartColorLegend ul,

@@ -29,8 +29,9 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
         range = parseList(val)
         if Array.isArray(range)
           me.range(range)
+          me.update()
 
-      attrs.$observe 'format', (val) ->
+      attrs.$observe 'dateFormat', (val) ->
         if val
           if me.scaleType() is 'time'
             me.dataFormat(val)
@@ -41,7 +42,7 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
           parsedList = parseList(val)
           if Array.isArray(parsedList)
             me.domain(parsedList)
-            domainAttr = parsedList
+            me.update()
           else
             $log.error "domain #{name}: must be array, or comma-separated list, got", val
 
@@ -52,6 +53,10 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
       attrs.$observe 'label', (val) ->
         if val isnt undefined
           me.axisLabel(val).drawAxis()
+
+      attrs.$observe 'format', (val) ->
+        if val isnt undefined
+          me.format(val)
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -76,7 +81,7 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
 
     #-------------------------------------------------------------------------------------------------------------------
 
-    observeLegendAttributes: (attrs, me) ->
+    observeLegendAttributes: (attrs, me, layout) ->
 
       attrs.$observe 'legend', (val) ->
         if val isnt undefined
@@ -101,6 +106,37 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
           if me.parent()
             l.register(me.parent())
           l.redraw()
+
+      attrs.$observe 'valuesLegend', (val) ->
+        if val isnt undefined
+          l = me.legend()
+          l.showValues(true)
+          if val isnt 'false'
+            l.position('top-right').show(true)
+            switch val
+              when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
+                l.position(val).div(undefined)
+              when ''
+
+              else
+                legendDiv = d3.select(val)
+                if legendDiv.empty()
+                  $log.warn 'legend reference does not exist:', val
+                else
+                  l.div(legendDiv).position('top-left')
+          else
+            me.legend().show(false)
+
+          l.scale(me).layout(layout)
+          if me.parent()
+            l.register(me.parent())
+          l.redraw()
+
+
+      attrs.$observe 'legendTitle', (val) ->
+        if val isnt undefined
+          me.legend().title(val).redraw()
+
 
 
 

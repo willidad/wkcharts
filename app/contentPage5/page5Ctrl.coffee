@@ -13,7 +13,7 @@ angular.module('wk.chart').controller 'Page5Ctrl', ($log, $scope, $interval) ->
           googl = rows
 
           $scope.combo = d3.zip(hpq,intc, msft).map((d) -> {date:d[0].date, hpq:d[0], intc:d[1], msft:d[2]})
-          $log.log $scope.combo
+          #$log.log $scope.combo
           $scope.$apply()
         )
       )

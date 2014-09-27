@@ -8,18 +8,14 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
       #$log.debug 'bubbleChart linked'
 
       _tooltip = undefined
+      _scaleList = {}
       _id = 'bubble' + bubbleCntr++
 
       prepData = (x, y, color, size) ->
 
       ttEnter = (data) ->
-        $log.log data
-        @layers = d3.entries(data)
-        #this.headerName = d3Chart.scales.color.property
-        #this.headerValue = d3Chart.scales.color.value(data)
-        #this.layers.push({name:d3Chart.scales.x.property, value:d3Chart.scales.x.value(data), color:d3Chart.scales.color.map(data)})
-        #this.layers.push({name:d3Chart.scales.y.property, value:d3Chart.scales.y.value(data), color:d3Chart.scales.color.map(data)})
-        #this.layers.push({name:d3Chart.scales.size.property, value:d3Chart.scales.size.value(data), color:d3Chart.scales.color.map(data)})
+        for sName, scale of _scaleList
+          @layers.push({name: scale.axisLabel(), value: scale.formattedValue(data), color: if sName is 'color' then {'background-color':scale.map(data)} else undefined})
 
       setTooltip = (tooltip) ->
         _tooltip = tooltip
@@ -44,10 +40,12 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
           .transition().duration(options.duration)
             .style('opacity',0).remove()
 
+      #-----------------------------------------------------------------------------------------------------------------
+
       layout.events().on 'configure', ->
-        @requiredScales(['x', 'y', 'color', 'size'])
-        this.getKind('y').domainCalc('extent').resetOnNewData(true)
-        this.getKind('x').resetOnNewData(true).domainCalc('extent')
+        _scaleList = @getScales(['x', 'y', 'color', 'size'])
+        @getKind('y').resetOnNewData(true)
+        @getKind('x').resetOnNewData(true)
 
       layout.events().on 'draw', draw
 

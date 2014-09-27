@@ -5,7 +5,7 @@ angular.module('wk.chart').directive 'shape', ($log, scale, d3Shapes, scaleUtils
     require: ['shape','^chart', '?^layout']
     controller: ($element) ->
       me = scale()
-      $log.log 'creating controller scaleSize'
+      #$log.log 'creating controller scaleSize'
       return me
 
     link: (scope, element, attrs, controllers) ->
@@ -26,10 +26,10 @@ angular.module('wk.chart').directive 'shape', ($log, scale, d3Shapes, scaleUtils
 
       chart.addScale(me, layout)
 
-      $log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
+      #$log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
 
       #---Directive Attributes handling --------------------------------------------------------------------------------
 
       scaleUtils.observeSharedAttributes(attrs, me)
-      scaleUtils.observeLegendAttributes(attrs, me)
+      scaleUtils.observeLegendAttributes(attrs, me, layout)
   }

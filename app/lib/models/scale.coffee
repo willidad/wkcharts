@@ -1,4 +1,4 @@
-angular.module('wk.chart').factory 'scale', ($log, legend) ->
+angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
 
   scale = () ->
     _id = ''
@@ -14,8 +14,8 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
     _range = undefined
     _rangePadding = 0.1
     _rangeOuterPadding = 0
-    _dataFormatString = undefined
-    _dataFormatFn = (data) -> if isNaN(+data) then data else +data
+    _inputFormatString = undefined
+    _inputFormatFn = (data) -> if isNaN(+data) then data else +data
 
     _showAxis = false
     _axisOrient = undefined
@@ -29,6 +29,8 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
     _kind = undefined
     _parent = undefined
     _legend = legend()
+    _outputFormatString = undefined
+    _outputFormatFn = undefined
 
     me = () ->
 
@@ -52,7 +54,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
       return Object.keys(set)
 
     parsedValue = (v) ->
-      if _dataFormatFn.parse then _dataFormatFn.parse(v) else _dataFormatFn(v)
+      if _inputFormatFn.parse then _inputFormatFn.parse(v) else _inputFormatFn(v)
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -102,11 +104,13 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
         if d3.scale.hasOwnProperty(type)
           _scale = d3.scale[type]()
           _scaleType = type
+          me.format(formatDefaults.number)
         else if type is 'time'
           _scale = d3.time.scale()
           _scaleType = 'time'
-          if _dataFormatString
-            me.dataFormat(_dataFormatString)
+          if _inputFormatString
+            me.dataFormat(_inputFormatString)
+          me.format(formatDefaults.date)
         else
           $log.error 'Error: illegal scale type:', type
 
@@ -122,7 +126,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
       if arguments.length is 0 then return _domain
       else
         _domain = dom
-        me.parent().events().update(false)
+        #me.parent().events().update(false)
         return me
 
     me.domainCalc = (rule) ->
@@ -171,7 +175,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
           _scale.rangeBands(range, _rangePadding, _rangeOuterPadding)
         else
           _scale.range(range)
-        me.parent().events().redraw(notAnimated)
+        #me.parent().events().redraw(notAnimated)
         return me
 
     me.resetOnNewData = (trueFalse) ->
@@ -211,13 +215,13 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
 
 
     me.dataFormat = (format) ->
-      if arguments.length is 0 then return _dataFormatString
+      if arguments.length is 0 then return _inputFormatString
       else
-        _dataFormatString = format
+        _inputFormatString = format
         if _scaleType is 'time'
-          _dataFormatFn = d3.time.format(format)
+          _inputFormatFn = d3.time.format(format)
         else
-          _dataFormatFn = (d) -> d
+          _inputFormatFn = (d) -> d
         me.parent().events().redraw(false)
         return me()
 
@@ -232,6 +236,15 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
         parsedValue(data[layerKey][_layerProp])
       else
         parsedValue(data[layerKey])
+
+    me.formattedValue = (data) ->
+      me.formatValue(me.value(data))
+
+    me.formatValue = (val) ->
+      if _outputFormatString and val and  (val.getUTCDate or not isNaN(val))
+        _outputFormatFn(val)
+      else
+        val
 
     me.map = (data) ->
       if Array.isArray(data) then data.map((d) -> _scale(me.value(data))) else _scale(me.value(data))
@@ -269,10 +282,21 @@ angular.module('wk.chart').factory 'scale', ($log, legend) ->
         return me #to enable chaining
 
     me.axisLabel = (text) ->
-      if arguments.length is 0 then return _axisLabel
+      if arguments.length is 0
+        return if _axisLabel then _axisLabel else me.property()
       else
         _axisLabel = text
         return me
+
+    me.format = (val) ->
+      if arguments.length is 0 then return _outputFormatString
+      else
+        if val.length > 0
+          _outputFormatString = val
+        else
+          _outputFormatString = if me.scaleType() is 'time' then formatDefaults.date else formatDefaults.number
+        _outputFormatFn = if me.scaleType() is 'time' then d3.time.format(_outputFormatString) else d3.format(_outputFormatString)
+        return me #to enable chaining
 
     me.showGrid = (trueFalse) ->
       if arguments.length is 0 then return _showGrid

@@ -11,7 +11,6 @@ angular.module('app').controller 'Page3Ctrl', ($log, $scope) ->
 
   $scope.valSave = []
   d3.csv('productMap.csv').get (error, val) ->
-    console.log error, val
     if not error
       val = val.map((d) -> d.selected = true; return d)
       $scope.productMap = angular.copy(val)
@@ -23,9 +22,9 @@ angular.module('app').controller 'Page3Ctrl', ($log, $scope) ->
 
   $scope.valChange = () ->
     $scope.productMap = $scope.valSave.filter((d) -> d.selected)
-    #$scope.$apply()
 
   $scope.checkModel = [true, true, true]
   $scope.cities = ['New York', 'San Francisco', 'Austin']
+
   $scope.update = () ->
     $scope.cities = ['New York', 'San Francisco', 'Austin'].filter((d,i) -> $scope.checkModel[i])
