@@ -1,0 +1,30 @@
+.col-lg-6(ng-init="")
+    .box80
+        chart(data="spiderData")
+            layout(spider)
+                y(type="linear", tick-format="%", ticks="6")
+                x(type="ordinal", property="axis")
+                color(type="category10", legend="top-left", legend-title="What % of owners use a specific service in a week")
+
+
+    .box20
+.col-lg-6
+    google-map(center="map.center",zoom="map.zoom")
+    table.table.table-condensed
+        tr
+            td latitude
+            td
+                input(type="number", ng-model="map.center.latitude")
+        tr
+            td longitude
+            td
+                input(type="number", ng-model="map.center.longitude")
+        tr
+            td zoom
+            td
+                input(type="number", ng-model="map.zoom")
+
+
+
+
+

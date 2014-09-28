@@ -15,11 +15,12 @@
     "tests"
   ],
   "dependencies": {
-      "angular-bootstrap": "~0.10.0",
-      "angular-ui-router": "~0.2.9",
-      "angular": "~1.2.x",
-      "angular-animate": "~1.2.x",
-      "bootstrap": "~3.x.x",
-      "d3":"*"
+    "angular-bootstrap": "~0.10.0",
+    "angular-ui-router": "~0.2.9",
+    "angular": "~1.2.x",
+    "angular-animate": "~1.2.x",
+    "bootstrap": "~3.x.x",
+    "d3": "*",
+    "angular-google-maps": "~1.2.2"
   }
 }

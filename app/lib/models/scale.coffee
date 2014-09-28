@@ -21,6 +21,8 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     _axisOrient = undefined
     _axisOrientOld = undefined
     _axis = undefined
+    _ticks = undefined
+    _tickFormat = undefined
     _showLabel = false
     _axisLabel = undefined
     _showGrid = false
@@ -274,6 +276,22 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
 
     me.axis = () ->
       return _axis
+
+    me.ticks = (val) ->
+      if arguments.length is 0 then return _ticks
+      else
+        _ticks = val
+        if me.axis()
+          me.axis().ticks(_ticks)
+        return me #to enable chaining
+
+    me.tickFormat = (val) ->
+      if arguments.length is 0 then return _tickFormat
+      else
+        _tickFormat = val
+        if me.axis()
+          me.axis().tickFormat(val)
+        return me #to enable chaining
 
     me.showLabel = (val) ->
       if arguments.length is 0 then return _showLabel

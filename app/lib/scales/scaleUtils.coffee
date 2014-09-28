@@ -63,13 +63,14 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
     observeAxisAttributes: (attrs, me) ->
 
       attrs.$observe 'tickFormat', (val) ->
-        if val isnt undefined and me.axis()
-          me.axis().tickFormat(d3.format(val))
+        if val isnt undefined
+          me.tickFormat(d3.format(val))
 
       attrs.$observe 'ticks', (val) ->
-        if val isnt undefined and me.axis()
-          me.axis().ticks(+val)
-          me.drawAxis()
+        if val isnt undefined
+          me.ticks(+val)
+          if me.axis()
+            me.drawAxis()
 
       attrs.$observe 'grid', (val) ->
         if val isnt undefined

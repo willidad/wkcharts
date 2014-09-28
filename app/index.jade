@@ -7,6 +7,7 @@ html(lang='en', ng-app='app')
         meta(name='author', content='Willi Klenk')
         title WK Charts Demo
         link(rel='stylesheet', href='css/app.css')
+
     body
         .container-fluid.full-height
             div(ui-view="top")
@@ -19,7 +20,9 @@ html(lang='en', ng-app='app')
             window.brunch['auto-reload'] = {
               enabled: true
             };
+        script(src="http://maps.google.com/maps/api/js?sensor=true")
         script(src='js/vendor.js')
         script(src='js/app.templates.js')
         script(src='js/app.js')
+
 
