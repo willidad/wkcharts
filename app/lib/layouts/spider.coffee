@@ -10,6 +10,7 @@ angular.module('wk.chart').directive 'spider', ($log, utils) ->
     _tooltip = undefined
     _scaleList = {}
     _id = 'spider' + spiderCntr++
+    axis = d3.svg.axis()
 
     prepData = (x, y, color, size) ->
 
@@ -33,31 +34,39 @@ angular.module('wk.chart').directive 'spider', ($log, utils) ->
       arc = Math.PI * 2 / nbrAxis
       degr = 360 / nbrAxis
 
+      axisG = this.select('.axis')
+      if axisG.empty()
+        axisG = this.append('g').attr('class', 'axis')
+
       ticks = y.scale().ticks(y.ticks())
-      $log.log 'scale Ticks', ticks
       y.scale().range([radius,0]) # tricks the way axis are drawn. Not pretty, but works :-)
-      axis = d3.svg.axis().scale(y.scale()).orient('right').tickValues(ticks).tickFormat(y.tickFormat())
-      this.append('g').attr('class', 'axis').call(axis).attr('transform', "translate(#{centerX},#{centerY-radius})")
+      axis.scale(y.scale()).orient('right').tickValues(ticks).tickFormat(y.tickFormat())
+      axisG.call(axis).attr('transform', "translate(#{centerX},#{centerY-radius})")
       y.scale().range([0,radius])
 
       lines = this.selectAll('.axisLine').data(data,(d) -> d.axis)
       lines.enter()
         .append('line').attr('class', 'axisLine')
         .style('stroke', 'darkgrey')
+
+      lines
         .attr({x1:0, y1:0, x2:0, y2:radius})
         .attr('transform',(d,i) -> "translate(#{centerX}, #{centerY})rotate(#{degr * i})")
-      #lines
+
       lines.exit().remove()
 
       #draw tick lines
       tickLine = d3.svg.line().x((d) -> d.x).y((d)->d.y)
       tickPath = this.selectAll('.tickPath').data(ticks)
       tickPath.enter().append('path').attr('class', 'tickPath')
+        .style('fill', 'none').style('stroke', 'lightgrey')
+
+      tickPath
         .attr('d',(d) ->
           p = data.map((a, i) -> {x:Math.sin(arc*i) * y.scale()(d),y:Math.cos(arc*i) * y.scale()(d)})
           tickLine(p) + 'Z')
         .attr('transform', "translate(#{centerX}, #{centerY})")
-        .style('fill', 'none').style('stroke', 'lightgrey')
+
       tickPath.exit().remove()
 
       axisLabels = this.selectAll('.axisText').data(data,(d) -> x.value(d))

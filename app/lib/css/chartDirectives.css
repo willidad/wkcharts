@@ -3,6 +3,7 @@
     margin: 4px;
     border: #a9a9a9 solid 2px;
     z-index:5000;
+    overflow: hidden;
 }
 .d3ChartsToolTip > .table {
     margin-bottom: 0;

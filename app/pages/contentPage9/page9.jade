@@ -1,0 +1,68 @@
+.col-lg-6(ng-init="center=[48,9];scale=5200;translate=[3700,2880];threshold=[3,6,9,12]")
+    .box80
+        chart(data="genList", deep-watch, tooltips)
+            layout(geo-map, geojson="de", center="{{center}}", scale="{{scale}}", translate="{{translate}}")
+                color(type="threshold",property="status", range="lightblue,green,yellow,orange,red", domain="{{threshold}}")
+
+    .box20
+.col-lg-6
+    .col-lg-8
+        h4 Projection Attributes
+        table.table.table-condensed
+            tr
+                td(colspan="2") Center (longiture, latitude in degrees)
+            tr
+                td
+                    input(type="number", ng-model="center[0]")
+                td
+                    input(type="number", ng-model="center[1]")
+            tr
+                td(colspan="2") Translation (x, y in pixels)
+            tr
+                td
+                    input(type="number", ng-model="translate[0]", step="100")
+                td
+                    input(type="number", ng-model="translate[1]", step="100")
+            tr
+                td Scale
+                td
+                    input(type="number", ng-model="scale", step="100")
+    .col-lg-4
+        h4 Threshold Limits
+        table.table.table-condensed
+            tr
+                td o.k (green)
+                td
+                    input(type="number", ng-model="threshold[0]", style="width:50px;")
+            tr
+                td warn (yellow)
+                td
+                    input(type="number", ng-model="threshold[1]", style="width:50px;")
+            tr
+                td severe (orange)
+                td
+                    input(type="number", ng-model="threshold[2]", style="width:50px;")
+            tr
+                td critical(red)
+                td
+                    input(type="number", ng-model="threshold[3]", style="width:50px;")
+
+    h4
+    h4 Data Table
+    table.table.table.table-condensed
+        thead
+            tr
+                th RS
+                th DES
+                th GEN
+                th Status (random)
+        tbody
+            tr(ng-repeat="gen in genList")
+                td {{gen.RS}}
+                td {{gen.DES}}
+                td {{gen.GEN}}
+                td
+                    input(type="number", ng-model="gen.status")
+
+
+
