@@ -10,7 +10,10 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
   return {
     restrict: 'A'
     require: 'layout'
-    scope: {geojson: '='}
+    scope: {
+      geojson: '='
+      projection: '='
+    }
 
     link: (scope, element, attrs, layout) ->
 
@@ -18,14 +21,23 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
       _scaleList = {}
       _id = 'geoMap' + mapCntr++
       _dataMapping = d3.map()
+      _projectionParms = {
+        projection: 'mercator'
+        scale:150
+        clipAngle: 90
+        center: [0,0]
+        rotate: [0,0]
+        translate: [0,0]
+      }
+      _idProp = ''
 
       #-----------------------------------------------------------------------------------------------------------------
 
       ttEnter = (data) ->
-        $log.log 'tooltip data', data
-        val = _dataMapping.get(data.properties.RS)
-        @layers.push({name:val.DES, value:val.GEN})
 
+        val = _dataMapping.get(data.properties[_idProp[0]])
+        @layers.push({name:val.RS, value:val.DES})
+        $log.log 'tooltip data', data, val
 
       setTooltip = (tooltip) ->
         _tooltip = tooltip
@@ -34,20 +46,18 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
       #-----------------------------------------------------------------------------------------------------------------
 
       _path = d3.geo.path()
-      _projection = d3.geo.conicConformal()
-      _translate = _projection.translate()
-      _center = _projection.center()
-      _scale = _projection.scale()
+      _projection = d3.geo.orthographic()
 
       _geoJson = undefined
 
       draw = (data, options, x, y, color) ->
-        if data
+        if data and data[0].hasOwnProperty(_idProp[1])
           for e in data
-            _dataMapping.set(e.RS, e)
+            _dataMapping.set(e[_idProp[1]], e)
 
 
         if _geoJson
+          _projection.translate([options.width/2, options.height/2])
           _path.projection(_projection)
           pathSel = this.selectAll("path").data(_geoJson.features)
           pathSel
@@ -58,7 +68,7 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
           pathSel
             .attr("d", _path)
             .style('fill', (d) ->
-              val = _dataMapping.get(d.properties.RS)
+              val = _dataMapping.get(d.properties[_idProp[0]])
               color.map(val)
           )
 
@@ -83,23 +93,21 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
           _geoJson = val
           layout.events().update()
 
+      scope.$watch 'projection', (val) ->
+        if val isnt undefined
+          $log.log 'setting Projection params', val
+          if d3.geo.hasOwnProperty(val.projection)
+            _projection = d3.geo[val.projection]()
+            _projection.center(val.center).scale(val.scale).rotate(val.rotate).clipAngle(val.clipAngle)
+            if _projection.parallels
+              _projection.parallels(val.parallels)
+            layout.events().redraw()
+      , true #deep watch
 
-      attrs.$observe 'center', (val) ->
-        if val isnt undefined and val isnt ''
+      attrs.$observe 'idMap', (val) ->
+        if val isnt undefined
           list = parseList(val)
           if Array.isArray(list) and list.length is 2
-            _projection.center(list)
-            layout.events().redraw()
+            _idProp = list
 
-      attrs.$observe 'scale', (val) ->
-        if val isnt undefined and val isnt '' and not isNaN(+val)
-          _projection.scale(val)
-          layout.events().redraw()
-
-      attrs.$observe 'translate', (val) ->
-        if val isnt undefined and val isnt ''
-          list = parseList(val)
-          if Array.isArray(list) and list.length is 2
-            _projection.translate(list)
-            layout.events().redraw()
   }

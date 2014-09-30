@@ -19,3 +19,12 @@
 .angular-google-map-container {
     height: 700px;
 }
+
+input[type="number"] {
+    width:50px;
+}
+
+.scroll {
+    overflow: scroll;
+    height:52%;
+}

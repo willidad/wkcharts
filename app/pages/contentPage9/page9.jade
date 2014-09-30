@@ -1,7 +1,7 @@
-.col-lg-6(ng-init="center=[48,9];scale=5200;translate=[3700,2880];threshold=[3,6,9,12]")
+.col-lg-6(ng-init="center=[0,0];scale=300;translate=[350,350];threshold=[3,6,9,12]; rotate=[0,0];projection={projection: 'mercator',scale:150,clipAngle: null,center: [0,0],rotate: [0,0],translate: [350,350], parallels:[0,0]}")
     .box80
         chart(data="genList", deep-watch, tooltips)
-            layout(geo-map, geojson="de", center="{{center}}", scale="{{scale}}", translate="{{translate}}")
+            layout(geo-map, geojson="de", projection="projection", id-map="{{idMap}}")
                 color(type="threshold",property="status", range="lightblue,green,yellow,orange,red", domain="{{threshold}}")
 
     .box20
@@ -10,23 +10,64 @@
         h4 Projection Attributes
         table.table.table-condensed
             tr
-                td(colspan="2") Center (longiture, latitude in degrees)
+                td Projection
+                td(colspan="5")
+                    select(ng-model="projection.projection")
+                        option mercator
+                        option orthographic
+                        option conicConformal
+                        option conicEqualArea
+                        option conicEquidistant
+                        option equirectangular
             tr
+                td(colspan="2") Center (degrees)
+                td longitude
                 td
-                    input(type="number", ng-model="center[0]")
+                    input(type="number", ng-model="projection.center[0]")
+                td latitude
                 td
-                    input(type="number", ng-model="center[1]")
+                    input(type="number", ng-model="projection.center[1]")
             tr
-                td(colspan="2") Translation (x, y in pixels)
+                td(colspan="2") Rotate (degrees)
+                td longitude
+                td
+                    input(type="number", ng-model="projection.rotate[0]")
+                td latitude
+                td
+                    input(type="number", ng-model="projection.rotate[1]")
             tr
+                td(colspan="2") Parallels (degrees)
+                td left
                 td
-                    input(type="number", ng-model="translate[0]", step="100")
+                    input(type="number", ng-model="projection.parallels[0]")
+                td right
                 td
-                    input(type="number", ng-model="translate[1]", step="100")
+                    input(type="number", ng-model="projection.parallels[1]")
+            tr
+                td(colspan="5") Clip Angle (pixels)
+                td
+                    input(type="number", ng-model="projection.clipAngle")
             tr
                 td Scale
+                td(colspan="5")
+                    input(type="number", ng-model="projection.scale", step="100")
+        table.table.table-condensed
+            tr
+                td GeoJson File
                 td
-                    input(type="number", ng-model="scale", step="100")
+                    select(ng-model="geoFile", ng-options="opt as opt for opt in fileList", ng-change="fileChanged()")
+            tr
+                td GeoJson ID property
+                td Mapped to
+                td GeoJson Descriptor
+            tr
+                td
+                    input(ng-model="idMap[0]", ng-change="fileChanged()")
+                td
+                    input(ng-model="idMap[1]", ng-change="fileChanged()")
+                td
+                    input(ng-model="geoDesc", ng-change="fileChanged()")
+
     .col-lg-4
         h4 Threshold Limits
         table.table.table-condensed
@@ -48,21 +89,22 @@
                     input(type="number", ng-model="threshold[3]", style="width:50px;")
 
     h4
-    h4 Data Table
-    table.table.table.table-condensed
-        thead
-            tr
-                th RS
-                th DES
-                th GEN
-                th Status (random)
-        tbody
-            tr(ng-repeat="gen in genList")
-                td {{gen.RS}}
-                td {{gen.DES}}
-                td {{gen.GEN}}
-                td
-                    input(type="number", ng-model="gen.status")
+    h4(style="width:400px") Data Table
+    .scroll
+        table.table.table.table-condensed
+            thead
+                tr
+                    th RS
+                    th DES
+                    th GEN
+                    th Status (random)
+            tbody
+                tr(ng-repeat="gen in genList")
+                    td {{gen.RS}}
+                    td {{gen.DES}}
+                    td {{gen.GEN}}
+                    td
+                        input(type="number", ng-model="gen.status")
 
 
 
