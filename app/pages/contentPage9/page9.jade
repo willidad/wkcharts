@@ -1,7 +1,7 @@
-.col-lg-6(ng-init="center=[0,0];scale=300;translate=[350,350];threshold=[3,6,9,12]; rotate=[0,0];projection={projection: 'mercator',scale:150,clipAngle: null,center: [0,0],rotate: [0,0],translate: [350,350], parallels:[0,0]}")
+.col-lg-6(ng-init="threshold=[3,6,9,12]")
     .box80
         chart(data="genList", deep-watch, tooltips)
-            layout(geo-map, geojson="de", projection="projection", id-map="{{idMap}}")
+            layout(geo-map, geojson="de", projection="projection", id-map="{{projection.idMap}}")
                 color(type="threshold",property="status", range="lightblue,green,yellow,orange,red", domain="{{threshold}}")
 
     .box20
@@ -62,11 +62,11 @@
                 td GeoJson Descriptor
             tr
                 td
-                    input(ng-model="idMap[0]", ng-change="fileChanged()")
+                    input(ng-model="projection.idMap[0]", ng-change="fileChanged()")
                 td
-                    input(ng-model="idMap[1]", ng-change="fileChanged()")
+                    input(ng-model="projection.idMap[1]", ng-change="fileChanged()")
                 td
-                    input(ng-model="geoDesc", ng-change="fileChanged()")
+                    input(ng-model="projection.geoDesc", ng-change="fileChanged()")
 
     .col-lg-4
         h4 Threshold Limits
