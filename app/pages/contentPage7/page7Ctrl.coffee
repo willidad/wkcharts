@@ -29,3 +29,8 @@ angular.module('wk.chart').controller 'Page7Ctrl', ($log, $scope, $interval) ->
   $scope.$watch 'checkModel', (val) ->
       $scope.props = ['hpq', 'intc', 'msft'].filter((d, i) -> $scope.checkModel[i])
     ,true
+
+  $scope.brushChange = (extent, range) ->
+    $log.log 'BrushChange', extent, range
+    $scope.brushrange = extent
+    $scope.brushidx = range

@@ -11,14 +11,15 @@
                 y(axis="right", type="linear", property="{{props}}", layer-property="volume", domain-range="max", ticks="5", tick-format=".2s", grid)
             layout(area, container="#chart2")
                 y(type="linear", property="msft", layer-property="close", domain-range="extent")
-                x(axis, brush, type="time", property="date", domain-range="extent")
+                x(axis, brush, brush-change="brushChange(extent,range)", type="time", property="date", domain-range="extent")
     .box20
             #chart2.d3-chart
 .col-lg-3
     .box
         .box20
             #chart1.d3-chart(style="height:150px")
-        .box80#legend
+        .box80
+            #legend
 
 table.table.table-condensed(style="width:800px;")
     tr
@@ -97,7 +98,16 @@ table.table.table-condensed(style="width:1000px;")
         td(colspan="6")
             pre {{props}}
 
-
+h4 Brush Extent
+table.table.table-condensed
+    tr
+        td Value
+        td From : {{brushrange[0]}}
+        td To : {{brushrange[1]}}
+    tr
+        td Index
+        td From : {{brushidx[0]}}
+        td To : {{brushidx[1]}}
 
 
 

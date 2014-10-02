@@ -51,7 +51,7 @@
                     y(type="linear", axis, tick-format=".2s", show-grid, legend)
                 color(type="category10")
                 layout(stacked-bar, container="#brusharea3")
-                    x(brush, property="State", type="ordinal", axis)
+                    x(brush, brush-change="brushChange(extent,range)", property="State", type="ordinal", axis)
                     y(type="linear", domain-range="totalExtent")
         .box20
             #brusharea3.d3-chart

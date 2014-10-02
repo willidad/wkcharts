@@ -15,7 +15,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     _rangePadding = 0.1
     _rangeOuterPadding = 0
     _inputFormatString = undefined
-    _inputFormatFn = (data) -> if isNaN(+data) then data else +data
+    _inputFormatFn = (data) -> if isNaN(+data) or data.getUTCDate then data else +data
 
     _showAxis = false
     _axisOrient = undefined

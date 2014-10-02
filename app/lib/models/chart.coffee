@@ -100,6 +100,9 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, toolt
     me.events = () ->
       return _chartEvents
 
+    me.getData = () ->
+      return _data
+
 
     return me
 

@@ -35,3 +35,8 @@ angular.module('app').controller 'Page6Ctrl', ($log, $scope, $interval) ->
     $scope.layerKeys = Object.keys(rows[0]).filter((d) -> d isnt 'State')
     $scope.$apply()
   )
+
+  $scope.brushChange = (extent, range) ->
+    $log.log 'BrushChange', extent, range
+    $scope.brushrange = extent
+    $scope.brushidx = range
