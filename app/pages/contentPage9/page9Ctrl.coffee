@@ -12,7 +12,7 @@ angular.module('wk.chart').controller 'Page9Ctrl', ($log, $scope, $interval) ->
 
   $scope.genList = [{}]
 
-  $scope.fileList = ['world100M.json', 'de_laender.geojson', 'uk.json']
+  $scope.fileList = ['world100M.json', 'de_laender.geojson', 'uk.json', 'uk.geojson']
   parmList = {
     'world100M.json': {
       file: 'world100M.json'
@@ -49,6 +49,18 @@ angular.module('wk.chart').controller 'Page9Ctrl', ($log, $scope, $interval) ->
       scale: 2000
       idMap: ['RS', 'RS']
       geoDesc: 'GEN'
+    }
+    'uk.geojson' : {
+      file: 'uk.geojson'
+      type: 'geoJson'
+      projection: 'mercator'
+      center: [-5, 56]
+      rotate: [0,0]
+      parallels: [1,0]
+      clipAngle: null
+      scale: 1800
+      idMap: ['brk_a3', 'RS']
+      geoDesc: 'geounit'
     }
   }
   $scope.geoFile = $scope.fileList[0]
