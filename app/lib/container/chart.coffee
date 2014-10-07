@@ -7,8 +7,6 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
       data: '='
     controller: ($element) ->
       me = chart().id("chart#{chartCnt++}")
-      me.container(container())
-      me.addContainer(me.container())
       #$log.log 'creating controller', me.id()
       return me
 
@@ -41,6 +39,7 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
         dataWatcher = scope.$watch 'data', (val) ->
           if val
             #$log.log 'data changed, chart id:', me.id()
-            me.draw(val)
+            me.execLifeCycleFull(val)
+            #me.draw(val)
         , deepWatch
   }

@@ -5,6 +5,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
   container = () ->
 
     _containerId = 'cntnr' + containerCnt++
+    _chart = undefined
 
     _element = undefined
     _elementSelection = undefined
@@ -26,6 +27,12 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     me.id = () ->
       return _containerId
 
+    me.chart = (chart) ->
+      if arguments.length is 0 then return _chart
+      else
+        _chart = chart
+        return me
+
     _genChartFrame = ()->
       _svg = _elementSelection.append('div').attr('class', 'd3-chart')
         .append('svg')
@@ -34,6 +41,8 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _chartArea = _container.append('g').attr('class', 'chartArea')
       _overlay= _chartArea.append('rect').attr('class', 'overlay').style({opacity: 0, 'pointer-events': 'none'})
       _container.append('g').attr('class', 'brushArea')
+      _myGlow = glow("myGlow").rgb("black").stdDeviation(10)
+      _svg.call(_myGlow)
 
     _getAxis = (orient) ->
       axis = _container.select(".axis.#{orient}")
@@ -126,11 +135,14 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
 
     me.prepData = (data) ->
       for l in _layouts
+        ###
         props = l.scaleProperties()
-        for k, s of l.scales().getOwned()
+        for k, s of l.scales().allKinds()
           s.layerExclude(props)
           if s.resetOnNewData()
             s.scale().domain(s.getDomain(data))
+
+###
         l.prepareData(data)
 
     me.setTooltip = (trueFalse) ->

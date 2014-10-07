@@ -1,0 +1,14 @@
+.col-lg-6.h50(ng-init="")
+    chart(data="tempData", tooltips)
+        layout(line)
+            x(type="ordinal", property="Months", axis)
+            y(axis, value-markers, grid, ticks="5")
+            color(type="category10", legend)
+    .box50
+        pre {{tempData}}
+.col-lg-6
+
+
+
+
+

@@ -8,6 +8,7 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
       _tooltip = undefined
       _id = 'scatter' + scatterCnt++
       _scaleList = []
+      _selected = layout.selected()
 
 
       prepData = (x, y, color, size, shape) ->
@@ -46,8 +47,10 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
           .data(data)
         points.enter()
           .append('path').attr('class', 'points')
+          .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})")
+          .call(init)
           .call(_tooltip)
-          .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})").call(init)
+          .call(_selected)
         points
           .transition().duration(options.duration)
           .attr('d', d3.svg.symbol().type((d) -> shape.map(d)).size((d) -> size.map(d) * size.map(d)))
@@ -59,12 +62,12 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
 
       #-----------------------------------------------------------------------------------------------------------------
 
-      layout.events().on 'configure', ->
+      layout.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['x', 'y', 'color', 'size', 'shape'])
         @getKind('y').domainCalc('extent').resetOnNewData(true)
         @getKind('x').resetOnNewData(true).domainCalc('extent')
 
-      layout.events().on 'draw', draw
+      layout.lifeCycle().on 'draw', draw
 
-      layout.events().on 'tooltip', setTooltip
+      layout.lifeCycle().on 'tooltip', setTooltip
   }

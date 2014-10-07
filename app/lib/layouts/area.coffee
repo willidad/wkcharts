@@ -71,7 +71,7 @@ angular.module('wk.chart').directive 'area', ($log, utils) ->
       area = undefined
 
       #-------------------------------------------------------------------------------------------------------------------
-
+      ###
       prepData = (x,y,color) ->
 
         layoutOld = layoutNew.map((d) -> {key: d.key, path: area(d.layer.map((p) -> {x: p.x, y: 0, y0: p.y + p.y0}))})
@@ -83,11 +83,20 @@ angular.module('wk.chart').directive 'area', ($log, utils) ->
 
         deletedSucc = utils.diff(layerKeysOld, layerKeys, 1)
         addedPred = utils.diff(layerKeys, layerKeysOld, -1)
-
+      ###
       #-------------------------------------------------------------------------------------------------------------------
 
       draw = (data, options, x, y, color) ->
         #$log.log "rendering Area Chart"
+        layoutOld = layoutNew.map((d) -> {key: d.key, path: area(d.layer.map((p) -> {x: p.x, y: 0, y0: p.y + p.y0}))})
+        layerKeysOld = layerKeys
+
+        layerKeys = y.layerKeys(data)
+        layerData = layerKeys.map((k) => {key: k, color:color.scale()(k), layer: data.map((d) -> {x: x.value(d), yy: +y.layerValue(d,k), y0: 0})}) # yy: need to avoid overwriting by layout calc -> see stack y accessor
+        #layoutNew = layout(layerData)
+
+        deletedSucc = utils.diff(layerKeysOld, layerKeys, 1)
+        addedPred = utils.diff(layerKeys, layerKeysOld, -1)
 
         if _tooltip then _tooltip.x(x).data(data)
 
@@ -141,17 +150,17 @@ angular.module('wk.chart').directive 'area', ($log, utils) ->
         if val in ['zero', 'silhouette', 'expand', 'wiggle']
           offset = val
         stack.offset(offset)
-        host.events().redraw()
+        host.lifeCycle().redraw()
 
-      host.events().on 'configure', ->
+      host.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['x', 'y', 'color'])
         @layerScale('color')
         @getKind('y').domainCalc('total').resetOnNewData(true)
         @getKind('x').resetOnNewData(true).domainCalc('extent')
 
-      host.events().on 'draw', draw
+      host.lifeCycle().on 'draw', draw
 
-      host.events().on 'prepData', prepData
+      #host.lifeCycle().on 'prepData', prepData
 
-      host.events().on "tooltip.#{_id}", setTooltip
+      host.lifeCycle().on "tooltip.#{_id}", setTooltip
   }

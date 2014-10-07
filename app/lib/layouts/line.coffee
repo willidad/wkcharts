@@ -14,8 +14,8 @@ angular.module('wk.chart').directive 'line', ($log) ->
       _id = 'line' + lineCntr++
 
       prepData = (x, y, color) ->
-        layerKeys = y.layerKeys(@)
-        _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:@map((d)-> {x:x.value(d),y:y.layerValue(d, key)})})
+        #layerKeys = y.layerKeys(@)
+        #_layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:@map((d)-> {x:x.value(d),y:y.layerValue(d, key)})})
 
       ttEnter = (x, axisX, cntnr) ->
         cntnrSel = d3.select(cntnr)
@@ -58,6 +58,8 @@ angular.module('wk.chart').directive 'line', ($log) ->
 
 
       draw = (data, options, x, y, color) ->
+        layerKeys = y.layerKeys(data)
+        _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key)})})
 
         offset = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
 
@@ -83,17 +85,17 @@ angular.module('wk.chart').directive 'line', ($log) ->
           .style('opacity', 0)
           .remove()
 
-      host.events().on 'configure', ->
+      host.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['x', 'y', 'color'])
         @layerScale('color')
         @getKind('y').domainCalc('extent').resetOnNewData(true)
         @getKind('x').resetOnNewData(true).domainCalc('extent')
 
-      host.events().on 'draw', draw
+      host.lifeCycle().on 'draw', draw
 
-      host.events().on 'prepData', prepData
+      host.lifeCycle().on 'prepData', prepData
 
-      host.events().on "tooltip.#{_id}", setTooltip
+      host.lifeCycle().on "tooltip.#{_id}", setTooltip
 
 
 

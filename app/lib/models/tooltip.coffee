@@ -32,7 +32,7 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
         xValue = _x.scale().invert(axisX)
         _events.enter.apply(_templScope,[xValue, axisX, this])
       else
-        _events.enter.apply(_templScope, [d3.select(this).data()[0]])
+        _events.enter.apply(_templScope, [d3.select(this).datum()])
 
       _templScope.ttShow = true
       _templScope.$apply()

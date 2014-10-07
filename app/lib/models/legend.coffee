@@ -113,7 +113,7 @@ angular.module('wk.chart').factory 'legend', ($log, $compile, $rootScope, $templ
       return me
 
     me.register = (layout) ->
-      layout.events().on "draw.#{_id}", me.draw
+      layout.lifeCycle().on "draw.#{_id}", me.draw
       return me
 
     me.template(templateDir + 'legend.jade')

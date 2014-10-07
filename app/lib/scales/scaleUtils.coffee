@@ -74,7 +74,7 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
 
       attrs.$observe 'grid', (val) ->
         if val isnt undefined
-          me.showGrid(val is '' or val is 'true').drawAxis()
+          me.showGrid(val is '' or val is 'true').update()
 
       attrs.$observe 'showLabel', (val) ->
         if val isnt undefined

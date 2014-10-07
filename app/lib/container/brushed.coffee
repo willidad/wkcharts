@@ -1,4 +1,4 @@
-angular.module('wk.chart').directive 'brushed', ($log) ->
+angular.module('wk.chart').directive 'brushed', ($log,selectionSharing) ->
   sBrushCnt = 0
   return {
     restrict: 'A'
@@ -8,9 +8,20 @@ angular.module('wk.chart').directive 'brushed', ($log) ->
       layout = controllers[1]
       x = controllers[2]
 
-      chart.brush().on "change.#{sBrushCnt++}", (extent) ->
+      _brushGroup = undefined
+
+      brusher = (extent) ->
         x.scale().domain(extent)
         for l in chart.layouts() when l.scales().hasScale(x)
           l.container().brushed(x)
           l.redraw(true)
+
+      attrs.$observe 'brushed', (val) ->
+        if _.isString(val) and val.length > 0
+          _brushGroup = val
+          selectionSharing.register _brushGroup, brusher
+        else
+          _brushGroup = undefined
+          selectionSharing.register _brushGroup, brusher
+
   }

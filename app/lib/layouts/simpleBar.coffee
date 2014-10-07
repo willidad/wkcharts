@@ -12,6 +12,7 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
     oldLayout = []
     oldKeys = []
     _scaleList = {}
+    _selected = host.selected()
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -64,12 +65,17 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
 
       if oldLayout.length is 0
         bars.enter().append('rect')
-        .attr('class', 'bar').call(_tooltip).style('opacity', 0)
+          .attr('class', 'bar')
+          .style('opacity', 0)
+          .call(_tooltip)
+          .call(_selected)
       else
         bars.enter().append('rect')
-          .attr('class', 'bar').call(_tooltip)
+          .attr('class', 'bar')
           .attr('x', (d) -> getPredX(addedPred[d.key], oldLayout))
           .attr('width', 0)
+          .call(_tooltip)
+          .call(_selected)
 
       bars.style('fill', (d) -> d.color).transition().duration(options.duration)
         .attr('y', (d) -> d.y)
@@ -89,12 +95,12 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
 
     #-------------------------------------------------------------------------------------------------------------------
 
-    host.events().on 'configure', ->
+    host.lifeCycle().on 'configure', ->
       _scaleList = @getScales(['x', 'y', 'color'])
       @getKind('y').domainCalc('total').resetOnNewData(true)
       @getKind('x').resetOnNewData(true)
 
-    host.events().on 'draw', draw
+    host.lifeCycle().on 'draw', draw
 
-    host.events().on 'tooltip', setTooltip
+    host.lifeCycle().on 'tooltip', setTooltip
   }

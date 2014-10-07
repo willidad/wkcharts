@@ -10,6 +10,7 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
       _tooltip = undefined
       _scaleList = {}
       _id = 'bubble' + bubbleCntr++
+      _selected = layout.selected()
 
       prepData = (x, y, color, size) ->
 
@@ -27,6 +28,7 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
         bubbles.enter().append('circle').attr('class','bubble')
           .style('opacity', 0)
           .call(_tooltip)
+          .call(_selected)
         bubbles
           .style('fill', (d) -> color.map(d))
           .transition().duration(options.duration)
@@ -42,13 +44,13 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
 
       #-----------------------------------------------------------------------------------------------------------------
 
-      layout.events().on 'configure', ->
+      layout.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['x', 'y', 'color', 'size'])
         @getKind('y').resetOnNewData(true)
         @getKind('x').resetOnNewData(true)
 
-      layout.events().on 'draw', draw
+      layout.lifeCycle().on 'draw', draw
 
-      layout.events().on 'tooltip', setTooltip
+      layout.lifeCycle().on 'tooltip', setTooltip
 
   }

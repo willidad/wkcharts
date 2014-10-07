@@ -21,10 +21,12 @@ angular.module('wk.chart').directive 'color', ($log, scale, legend, scaleUtils) 
       name = 'color'
       me.kind(name)
       me.parent(layout or chart)
+      me.chart(chart)
       me.scaleType('category20')
       element.addClass(me.id())
 
       chart.addScale(me, layout)
+      me.register()
 
       #$log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
 

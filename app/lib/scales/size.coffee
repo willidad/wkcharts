@@ -20,11 +20,13 @@ angular.module('wk.chart').directive 'size', ($log, scale, scaleUtils) ->
       name = 'size'
       me.kind(name)
       me.parent(layout or chart)
+      me.chart(chart)
       me.scaleType('linear')
       me.resetOnNewData(true)
       element.addClass(me.id())
 
       chart.addScale(me, layout)
+      me.register()
 
       #$log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
 

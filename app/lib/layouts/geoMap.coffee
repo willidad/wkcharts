@@ -18,6 +18,7 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
     link: (scope, element, attrs, layout) ->
 
       _tooltip = () ->
+      _selected = layout.selected()
       _scaleList = {}
       _id = 'geoMap' + mapCntr++
       _dataMapping = d3.map()
@@ -64,12 +65,12 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
         if _geoJson
 
           _projection.translate([_width/2, _height/2])
-          #_path.projection(_projection)
           pathSel = this.selectAll("path").data(_geoJson.features, (d) -> d.properties[_idProp[0]])
           pathSel
             .enter().append("svg:path")
               .style('fill','lightgrey').style('stroke', 'darkgrey')
               .call(_tooltip)
+              .call(_selected)
               .call(_zoom)
 
           pathSel
@@ -83,15 +84,13 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
 
       #-----------------------------------------------------------------------------------------------------------------
 
-      layout.events().on 'configure', ->
+      layout.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['color'])
-        #_scaleList.y.domainCalc('max')
         _scaleList.color.resetOnNewData(true)
-        #@layerScale('color')
 
-      layout.events().on 'draw', draw
+      layout.lifeCycle().on 'draw', draw
 
-      layout.events().on 'tooltip', setTooltip
+      layout.lifeCycle().on 'tooltip', setTooltip
 
       # GeoMap specific properties -------------------------------------------------------------------------------------
 
@@ -109,14 +108,14 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
             _path = d3.geo.path().projection(_projection)
             _zoom.projection(_projection)
 
-            layout.events().update()
+            layout.lifeCycle().update()
 
       , true #deep watch
 
       scope.$watch 'geojson', (val) ->
         if val isnt undefined and val isnt ''
           _geoJson = val
-          layout.events().update()
+          layout.lifeCycle().update()
 
 
   }

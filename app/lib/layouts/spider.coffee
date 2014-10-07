@@ -103,14 +103,14 @@ angular.module('wk.chart').directive 'spider', ($log, utils) ->
 
     #-----------------------------------------------------------------------------------------------------------------
 
-    layout.events().on 'configure', ->
+    layout.lifeCycle().on 'configure', ->
       _scaleList = @getScales(['x', 'y', 'color'])
       _scaleList.y.domainCalc('max')
       _scaleList.x.resetOnNewData(true)
       @layerScale('color')
 
-    layout.events().on 'draw', draw
+    layout.lifeCycle().on 'draw', draw
 
-    #layout.events().on 'tooltip', setTooltip
+    #layout.lifeCycle().on 'tooltip', setTooltip
 
   }

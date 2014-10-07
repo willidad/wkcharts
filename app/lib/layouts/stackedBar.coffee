@@ -14,6 +14,7 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
       oldStack = []
       _tooltip = ()->
       _scaleList = {}
+      _selected = host.selected()
 
       ttEnter = (data) ->
         ttLayers = data.layers.map((l) -> {name:l.layerKey, value:_scaleList.y.formatValue(l.value), color: {'background-color': l.color}})
@@ -107,6 +108,7 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
         if oldStack.length is 0
           bars.enter().append('rect')
             .attr('class', 'bar')
+            .call(_selected)
             #.call(d3Chart.behavior.toolTip)
         else
           bars.enter().append('rect')
@@ -116,6 +118,7 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
               return if pred then pred.y else y.scale()(0)
             )
             .attr('height', 0).attr('width',0)
+            .call(_selected)
 
 
         bars.style('fill', (d) -> d.color)
@@ -144,13 +147,13 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
       #-----------------------------------------------------------------------------------------------------------------
 
 
-      host.events().on 'configure', ->
+      host.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['x', 'y', 'color'])
         @getKind('y').domainCalc('total').resetOnNewData(true)
         @getKind('x').resetOnNewData(true)
         @layerScale('color')
 
-      host.events().on 'draw', draw
+      host.lifeCycle().on 'draw', draw
 
-      host.events().on 'tooltip', setTooltip
+      host.lifeCycle().on 'tooltip', setTooltip
   }

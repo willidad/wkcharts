@@ -147,13 +147,13 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
 
       #-------------------------------------------------------------------------------------------------------------------
 
-      host.events().on 'configure', ->
+      host.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['x', 'y', 'color'])
         @getKind('y').domainCalc('max').resetOnNewData(true)
         @getKind('x').resetOnNewData(true)
         @layerScale('color')
 
-      host.events().on 'draw', draw
+      host.lifeCycle().on 'draw', draw
 
-      host.events().on 'tooltip', setTooltip
+      host.lifeCycle().on 'tooltip', setTooltip
   }

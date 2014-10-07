@@ -1,4 +1,4 @@
-angular.module('wk.chart').directive 'brush', ($log) ->
+angular.module('wk.chart').directive 'brush', ($log, selectionSharing) ->
   return {
     restrict: 'A'
     require: ['^chart', '^layout', 'x']
@@ -10,6 +10,8 @@ angular.module('wk.chart').directive 'brush', ($log) ->
       chart = controllers[0]
       layout = controllers[1]
       x = controllers[2]
+
+      _brushGroup = undefined
 
       layout.isBrush(true)
 
@@ -23,12 +25,11 @@ angular.module('wk.chart').directive 'brush', ($log) ->
             startIdx = Math.floor(brush.extent()[0] / interv)
             endIdx = Math.floor(brush.extent()[1] / interv)
             extent = domain.slice(startIdx, endIdx + 1)
-            chart.brush().change(extent)
+            #chart.brush().change(extent)
+            selectionSharing.setSelection extent, _brushGroup
           else
-            chart.brush().change(brush.extent())
-
-          scope.brushExtent = brush.extent()
-          scope.$apply()
+            #chart.brush().change(brush.extent())
+            selectionSharing.setSelection brush.extent(), _brushGroup
 
       brushEnd = () ->
         if not brush.empty()
@@ -67,4 +68,10 @@ angular.module('wk.chart').directive 'brush', ($log) ->
 
 
       layout.onDrawBrush(draw)
+
+      attrs.$observe 'brush', (val) ->
+        if _.isString(val) and val.length > 0
+          _brushGroup = val
+        else
+          _brushGroup = undefined
   }

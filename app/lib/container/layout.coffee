@@ -12,22 +12,13 @@ angular.module('wk.chart').directive 'layout', ($log, layout, container) ->
 
       me = controllers[0]
       chart = controllers[1]
-      me.owner(chart)
+      me.chart(chart)
 
       element.addClass(me.id())
 
       #$log.log 'linking layout id:', me.id(), 'chart:', chart.id()
       chart.addLayout(me)
+      chart.container().addLayout(me)
+      me.container(chart.container())
 
-      attrs.$observe 'container', (val) ->
-        if val isnt undefined and typeof val is 'string' and val.length > 0
-          # the chart is drawn in an specifically assigned div. setup the container and remove the chart from its current container
-          #$log.log 'separate container assigned for layout', me.id(), 'div', val
-          contnr = container().element(val)
-          chart.addContainer(contnr)
-          contnr.addLayout(me)
-          me.container(contnr)
-        else
-          chart.container().addLayout(me)
-          me.container(chart.container())
   }

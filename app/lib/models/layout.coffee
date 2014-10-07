@@ -1,4 +1,4 @@
-angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animation) ->
+angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animation, selection) ->
 
   layout = () ->
     _id = ''
@@ -6,9 +6,10 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
     _drawBrushFn = undefined
     _isBrush = false
     _data = undefined
-    _owner = undefined
+    _chart = undefined
+    _selected = selection()
     _scaleList = scaleList()
-    _layoutEvents = d3.dispatch('configure', 'draw', 'prepData', 'brush', 'redraw', 'drawAxis', 'update', 'tooltip')
+    _layoutLifeCycle = d3.dispatch('configure', 'draw', 'prepData', 'brush', 'redraw', 'drawAxis', 'update', 'tooltip')
 
     me = () ->
 
@@ -18,29 +19,20 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
         _id = id
         return me
 
-    me.owner = (owner) ->
-      if arguments.length is 0 then return _owner
+    me.chart = (chart) ->
+      if arguments.length is 0 then return _chart
       else
-        _owner = owner
-        _scaleList.parentScales(owner.scales())
-        _owner.events().on "configure.#{me.id()}", ()->
-          _layoutEvents.configure.apply(me.scales())
-          null
+        _chart = chart
+        _scaleList.parentScales(chart.scales())
+        _chart.events().on "configure.#{me.id()}", () -> _layoutLifeCycle.configure.apply(me.scales()) #passthrough
+        _chart.lifeCycle().on "drawChart.#{me.id()}", me.draw # register for the drawing event
         return me
 
     me.scales = () ->
       return _scaleList
 
     me.scaleProperties = () ->
-      props = []
-      for k, s of _scaleList.allKinds()
-        prop = s.property()
-        if prop
-          if Array.isArray(prop)
-            props.concat(prop)
-          else
-            props.push(prop)
-      return props
+      return me.scales().getScaleProperties()
 
     me.container = (obj) ->
       if arguments.length is 0 then return _container
@@ -49,8 +41,14 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
         return me
 
     me.setTooltip = (tooltip, overlay) ->
-      _layoutEvents.tooltip(tooltip, overlay)
+      _layoutLifeCycle.tooltip(tooltip, overlay)
       return me
+
+    me.selected = (val) ->
+      if arguments.length is 0 then return _selected
+      else
+        _selected = val
+        return me #to enable chaining
 
     me.isBrush = (trueFalse) ->
       if arguments.length is 0 then return _isBrush
@@ -67,10 +65,10 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
       for kind in ['x','y', 'color']
         args.push(_scaleList.getKind(kind))
 
-      _layoutEvents.prepData.apply(data, args)
+      _layoutLifeCycle.prepData.apply(data, args)
 
-    me.events = ()->
-      return _layoutEvents
+    me.lifeCycle = ()->
+      return _layoutLifeCycle
 
     me.draw = (data, notAnimated) ->
       _data = data
@@ -91,15 +89,15 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
       for kind in ['x','y', 'color', 'size', 'shape']
         args.push(_scaleList.getKind(kind))
 
-      _layoutEvents.draw.apply(drawArea, args)
+      _layoutLifeCycle.draw.apply(drawArea, args)
 
       if _drawBrushFn
         brushArea = _container.getContainer().select('.brushArea')
         _drawBrushFn.apply(brushArea, args)
 
-      _layoutEvents.on 'redraw', me.redraw
-      _layoutEvents.on 'update', me.owner().events().update
-      _layoutEvents.on 'drawAxis', me.owner().events().drawAxis
+      _layoutLifeCycle.on 'redraw', me.redraw
+      _layoutLifeCycle.on 'update', me.chart().lifeCycle().update
+      _layoutLifeCycle.on 'drawAxis', me.chart().events().drawAxis
 
     me.redraw = (notAnimated) ->
       if _data
@@ -107,9 +105,8 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
 
     me.brushed = (x) ->
 
-    me.update = (notAnimated) ->
-      me.prepareData(_data)
-      me.redraw(notAnimated)
+    #me.update = (notAnimated) ->
+    #  me.chart().lifeCycle().update(notAnimated)
 
     return me
 

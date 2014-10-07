@@ -64,7 +64,7 @@ angular.module('wk.chart').factory 'scaleList', ($log) ->
         _requiredScales = req
         for k in req
           if not me.hasKind(k)
-            throw "Fatal Error: scale '#{k} required but not defined"
+            throw "Fatal Error: scale '#{k}' required but not defined"
       return me
 
     me.getScales = (kindList) ->
@@ -73,7 +73,18 @@ angular.module('wk.chart').factory 'scaleList', ($log) ->
         if me.hasKind(kind)
           l[kind] = me.getKind(kind)
         else
-          throw "Fatal Error: scale '#{k} required but not defined"
+          throw "Fatal Error: scale '#{kind}' required but not defined"
+      return l
+
+    me.getScaleProperties = () ->
+      l = []
+      for k,s of me.allKinds()
+        prop = s.property()
+        if prop
+          if Array.isArray(prop)
+            l.concat(prop)
+          else
+            l.push(prop)
       return l
 
     me.layerScale = (kind) ->

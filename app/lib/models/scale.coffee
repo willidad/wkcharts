@@ -15,7 +15,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     _rangePadding = 0.1
     _rangeOuterPadding = 0
     _inputFormatString = undefined
-    _inputFormatFn = (data) -> if isNaN(+data) or data.getUTCDate then data else +data
+    _inputFormatFn = (data) -> if isNaN(+data) or _.isDate(data) then data else +data
 
     _showAxis = false
     _axisOrient = undefined
@@ -30,6 +30,8 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     _isVertical = false
     _kind = undefined
     _parent = undefined
+    _chart = undefined
+    _layout = undefined
     _legend = legend()
     _outputFormatString = undefined
     _outputFormatFn = undefined
@@ -49,12 +51,6 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     layerMin = (data, layerKeys) ->
       d3.min(data, (d) -> d3.min(layerKeys, (k) -> me.layerValue(d,k)))
 
-    uniqueValues = (arr) ->
-      set = {}
-      for e in arr
-        set[e] = 0
-      return Object.keys(set)
-
     parsedValue = (v) ->
       if _inputFormatFn.parse then _inputFormatFn.parse(v) else _inputFormatFn(v)
 
@@ -62,9 +58,6 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
 
     me.id = () ->
       return _kind + '.' + _parent.id()
-
-    me.scale = () ->
-      return _scale
 
     me.kind = (kind) ->
       if arguments.length is 0 then return _kind
@@ -77,6 +70,23 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
       else
         _parent = parent
         return me
+
+    me.chart = (val) ->
+      if arguments.length is 0 then return _chart
+      else
+        _chart = val
+        return me #to enable chaining
+
+    me.layout = (val) ->
+      if arguments.length is 0 then return _layout
+      else
+        _layout = val
+        return me #to enable chaining
+
+    #-------------------------------------------------------------------------------------------------------------------
+
+    me.scale = () ->
+      return _scale
 
     me.legend = () ->
       return _legend
@@ -103,11 +113,11 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     me.scaleType = (type) ->
       if arguments.length is 0 then return _scaleType
       else
-        if d3.scale.hasOwnProperty(type)
+        if d3.scale.hasOwnProperty(type) # support the full list of d3 scale types
           _scale = d3.scale[type]()
           _scaleType = type
           me.format(formatDefaults.number)
-        else if type is 'time'
+        else if type is 'time' # time scale is in d3.time object, not in d3.scale.
           _scale = d3.time.scale()
           _scaleType = 'time'
           if _inputFormatString
@@ -128,7 +138,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
       if arguments.length is 0 then return _domain
       else
         _domain = dom
-        #me.parent().events().update(false)
+        #me.parent().lifeCycle().update(false)
         return me
 
     me.domainCalc = (rule) ->
@@ -169,7 +179,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
             else
               return me.value(data)
 
-    me.range = (range, notAnimated) ->
+    me.range = (range) ->
       if arguments.length is 0 then return _scale.range()
       else
         _range = range
@@ -177,7 +187,6 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
           _scale.rangeBands(range, _rangePadding, _rangeOuterPadding)
         else
           _scale.range(range)
-        #me.parent().events().redraw(notAnimated)
         return me
 
     me.resetOnNewData = (trueFalse) ->
@@ -190,14 +199,14 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
       if arguments.length is 0 then return _property
       else
         _property = name
-        me.parent().events().update(false)
+        me.parent().lifeCycle().update(false)
         return me
 
     me.layerProperty = (name) ->
       if arguments.length is 0 then return _layerProp
       else
         _layerProp = name
-        me.parent().events().update(false)
+        me.parent().lifeCycle().update(false)
         return me
 
     me.layerExclude = (excl) ->
@@ -213,7 +222,10 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
         else
           return [_property]
       else
-        Object.keys(data[0]).filter((d) -> not (d in _layerExclude))
+        if Array.isArray(data)
+          Object.keys(data[0]).filter((d) -> not (d in _layerExclude))
+        else
+          Object.keys(data).filter((d) -> not (d in _layerExclude))
 
 
     me.dataFormat = (format) ->
@@ -224,7 +236,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
           _inputFormatFn = d3.time.format(format)
         else
           _inputFormatFn = (d) -> d
-        me.parent().events().redraw(false)
+        me.parent().lifeCycle().redraw(false)
         return me()
 
     me.value = (data) ->
@@ -250,6 +262,19 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
 
     me.map = (data) ->
       if Array.isArray(data) then data.map((d) -> _scale(me.value(data))) else _scale(me.value(data))
+
+    me.inverse = (mappedValue) ->
+      # takes a mapped value (pixel position , color value, returns the corresponding value in the input domain
+      # calculation of inverse value is dependent on the scale type.
+      #TODO: verify that all scenarios for inverse calculations are covered
+
+      if me.scale()._has('inverse') # i.e. the d3 scale supports the inverse calculation
+        # Important: the returned value is the reverse calculation, and thus does not exactly match the value in the source data.
+        # to get the source data value requires some approximation mechanism
+        # TODO: Can this be done here for all cases? need to investigate
+        return me.scale().inverse(mappedValue)
+      else
+        # d3 does not support inverse for ordinal scales, thus things become a bit more tricky.
 
     me.showAxis = (trueFalse) ->
       if arguments.length is 0 then return _showAxis
@@ -323,13 +348,23 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
         return me
 
     me.update = () ->
-      me.parent().events().update()
+      me.parent().lifeCycle().update()
       return me
 
     me.drawAxis = () ->
-      me.parent().events().drawAxis()
+      me.parent().lifeCycle().drawAxis()
       return me
 
+    me.register = () ->
+      me.chart().lifeCycle().on "scaleDomains.#{me.id()}", (data) ->
+        #$log.debug 'Scaling domain for scale', me.id()
+        if me.parent().scaleProperties
+          me.layerExclude(me.parent().scaleProperties())
+        if me.resetOnNewData()
+          _scale.domain(me.getDomain(data))
+
     return me
+
+
 
   return scale

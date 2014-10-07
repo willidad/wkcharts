@@ -9,6 +9,7 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
     arcs = null
     oldKeys = []
     _scaleList = []
+    _selected = layout.selected()
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -16,8 +17,8 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
 
     ttEnter = (data) ->
       @headerName = _scaleList.color.axisLabel()
-      @headerValue = _scaleList.y.axisLabel()
-      @layers.push({name: _scaleList.color.formattedValue(data.data), value: _scaleList.y.formattedValue(data.data), color:{'background-color': _scaleList.color.map(data.data)}})
+      @headerValue = _scaleList.size.axisLabel()
+      @layers.push({name: _scaleList.color.formattedValue(data.data), value: _scaleList.size.formattedValue(data.data), color:{'background-color': _scaleList.color.map(data.data)}})
       null
 
     setTooltip = (tooltip) ->
@@ -32,13 +33,13 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
       if initialShow
         s.style('opacity', 0)
 
-    draw = (data, options, x, y, color) ->
+    draw = (data, options, x, y, color, size) ->
       #$log.debug 'drawing pie chart v2'
 
       if not arcs
         arcs = @selectAll('.arc')
 
-      r = Math.min(options.width, options.height) / 2
+      r = Math.min(options.width, options.height) / 2 - 10 #for glow shadow
 
       arc = d3.svg.arc()
         .outerRadius(r)
@@ -46,7 +47,7 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
 
       pie = d3.layout.pie()
         .sort(null)
-        .value(y.value)
+        .value(size.value)
 
       arcTween = (a) ->
         i = d3.interpolate(this._current, a)
@@ -104,6 +105,7 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
         .style('fill', (d) ->  color.map(d.data))
         .call(init)
         .call(_tooltip)
+        .call(_selected)
 
       arcs
         .attr('transform', "translate(#{options.width / 2},#{options.height / 2})")
@@ -121,10 +123,10 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
 
     #-------------------------------------------------------------------------------------------------------------------
 
-    layout.events().on 'configure', ->
-      _scaleList = this.getScales(['y', 'color'])
+    layout.lifeCycle().on 'configure', ->
+      _scaleList = this.getScales(['size', 'color'])
 
-    layout.events().on 'draw', draw
+    layout.lifeCycle().on 'draw', draw
 
-    layout.events().on 'tooltip', setTooltip
+    layout.lifeCycle().on 'tooltip', setTooltip
   }

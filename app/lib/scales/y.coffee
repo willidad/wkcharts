@@ -20,12 +20,14 @@ angular.module('wk.chart').directive 'y', ($log, scale, legend, scaleUtils) ->
       name = 'y'
       me.kind(name)
       me.parent(layout or chart)
+      me.chart(chart)
       me.scaleType('linear')
       me.isVertical(true)
       me.resetOnNewData(true)
       element.addClass(me.id())
 
       chart.addScale(me, layout)
+      me.register()
       #$log.log "linking scale #{name} id:", me.id(), 'layout:', (if layout then layout.id() else '') , 'chart:', chart.id()
 
       #---Directive Attributes handling --------------------------------------------------------------------------------

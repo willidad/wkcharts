@@ -2,56 +2,64 @@
     .box
         .box
             chart(data="combo", tooltips)
-                x(axis, brushed, type="time", property="date", domain-range="extent", grid)
+                x(axis, brushed="b1", type="time", property="date", domain-range="extent", grid)
                 color(type="category10")
                 layout(line)
                     y(axis, type="linear", layer-property="close", domain-range="extent", grid="true", legend)
-                layout(line, container="#chart1")
-                    y(axis, type="linear", layer-property="volume", domain-range="max", ticks="3", tick-format=".2s")
-                layout(area, container="#chart2")
-                    y(type="linear", property="msft", layer-property="close", domain-range="extent", ticks="3")
-                    x(axis, brush, type="time", property="date", domain-range="extent")
         .box
             .box
-                #chart1.d3-chart
+                chart(data="combo", tooltips)
+                    layout(line)
+                        y(axis, type="linear", layer-property="volume", domain-range="max", ticks="3", tick-format=".2s")
+                        x(axis, brushed="b1", type="time", property="date", domain-range="extent", grid)
+                        color(type="category10")
             .box
-                #chart2.d3-chart
+                chart(data="combo")
+                    layout(area)
+                        y(type="linear", property="msft", layer-property="close", domain-range="extent", ticks="3")
+                        x(axis, brush="b1", type="time", property="date", domain-range="extent")
+                        color(type="category10")
     .box
         .box80
             chart(data="temperature", tooltips, date-format="%Y%m%d")
                 layout(line)
                     y(axis, type="linear", domain-range="extent", grid, label="Temperature (F)", legend="#temp-legend")
-                    x(axis, brushed, type="time", property="date", domain-range="extent", date-format="%Y%m%d", label="Date")
+                x(axis, brushed="b2", type="time", property="date", domain-range="extent", date-format="%Y%m%d", show-label, label="Date")
                 layout(line, container="#brusharea")
                     y(type="linear", domain-range="extent")
-                    x(axis, brush, type="time", property="date", domain-range="extent", date-format="%Y%m%d")
                 color(type="category10")
         .box20
-            #brusharea.d3-chart
+            chart(data="temperature", date-format="%Y%m%d")
+                layout(line)
+                    y(type="linear", domain-range="extent")
+                    x(axis, brush="b2", type="time", property="date", domain-range="extent", date-format="%Y%m%d")
+                    color(type="category10")
 .col-lg-6
     .box
         .box80
             chart(data="hpq", tooltips)
-                x(axis, brushed, type="time", property="date", domain-range="extent")
+                x(axis, brushed="b3", type="time", property="date", domain-range="extent")
                 color(type="category10")
                 layout(area)
                     y(axis, type="linear", property="close", domain-range="max", show-grid, label="Close ($)")
                 layout(line)
                     y(axis="right", type="linear", property="volume", domain-range="max", label="Volume", tick-format=".2s")
-                layout(container="#brusharea2", line)
-                    x(axis, brush, type="time", property="date", domain-range="extent")
-                    y(type="linear", property="close", domain-range="max")
         .box20
-            #brusharea2.d3-chart
+            chart(data="hpq")
+                layout(line)
+                    x(axis, brush="b3", type="time", property="date", domain-range="extent")
+                    y(type="linear", property="close", domain-range="max")
+                    color(type="category10")
     .box
         .box80
             chart(data="ageGroups", tooltips)
                 layout(stacked-bar)
-                    x(brushed, property="State", type="ordinal", axis)
+                    x(brushed="b4", property="State", type="ordinal", axis)
                     y(type="linear", axis, tick-format=".2s", show-grid, legend)
                 color(type="category10")
-                layout(stacked-bar, container="#brusharea3")
-                    x(brush, brush-change="brushChange(extent,range)", property="State", type="ordinal", axis)
-                    y(type="linear", domain-range="totalExtent")
         .box20
-            #brusharea3.d3-chart
+            chart(data="ageGroups")
+                layout(stacked-bar)
+                    x(brush="b4", brush-change="brushChange(extent,range)", property="State", type="ordinal", axis)
+                    y(type="linear", domain-range="totalExtent")
+                    color(type="category10")

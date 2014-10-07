@@ -1,6 +1,6 @@
 angular.module('wk.chart', [])
 
-angular.module('app', ['ui.router','ui.bootstrap','ngAnimate', 'app.templates', 'wk.chart', 'google-maps']).config(($stateProvider, $urlRouterProvider) ->
+angular.module('app', ['ui.router','ui.bootstrap','ngAnimate', 'app.templates', 'wk.chart']).config(($stateProvider, $urlRouterProvider) ->
   #$locationProvider.html5Mode(true)
     pagesPath = 'app/pages/'
 
@@ -136,5 +136,18 @@ angular.module('app', ['ui.router','ui.bootstrap','ngAnimate', 'app.templates', 
           templateUrl: pagesPath + 'footer/footer.jade'
           controller: 'FooterCtrl'
       url: '/page9'
+    .state 'page10',
+      views:
+        'top':
+          templateUrl: pagesPath + 'topnav/top.jade'
+          controller: 'TopCtrl'
+        'content':
+          templateUrl: pagesPath + 'contentPage10/page10.jade'
+          controller: 'Page10Ctrl'
+        'footer':
+          templateUrl: pagesPath + 'footer/footer.jade'
+          controller: 'FooterCtrl'
+      url: '/page10'
+
 
 )

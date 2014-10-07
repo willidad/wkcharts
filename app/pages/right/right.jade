@@ -1,7 +1,7 @@
 .box
     chart(layout, pie, data="selData", tooltips)
-        color(type="category20", property="age")
-        y(type="linear",property="population")
+        color(property="age", values-legend)
+        size(type="linear",property="population")
 
 .box
     table.table.table-condensed
@@ -16,6 +16,6 @@
 
 .box(style="height:230px;margin-top:30px")
     chart(layout, simple-bar, data="selData", tooltips)
-        x(property="age", type="category10", axis="top", show-label, label="Age")
+        x(property="age", type="ordinal", legend-title="Age")
         y(axis="right", tick-format=".2s", show-label, label="Population", property="population")
-        color(type="category20", property="age")
+        color(type="category20", property="age", values-legend="top-left")
