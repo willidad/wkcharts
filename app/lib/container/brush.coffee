@@ -1,7 +1,7 @@
 angular.module('wk.chart').directive 'brush', ($log, selectionSharing) ->
   return {
     restrict: 'A'
-    require: ['^chart', '^layout', 'x']
+    require: ['^chart', '^layout', '?x', '?y']
     scope:
       brushExtent: '='
       brushChange: '&'
@@ -9,8 +9,12 @@ angular.module('wk.chart').directive 'brush', ($log, selectionSharing) ->
     link:(scope, element, attrs, controllers) ->
       chart = controllers[0]
       layout = controllers[1]
-      x = controllers[2]
-
+      axis = controllers[2] or controllers[3]
+      xScale = undefined
+      yScale = undefined
+      _selectables = undefined
+      _brushAreaSelection = undefined
+      _isAreaBrush = not axis
       _brushGroup = undefined
 
       layout.isBrush(true)
@@ -18,56 +22,75 @@ angular.module('wk.chart').directive 'brush', ($log, selectionSharing) ->
       brush = d3.svg.brush()
       brushed = () ->
         if not brush.empty()
-          if x.isOrdinal()
-            domain = x.scale().domain()
-            range = x.scale().range()
-            interv = range[1] - range[0]
-            startIdx = Math.floor(brush.extent()[0] / interv)
-            endIdx = Math.floor(brush.extent()[1] / interv)
+
+          if axis.isOrdinal()
+            startIdx = axis.invert(brush.extent()[0])
+            endIdx = axis.invert(brush.extent()[1])
+            domain = axis.scale().domain()
             extent = domain.slice(startIdx, endIdx + 1)
-            #chart.brush().change(extent)
             selectionSharing.setSelection extent, _brushGroup
           else
-            #chart.brush().change(brush.extent())
             selectionSharing.setSelection brush.extent(), _brushGroup
 
       brushEnd = () ->
         if not brush.empty()
-          if x.isOrdinal()
-            domain = x.scale().domain()
-            range = x.scale().range()
-            interv = range[1] - range[0]
-            lower = Math.floor(brush.extent()[0] / interv)
-            upper = Math.floor(brush.extent()[1] / interv)
-          else
-            bisectLeft = d3.bisector(x.value).left
-            bisectRight = d3.bisector(x.value).right
-            lower = bisectLeft(chart.getData(), brush.extent()[0])
-            upper = bisectRight(chart.getData(), brush.extent()[1])
-            upper = if upper >= chart.getData().length then chart.getData().length - 1 else upper
 
+          lower = axis.invert(brush.extent()[if axis.isHorizontal() then 0 else 1])
+          upper = axis.invert(brush.extent()[if axis.isHorizontal() then 1 else 0])
           idxRange = [lower, upper]
-          valRange = [x.value(chart.getData()[lower]), x.value(chart.getData()[upper])]
-
+          valRange = [axis.value(chart.getData()[lower]), axis.value(chart.getData()[upper])]
           scope.brushChange({extent:valRange, range:idxRange})
           scope.$apply()
 
-      draw = (data, options, x) ->
+      areaBrushed = () ->
+        # scan all nodes to determine if they are in the selected area
+        br = _brushAreaSelection.node().getBoundingClientRect()
+        _selectables # = chart.container().getChartArea().selectAll('.selectable')
+        .each((d) ->
+          cr = this.getBoundingClientRect()
+          xHit = br.left < cr.right - cr.width / 3 and cr.left + cr.width / 3 < br.right
+          yHit = br.top < cr.bottom - cr.height / 3 and cr.top + cr.height / 3 < br.bottom
+          d3.select(this).classed('selected', yHit and xHit)
+        )
 
-        brush = brush
-          .x(x.scale())
-          .extent(if x.isOrdinal() then x.scale().rangeExtent() else x.scale().domain())
-          .on('brush', brushed)
-          .on('brushend', brushEnd)
+      areaBrushEnd = () ->
+        # scan all nodes to determine if they are in the selected area
+        br = _brushAreaSelection.node().getBoundingClientRect()
+        _selectables # = chart.container().getChartArea().selectAll('.selectable')
+          .each((d) ->
+            cr = this.getBoundingClientRect()
+            xHit = br.left < cr.right - cr.width / 3 and cr.left + cr.width / 3 < br.right
+            yHit = br.top < cr.bottom - cr.height / 3 and cr.top + cr.height / 3 < br.bottom
+            d3.select(this).classed('selected', yHit and xHit)
+        )
+
+      draw = (data, options, x, y) ->
+        xScale = x
+        yScale = y
+        if not _isAreaBrush
+          brush = if axis.isHorizontal() then brush.x(axis.scale()) else brush.y(axis.scale())
+          brush
+            .extent(if axis.isOrdinal() then axis.scale().rangeExtent() else axis.scale().domain())
+            .on('brush', brushed)
+            .on('brushend', brushEnd)
+        else
+          brush
+            .x(x.scale())
+            .y(y.scale())
+            .on('brush', areaBrushed)
+            .on('brushend', areaBrushEnd)
 
         bs = this.call(brush)
-        bs.selectAll('rect')
-          .attr('height', options.height)
-        bs.selectAll('.resize rect')
-          .style('visibility','visible')
+        if not _isAreaBrush
+          bs.selectAll('rect')
+            .attr(if axis.isHorizontal() then {height: options.height} else {width: options.width})
+          bs.selectAll('.resize rect')
+            .style('visibility','visible')
 
+        _selectables = chart.container().getChartArea().selectAll('.selectable')
+        _brushAreaSelection = chart.container().getBrushArea().select('.extent')
 
-      layout.onDrawBrush(draw)
+      layout.onDrawBrush(draw) #todo Switch to eventhandler
 
       attrs.$observe 'brush', (val) ->
         if _.isString(val) and val.length > 0

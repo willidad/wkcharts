@@ -77,16 +77,21 @@ li.d3ChartShapeLegendItem span {
     opacity:1;
 }
 
-.brushArea .resize rect {
+.brushArea .resize rect, .overlay .resize rect {
     stroke: darkgrey;
     visibility: visible;
 }
 
-.brushArea .background {
+.brushArea .background, .overlay .background {
     fill:lightgrey;
     fill-opacity:0.2;
 }
-.brushArea .extent {
+.brushArea .extent, .overlay .extent {
     fill:lightgrey;
     fill-opacity:0.6;
+}
+
+.selected {
+    stroke:red;
+    stroke-width:3px;
 }

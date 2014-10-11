@@ -19,11 +19,11 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
             me.scaleType('linear')
 
       attrs.$observe 'property', (val) ->
-        me.property(parseList(val))
+        me.property(parseList(val)).update()
 
       attrs.$observe 'layerProperty', (val) ->
         if val and val.length > 0
-          me.layerProperty(val)
+          me.layerProperty(val).update()
 
       attrs.$observe 'range', (val) ->
         range = parseList(val)
@@ -35,6 +35,7 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
         if val
           if me.scaleType() is 'time'
             me.dataFormat(val)
+            me.update()
 
       attrs.$observe 'domain', (val) ->
         if val

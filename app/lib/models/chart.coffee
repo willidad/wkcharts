@@ -82,13 +82,14 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
      return _lifeCycle
 
     me.execLifeCycleFull = (data) ->
-      _data = data
-      _lifeCycle.prepareData(data)    # calls the registered layout types
-      _lifeCycle.scaleDomains(data)   # calls the scales
-      _container.sizeContainer(data)  # calls container #TODO: implement through dispatch mechanism
-      _container.drawAxis(data)       # calls container #TODO: implement through dispatch mechanism
-      _lifeCycle.drawLegend(data)     # calls container #TODO: separate from container object
-      _lifeCycle.drawChart(data)      # calls layout
+      if data
+        _data = data
+        _lifeCycle.prepareData(data)    # calls the registered layout types
+        _lifeCycle.scaleDomains(data)   # calls the scales
+        _container.sizeContainer(data)  # calls container #TODO: implement through dispatch mechanism
+        _container.drawAxis(data)       # calls container #TODO: implement through dispatch mechanism
+        _lifeCycle.drawLegend(data)     # calls container #TODO: separate from container object
+        _lifeCycle.drawChart(data)      # calls layout
 
     me.lifeCycle().on 'newData', me.execLifeCycleFull
     me.lifeCycle().on 'update', () -> me.execLifeCycleFull(_data)

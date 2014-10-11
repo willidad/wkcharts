@@ -1,14 +1,23 @@
 .col-lg-6.h50(ng-init="")
     chart(data="tempData", tooltips)
         layout(line)
+            x(type="time", property="Months",date-format="%b", axis)
+            y(axis, grid, ticks="5")
+            color(type="category10", legend)
+
+    chart(data="tempData", tooltips)
+        layout(line, markers, behave)
             x(type="ordinal", property="Months", axis)
             y(axis, value-markers, grid, ticks="5")
             color(type="category10", legend)
-    .box50
-        pre {{tempData}}
 .col-lg-6
 
-
+    chart(data="altersstruktur", tooltips)
+        layout(horizontal-line)
+            y(type="ordinal", property="Altersgruppe", axis, show-label, label="Altersgruppe", grid)
+            x(property="männlich,weiblich,diff", axis, tick-format=".2s", domain-range="extent", legend, grid)
+            color(type="category10")
+    pre {{tempData}}
 
 
 

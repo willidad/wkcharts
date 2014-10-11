@@ -7,6 +7,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     _isOrdinal = false
     _domain = undefined
     _domainCalc = undefined
+    _calculatedDomain = undefined
     _resetOnNewData = false
     _property = ''
     _layerProp = ''
@@ -40,6 +41,8 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
 
     #---- utility functions ----------------------------------------------------------------------------------------
 
+    keys = (data) -> if _.isArray(data) then _.keys(data[0]) else _.keys(data)
+
     layerTotal = (d, layerKeys) ->
       layerKeys.reduce(
         (prev, next) -> +prev + +me.layerValue(d,next)
@@ -53,6 +56,31 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
 
     parsedValue = (v) ->
       if _inputFormatFn.parse then _inputFormatFn.parse(v) else _inputFormatFn(v)
+
+    calcDomain = {
+      extent: (data) ->
+        layerKeys = me.layerKeys(data)
+        return [layerMin(data, layerKeys), layerMax(data, layerKeys)]
+      max: (data) ->
+        layerKeys = me.layerKeys(data)
+        return [0, layerMax(data, layerKeys)]
+      totalExtent: (data) ->
+        if data[0].hasOwnProperty('total')
+          return d3.extent(data.map((d) ->
+            d.total))
+        else
+          layerKeys = me.layerKeys(data)
+          return d3.extent(data.map((d) ->
+            layerTotal(d, layerKeys)))
+      total: (data) ->
+        if data[0].hasOwnProperty('total')
+          return [0, d3.max(data.map((d) ->
+            d.total))]
+        else
+          layerKeys = me.layerKeys(data)
+          return [0, d3.max(data.map((d) ->
+            layerTotal(d, layerKeys)))]
+      }
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -110,6 +138,8 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
           _isHorizontal = false
         return me
 
+    #-- ScaleType ------------------------------------------------------------------------------------------------------
+
     me.scaleType = (type) ->
       if arguments.length is 0 then return _scaleType
       else
@@ -134,11 +164,12 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
           _axis.scale(_scale)
         return me
 
+    #--- Domain functions ----------------------------------------------------------------------------------------------
+
     me.domain = (dom) ->
       if arguments.length is 0 then return _domain
       else
         _domain = dom
-        #me.parent().lifeCycle().update(false)
         return me
 
     me.domainCalc = (rule) ->
@@ -154,30 +185,21 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     me.getDomain = (data) ->
       if arguments.length is 0 then return _scale.domain()
       else
-        switch me.domainCalc()
-          when 'extent'
-            layerKeys = me.layerKeys(data)
-            return [layerMin(data, layerKeys), layerMax(data,layerKeys)]
-          when 'max'
-            layerKeys = me.layerKeys(data)
-            return [0, layerMax(data,layerKeys)]
-          when 'totalExtent'
-            if data[0].hasOwnProperty('total')
-              return d3.extent(data.map((d) -> d.total))
-            else
-                layerKeys = me.layerKeys(data)
-                return d3.extent(data.map((d) -> layerTotal(d, layerKeys)))
-          when 'total'
-            if data[0].hasOwnProperty('total')
-              return [0, d3.max(data.map((d) -> d.total))]
-            else
-              layerKeys = me.layerKeys(data)
-              return [0, d3.max(data.map((d) -> layerTotal(d, layerKeys)))]
+        if me.domainCalc()
+            return _calculatedDomain
+        else
+          if _domain
+            return _domain
           else
-            if _domain
-              return _domain
-            else
-              return me.value(data)
+            return me.value(data)
+
+    me.resetOnNewData = (trueFalse) ->
+      if arguments.length is 0 then return _resetOnNewData
+      else
+        _resetOnNewData = trueFalse
+        return me
+
+    #--- Range Functions -----------------------------------------------------------------------------------------------
 
     me.range = (range) ->
       if arguments.length is 0 then return _scale.range()
@@ -189,24 +211,18 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
           _scale.range(range)
         return me
 
-    me.resetOnNewData = (trueFalse) ->
-      if arguments.length is 0 then return _resetOnNewData
-      else
-        _resetOnNewData = trueFalse
-        return me
+    #--- property related attributes -----------------------------------------------------------------------------------
 
     me.property = (name) ->
       if arguments.length is 0 then return _property
       else
         _property = name
-        me.parent().lifeCycle().update(false)
         return me
 
     me.layerProperty = (name) ->
       if arguments.length is 0 then return _layerProp
       else
         _layerProp = name
-        me.parent().lifeCycle().update(false)
         return me
 
     me.layerExclude = (excl) ->
@@ -217,16 +233,14 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
 
     me.layerKeys = (data) ->
       if _property
-        if Array.isArray(_property)
-          return _property.filter((d) -> !!data[0][d])
+        if _.isArray(_property)
+          return _.intersection(_property, keys(data))# ensure only keys also in the data are returned
         else
-          return [_property]
+          return [_property] #always return an array !!!
       else
-        if Array.isArray(data)
-          Object.keys(data[0]).filter((d) -> not (d in _layerExclude))
-        else
-          Object.keys(data).filter((d) -> not (d in _layerExclude))
+        keys(data).filter((d) -> not (d in _layerExclude))
 
+    #--- Data Formatting -----------------------------------------------------------------------------------------------
 
     me.dataFormat = (format) ->
       if arguments.length is 0 then return _inputFormatString
@@ -236,14 +250,15 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
           _inputFormatFn = d3.time.format(format)
         else
           _inputFormatFn = (d) -> d
-        me.parent().lifeCycle().redraw(false)
         return me()
+
+    #--- Core data transformation interface ----------------------------------------------------------------------------
 
     me.value = (data) ->
       if _layerProp
-        if Array.isArray(data) then data.map((d) -> parsedValue(d[_property][_layerProp])) else parsedValue(data[_property][_layerProp])
+        if _.isArray(data) then data.map((d) -> parsedValue(d[_property][_layerProp])) else parsedValue(data[_property][_layerProp])
       else
-        if Array.isArray(data) then data.map((d) -> parsedValue(d[_property])) else parsedValue(data[_property])
+        if _.isArray(data) then data.map((d) -> parsedValue(d[_property])) else parsedValue(data[_property])
 
     me.layerValue = (data, layerKey) ->
       if _layerProp
@@ -263,18 +278,51 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     me.map = (data) ->
       if Array.isArray(data) then data.map((d) -> _scale(me.value(data))) else _scale(me.value(data))
 
-    me.inverse = (mappedValue) ->
+    me.invert = (mappedValue) ->
       # takes a mapped value (pixel position , color value, returns the corresponding value in the input domain
-      # calculation of inverse value is dependent on the scale type.
-      #TODO: verify that all scenarios for inverse calculations are covered
+      # the type of inverse is dependent on the scale type for quantitative scales.
+      # Ordinal scales ...
 
-      if me.scale()._has('inverse') # i.e. the d3 scale supports the inverse calculation
-        # Important: the returned value is the reverse calculation, and thus does not exactly match the value in the source data.
-        # to get the source data value requires some approximation mechanism
-        # TODO: Can this be done here for all cases? need to investigate
-        return me.scale().inverse(mappedValue)
-      else
-        # d3 does not support inverse for ordinal scales, thus things become a bit more tricky.
+      if _.has(me.scale(),'invert') # i.e. the d3 scale supports the inverse calculation: linear, log, pow, sqrt
+        _data = me.chart().getData()
+
+        # bisect.left never returns 0 in this specific scenario. We need to move the val by an interval to hit the middle of the range and to ensure
+        # that the first element will be captured. Also ensures better visual experience with tooltips
+
+        range = _scale.range()
+        interval = (range[1] - range[0]) / _data.length
+        val = me.scale().invert(mappedValue - interval/2)
+
+        bisect = d3.bisector(me.value).left
+        idx = bisect(_data, val)
+        idx = if idx < 0 then 0 else if idx >= _data.length then _data.length - 1 else idx
+        return idx # the inverse value does not necessarily correspond to a value in the data
+
+      if _.has(me.scale(),'invertExtent') # d3 supports this for quantize, quantile, threshold. returns the range that gets mapped to the value
+        return me.scale().invertExtent(mappedValue) #TODO How should this be mapped correctly. Use case???
+
+      # d3 does not support invert for ordinal scales, thus things become a bit more tricky.
+      # in case we are setting the domain explicitly, we know tha the range values and the domain elements are in the same order
+      # in case the domain is set 'lazy' (i.e. as values are used) we cannot map range and domain values easily. Not clear how to do this effectively
+
+      if me.resetOnNewData()
+        domain = _scale.domain()
+        range = _scale.range()
+        if _isVertical
+          interval = range[0] - range[1]
+          idx = range.length - Math.floor(mappedValue / interval) - 1
+        else
+          interval = range[1] - range[0]
+          idx = Math.floor(mappedValue / interval)
+        return idx
+
+    me.invertOrdinal = (mappedValue) ->
+      if me.isOrdinal() and me.resetOnNewData()
+        idx = me.invert(mappedValue)
+        return _scale.domain()[idx]
+
+
+    #--- Axis Attributes and functions ---------------------------------------------------------------------------------
 
     me.showAxis = (trueFalse) ->
       if arguments.length is 0 then return _showAxis
@@ -293,7 +341,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
         _axisOrient = val
         return me #to enable chaining
 
-    me.axisOrientOld = (val) ->
+    me.axisOrientOld = (val) ->  #TODO This is not the best place to keep the old axis value. Only needed by container in case the axis position changes
       if arguments.length is 0 then return _axisOrientOld
       else
         _axisOrientOld = val
@@ -347,6 +395,22 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
         _showGrid = trueFalse
         return me
 
+    #-- Register for drawing lifecycle events --------------------------------------------------------------------------
+
+    me.register = () ->
+      me.chart().lifeCycle().on "scaleDomains.#{me.id()}", (data) ->
+        # set the domain if required
+        if me.resetOnNewData()
+          _scale.domain(me.getDomain(data))
+
+      me.chart().lifeCycle().on "prepareData.#{me.id()}", (data) ->
+        # compute the domain range calculation if required
+        calcRule =  me.domainCalc()
+        if me.parent().scaleProperties
+          me.layerExclude(me.parent().scaleProperties())
+        if calcRule and calcDomain[calcRule]
+          _calculatedDomain = calcDomain[calcRule](data)
+
     me.update = () ->
       me.parent().lifeCycle().update()
       return me
@@ -355,16 +419,6 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
       me.parent().lifeCycle().drawAxis()
       return me
 
-    me.register = () ->
-      me.chart().lifeCycle().on "scaleDomains.#{me.id()}", (data) ->
-        #$log.debug 'Scaling domain for scale', me.id()
-        if me.parent().scaleProperties
-          me.layerExclude(me.parent().scaleProperties())
-        if me.resetOnNewData()
-          _scale.domain(me.getDomain(data))
-
     return me
-
-
 
   return scale

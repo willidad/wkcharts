@@ -5,7 +5,7 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
     require: '^layout'
     link: (scope, element, attrs, layout) ->
 
-      _tooltip = undefined
+      _tooltip = () ->
       _id = 'scatter' + scatterCnt++
       _scaleList = []
       _selected = layout.selected()
@@ -46,11 +46,11 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
         points = @selectAll('.points')
           .data(data)
         points.enter()
-          .append('path').attr('class', 'points')
+          .append('path').attr('class', 'points selectable')
           .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})")
           .call(init)
           .call(_tooltip)
-          .call(_selected)
+          #.call(_selected)
         points
           .transition().duration(options.duration)
           .attr('d', d3.svg.symbol().type((d) -> shape.map(d)).size((d) -> size.map(d) * size.map(d)))

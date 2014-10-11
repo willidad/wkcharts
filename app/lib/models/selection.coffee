@@ -3,16 +3,16 @@ angular.module('wk.chart').factory 'selection', ($log) ->
     selection = () ->
       _id = 'selection' + selectionCnt++
       _selectable = true
-      myGlow = glow("myGlow").rgb("#0f0").stdDeviation(4)
+      #myGlow = glow("myGlow").rgb("#0f0").stdDeviation(4)
 
       clicked = () ->
         null
         obj = d3.select(this)
         isSelected = obj.classed 'selected'
         if not isSelected
-          obj.style('filter', 'url(#myGlow)')
+          #obj.style('filter', 'url(#myGlow)')
         else
-          obj.style('filter', null)
+          #obj.style('filter', null)
 
         obj.classed 'selected', not isSelected
 

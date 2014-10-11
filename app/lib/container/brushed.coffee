@@ -22,6 +22,6 @@ angular.module('wk.chart').directive 'brushed', ($log,selectionSharing) ->
           selectionSharing.register _brushGroup, brusher
         else
           _brushGroup = undefined
-          selectionSharing.register _brushGroup, brusher
+          #selectionSharing.register _brushGroup, brusher
 
   }

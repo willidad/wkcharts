@@ -1,11 +1,12 @@
 .col-lg-6
     .box
-        chart(layout, scatter, data="scatterData", tooltips, deep-watch)
-            x(axis, property="x", type="linear", show-label, label="abc", grid, domain-range="extent")
-            y(axis, property="y", type="linear", grid, domain-range="extent")
-            color(property="group", type="category10", values-legend="#scatter-legend", label="Scatter Group Values", legend-title="Group Values")
-            size(property="size", range="2,30", domain-range="extent")
-            shape(property="shape", values-legend="#shape-legend", label="Scatter Shape Values",legend-title="Shape Values")
+        chart(data="scatterData", tooltips, deep-watch)
+            layout(scatter, brush)
+                x(axis, property="x", type="linear", show-label, label="abc", grid, domain-range="extent")
+                y(axis, property="y", type="linear", grid, domain-range="extent")
+                color(property="group", type="category10", values-legend="#scatter-legend", label="Scatter Group Values", legend-title="Group Values")
+                size(property="size", range="2,30", domain-range="extent")
+                shape(property="shape", values-legend="#shape-legend", label="Scatter Shape Values",legend-title="Shape Values")
 
     .box
         chart(layout, line, data="temperatureData")
@@ -16,7 +17,7 @@
 .col-lg-6
     .box
         chart(data="longData2", layout, stacked-bar)
-            x(brushed, property="State", type="ordinal", axis)
+            x(property="State", type="ordinal", axis)
             y(type="linear", axis, tick-format=".2s", grid, , property="{{categories}}", legend)
             color(type="category20")
 

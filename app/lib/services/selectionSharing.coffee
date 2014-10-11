@@ -3,21 +3,21 @@ angular.module('wk.chart').service 'selectionSharing', ($log) ->
   callbacks = {}
 
   this.setSelection = (selection, group) ->
-    grp = group or 'default'
-    selection[grp] = selection
-    if callbacks[grp]
-      for cb in callbacks[grp]
-        cb(selection)
+    if group
+      selection[group] = selection
+      if callbacks[group]
+        for cb in callbacks[group]
+          cb(selection)
 
   this.getSelection = (group) ->
     grp = group or 'default'
     return selection[grp]
 
   this.register = (group, callback) ->
-    grp = group or 'default'
-    if not callbacks[grp]
-      callbacks[grp] = []
-    callbacks[grp].push(callback)
+    if group
+      if not callbacks[group]
+        callbacks[group] = []
+      callbacks[group].push(callback)
 
   deRegister = (callback, grp) ->
 

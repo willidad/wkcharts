@@ -101,7 +101,7 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
 
       arcs.enter().append('path')
         .each((d) -> this._current = getPred(addedPred[color.value(d.data)], d))
-        .attr('class','arc')
+        .attr('class','arc selectable')
         .style('fill', (d) ->  color.map(d.data))
         .call(init)
         .call(_tooltip)

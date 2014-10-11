@@ -71,16 +71,16 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
           .call(_selected)
       else
         bars.enter().append('rect')
-          .attr('class', 'bar')
+          .attr('class', 'bar selectable')
           .attr('x', (d) -> getPredX(addedPred[d.key], oldLayout))
           .attr('width', 0)
           .call(_tooltip)
           .call(_selected)
 
       bars.style('fill', (d) -> d.color).transition().duration(options.duration)
-        .attr('y', (d) -> d.y)
+        .attr('y', (d) -> Math.min(y.scale()(0), d.y))
         .attr('width', (d) -> d.width)
-        .attr('height', (d) -> y.scale()(0) - d.y)
+        .attr('height', (d) -> Math.abs(y.scale()(0) - d.y))
         .attr('x', (d) -> d.x)
         .style('opacity', 1)
 

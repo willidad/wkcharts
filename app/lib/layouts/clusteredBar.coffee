@@ -117,10 +117,10 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
 
         if clusterOld.length is 0
           bars.enter().append('rect')
-          .attr('class', 'bar')
+          .attr('class', 'bar selectable')
         else
           bars.enter().append('rect')
-            .attr('class', 'bar')
+            .attr('class', 'bar selectable')
             .attr('x', (d) -> getLPredX(d.key, lAddedPred[d.layerKey], clusterOld))
             .attr('width',  0)
             .attr('height', 0)
@@ -130,8 +130,8 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
         bars.style('fill', (d) -> color.scale()(d.layerKey)).transition().duration(options.duration)
           .attr('width', (d) -> d.width)
           .attr('x', (d) -> d.x)
-          .attr('y', (d) -> d.y)
-          .attr('height', (d) -> d.height)
+          .attr('y', (d) -> Math.min(y.scale()(0), d.y))
+          .attr('height', (d) -> Math.abs(d.height))
 
         bars.exit()
           .transition().duration(options.duration)

@@ -15,6 +15,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     _container = undefined
     _spacedContainer = undefined
     _chartArea = undefined
+    _brushArea = undefined
     _margin = angular.copy(d3ChartMargins.default)
     _innerWidth = 0
     _innerHeight = 0
@@ -38,11 +39,11 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
         .append('svg')
       _svg.append('defs').append('clipPath').attr('id', "clip-#{_containerId}").append('rect')
       _container= _svg.append('g').attr('class','d3-chart-container')
+      _overlay = _container.append('g').attr('class', 'overlay').style('pointer-events', 'all')
+      #_overlay.append('rect').attr('class', 'background').style({visibility:'hidden'})
       _chartArea = _container.append('g').attr('class', 'chartArea')
-      _overlay= _chartArea.append('rect').attr('class', 'overlay').style({opacity: 0, 'pointer-events': 'none'})
-      _container.append('g').attr('class', 'brushArea')
-      _myGlow = glow("myGlow").rgb("black").stdDeviation(10)
-      _svg.call(_myGlow)
+      _brushArea = _chartArea.append('g').attr('class', 'brushArea')
+
 
     _getAxis = (orient) ->
       axis = _container.select(".axis.#{orient}")
@@ -103,7 +104,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _svg.select("#clip-#{_containerId} rect").attr('width', _innerWidth).attr('height', _innerHeight)
       _spacedContainer = _container.attr('transform', (d) -> "translate(#{_margin.left}, #{_margin.top})")
       _spacedContainer.select('.chartArea').style('clip-path', "url(#clip-#{_containerId})")
-      _overlay = _spacedContainer.select('.overlay').attr('width', _innerWidth).attr('height', _innerHeight)
+      _spacedContainer.select('.overlay>.background').attr('width', _innerWidth).attr('height', _innerHeight)
 
       return me
 
@@ -130,35 +131,32 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     me.getChartArea = () ->
       return _spacedContainer.select('.chartArea')
 
+    me.getBrushArea = () ->
+      return _brushArea
+
+    me.getOverlay = () ->
+      return _overlay
+
     me.getContainer = () ->
       return _spacedContainer
 
     me.prepData = (data) ->
       for l in _layouts
-        ###
-        props = l.scaleProperties()
-        for k, s of l.scales().allKinds()
-          s.layerExclude(props)
-          if s.resetOnNewData()
-            s.scale().domain(s.getDomain(data))
-
-###
         l.prepareData(data)
 
     me.setTooltip = (trueFalse) ->
       for l in _layouts
-        if not l.isBrush() and trueFalse
-          _overlay.style('pointer-events', 'auto')
+        if trueFalse #and not l.isBrush()
+          #_overlay.style('pointer-events', 'auto')
           _tooltip.active(true)
-          l.setTooltip(_tooltip, _overlay)
+          _tooltip.brushElement(_brushArea.node())
+          l.setTooltip(_tooltip, _brushArea)
         else
-          _overlay.style('pointer-events', 'none')
+          #_overlay.style('pointer-events', 'none')
           _tooltip.active(false)
 
     me.drawAxis = () ->
       # set scales before drawing the axis
-      _tooltip.horizontalRange([0, _innerWidth])
-      _tooltip.verticalRange([_innerHeight, 0])
       for l in _layouts
         for k, s of l.scales().allKinds()
           if s.isHorizontal()

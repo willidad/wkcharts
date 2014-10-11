@@ -7,7 +7,7 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
     link: (scope, element, attrs, layout) ->
       #$log.debug 'bubbleChart linked'
 
-      _tooltip = undefined
+      _tooltip = () ->
       _scaleList = {}
       _id = 'bubble' + bubbleCntr++
       _selected = layout.selected()
@@ -25,7 +25,7 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
       draw = (data, options, x, y, color, size) ->
 
         bubbles = @selectAll('.bubble').data(data, (d) -> color.value(d))
-        bubbles.enter().append('circle').attr('class','bubble')
+        bubbles.enter().append('circle').attr('class','bubble selectable')
           .style('opacity', 0)
           .call(_tooltip)
           .call(_selected)

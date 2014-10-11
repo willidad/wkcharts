@@ -2,12 +2,13 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
   tooltip = () ->
 
     _events = d3.dispatch('enter', 'move', 'leave')
-    _x = undefined
+    _scale = undefined
     _data = undefined
     _refreshMove = false
     _active = false
-    _horizontalRange = []
-    _verticalRange = []
+    _isHorizontal = false
+    _brushElement = undefined
+    _posIdx = 0
     _showScales = []
 
     _templ = $templateCache.get(templateDir + 'toolTip.jade')
@@ -26,11 +27,10 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       if not _active then return
       body.append(_compiledTempl)
       _templScope.layers = []
-      if _x
-        _x.scale().range(if _x.isHorizontal() then _horizontalRange else _verticalRange)
-        axisX = d3.mouse(this)[0]
-        xValue = _x.scale().invert(axisX)
-        _events.enter.apply(_templScope,[xValue, axisX, this])
+      if _scale
+        offset = d3.mouse(this)[_posIdx]
+        idx = _scale.invert(offset)
+        _events.enter.apply(_templScope, [idx, offset, this])
       else
         _events.enter.apply(_templScope, [d3.select(this).datum()])
 
@@ -53,13 +53,12 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       if not _active then return
       if _refreshMove
         _templScope.layers = []
-        if _x
-          axisX = d3.mouse(this)[0]
-          _x.scale().range(if _x.isHorizontal() then _horizontalRange else _verticalRange)
-          xValue = _x.scale().invert(axisX)
-          _events.move.apply(_templScope,[xValue, axisX, this])
+        if _scale
+          offset = d3.mouse(this)[_posIdx]
+          idx = _scale.invert(offset)
+          _events.move.apply(_templScope, [idx, offset, this])
         else
-          _events.move.apply(_templScope, [d3.select(this).data()[0]])
+          _events.move.apply(_templScope, [d3.select(this).datum()])
 
       rect = _compiledTempl[0].getBoundingClientRect()
       clientX = if bodyRect.right - 20 > d3.event.clientX + rect.width + 10 then d3.event.clientX + 10 else d3.event.clientX - rect.width - 10
@@ -76,13 +75,23 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
 
     mouseLeave = () ->
       if not _active then return
-      if _x
-        axisX = d3.mouse(this)[0]
-        xValue = _x.scale().invert(d3.mouse(this)[0])
-        _events.leave.apply(_templScope, [xValue, axisX, this])
+      if _scale
+        offset = d3.mouse(this)[_posIdx]
+        idx = _scale.invert(offset)
+        _events.leave.apply(_templScope, [idx, offset, this])
       _templScope.ttShow = false
       _templScope.$apply()
       _compiledTempl.remove()
+
+    forwardToBrush = () ->
+      if _brushElement
+        new_click_event = new Event('mousedown')
+        new_click_event.pageX = d3.event.pageX
+        new_click_event.clientX = d3.event.clientX
+        new_click_event.pageY = d3.event.pageY
+        new_click_event.clientY = d3.event.clientY
+        _brushElement.dispatchEvent(new_click_event)
+
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -92,6 +101,7 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
         selection.on 'mouseenter', mouseEnter
         selection.on 'mousemove', mouseMove
         selection.on 'mouseleave', mouseLeave
+        selection.on 'mousedown', forwardToBrush
       return me
 
     me.on = (event, callback) ->
@@ -103,28 +113,29 @@ angular.module('wk.chart').factory 'tooltip', ($log, $document, $rootScope, $com
       else
         _refreshMove = trueFalse
 
-    me.x = (x) ->
-      if arguments.length is 0  then return _x
+    me.scale = (scale) ->
+      if arguments.length is 0  then return _scale
       else
-        _x = x
+        _scale = scale
         return me
 
-    me.horizontalRange = (val) ->
-      if arguments.length is 0 then return _horizontalRange
+    me.isHorizontal = (trueFalse) ->
+      if arguments.length is 0 then return _isHorizontal
       else
-        _horizontalRange = val
-        return me #to enable chaining
-
-    me.verticalRange = (val) ->
-      if arguments.length is 0 then return _verticalRange
-      else
-        _verticalRange = val
+        _isHorizontal = trueFalse
+        _posIdx = if trueFalse then 1 else 0
         return me #to enable chaining
 
     me.active = (val) ->
       if arguments.length is 0 then return _active
       else
         _active = val
+        return me #to enable chaining
+
+    me.brushElement = (val) ->
+      if arguments.length is 0 then return _brushElement
+      else
+        _brushElement = val
         return me #to enable chaining
 
     me.showScales = (val) ->

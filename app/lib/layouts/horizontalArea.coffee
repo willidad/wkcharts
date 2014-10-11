@@ -1,4 +1,4 @@
-angular.module('wk.chart').directive 'area', ($log) ->
+angular.module('wk.chart').directive 'horizontalArea', ($log) ->
   lineCntr = 0
   return {
     restrict: 'A'
@@ -20,25 +20,25 @@ angular.module('wk.chart').directive 'area', ($log) ->
 
       ttEnter = (idx, axisX, cntnr) ->
         cntnrSel = d3.select(cntnr)
-        cntnrHeight = cntnrSel.attr('height')
+        cntnrWidth = cntnrSel.attr('width')
         parent = d3.select(cntnr.parentElement)
         _ttHighlight = parent.append('g')
-        _ttHighlight.append('line').attr({y1:0, y2:cntnrHeight}).style({'pointer-events':'none', stroke:'lightgrey', 'stroke-width':1})
+        _ttHighlight.append('line').attr({x1:0, x2:cntnrWidth}).style({'pointer-events':'none', stroke:'lightgrey', 'stroke-width':1})
         _circles = _ttHighlight.selectAll('circle').data(_layout,(d) -> d.key)
         _circles.enter().append('circle').attr('r', 5).attr('fill', (d)-> d.color).attr('fill-opacity', 0.6).attr('stroke', 'black').style('pointer-events','none')
 
-        _ttHighlight.attr('transform', "translate(#{_scaleList.x.scale()(_layout[0].value[idx].x)+offset})")
+        _ttHighlight.attr('transform', "translate(0,#{_scaleList.y.scale()(_layout[0].value[idx].y)+offset})")
 
       ttMove = (idx, axisX,  cntnr) ->
-        ttLayers = _layout.map((l) -> {name:l.key, value:_scaleList.y.formatValue(l.value[idx].y), color:{'background-color': l.color}})
+        ttLayers = _layout.map((l) -> {name:l.key, value:_scaleList.x.formatValue(l.value[idx].x), color:{'background-color': l.color}})
 
-        _circles.attr('cy', (d) ->
+        _circles.attr('cx', (d) ->
           null
-          _scaleList.y.scale()(d.value[idx].y))
-        _ttHighlight.attr('transform', "translate(#{_scaleList.x.scale()(_layout[0].value[idx].x)+offset})")
+          _scaleList.x.scale()(d.value[idx].x))
+        _ttHighlight.attr('transform', "translate(0, #{_scaleList.y.scale()(_layout[0].value[idx].y) + offset})")
 
-        @headerName = _scaleList.x.axisLabel()
-        @headerValue = _scaleList.x.formatValue(_layout[0].value[idx].x)
+        @headerName = _scaleList.y.axisLabel()
+        @headerValue = _scaleList.y.formatValue(_layout[0].value[idx].y)
         @layers = @layers.concat(ttLayers)
 
       ttLeave = (x, axisX, cntnr)->
@@ -49,6 +49,7 @@ angular.module('wk.chart').directive 'area', ($log) ->
       setTooltip = (tooltip, overlay) ->
         _tooltip = tooltip
         tooltip(overlay)
+        tooltip.isHorizontal(true)
         tooltip.refreshOnMove(true)
         tooltip.on "move.#{_id}", ttMove
         tooltip.on "enter.#{_id}", ttEnter
@@ -56,17 +57,17 @@ angular.module('wk.chart').directive 'area', ($log) ->
 
 
       draw = (data, options, x, y, color) ->
-        layerKeys = y.layerKeys(data)
-        _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key)})})
+        layerKeys = x.layerKeys(data)
+        _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {y:y.value(d),x:x.layerValue(d, key)})})
 
-        offset = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
+        offset = if y.isOrdinal() then y.scale().rangeBand() / 2 else 0
 
-        if _tooltip then _tooltip.scale(x).data(data)
+        if _tooltip then _tooltip.scale(y).data(data)
 
-        area = d3.svg.area()
-        .x((d) ->  x.scale()(d.x))
-        .y0((d) ->  y.scale()(d.y))
-        .y1((d) ->  y.scale()(0))
+        area = d3.svg.area()    # tricky. Draw this like a vertical chart and then rotate and position it.
+        .x((d) ->   options.width - y.scale()(d.y))
+        .y0((d) ->  x.scale()(d.x))
+        .y1((d) ->  x.scale()(0))
 
         layers = this.selectAll(".layer")
           .data(_layout, (d) -> d.key)
@@ -78,8 +79,10 @@ angular.module('wk.chart').directive 'area', ($log) ->
           .style('fill', (d) -> d.color)
           .style('opacity', 0)
           .style('pointer-events', 'none')
-        layers.select('.line').transition().duration(options.duration)
-          .attr('d', (d) -> area(d.value)).attr('transfrom', "translate(#{offset})")
+        layers.select('.line')
+          .attr('transform', "translate(0,#{options.width + offset})rotate(-90)") #rotate and position chart
+          .transition().duration(options.duration)
+          .attr('d', (d) -> area(d.value))
           .style('opacity', 0.3).style('pointer-events', 'none')
         layers.exit().transition().duration(options.duration)
           .style('opacity', 0)

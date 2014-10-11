@@ -1,11 +1,17 @@
 .col-lg-6
-    .box
-        .
-.col-lg-3
-    .box
-        .box20
 
-        .box80#legend
+    chart(data="altersstruktur", tooltips)
+        layout(horizontal-area)
+            y(type="ordinal", property="Altersgruppe", axis, show-label, label="Altersgruppe")
+            x(property="männlich,weiblich,diff", axis, tick-format=".2s", domain-range="extent", legend)
+            color(type="category10")
+.col-lg-6
+
+    chart(data="altersstruktur", tooltips)
+        layout(horizontal-clustered-bar)
+            y(type="ordinal", property="Altersgruppe", axis, show-label, label="Altersgruppe", brush)
+            x(property="männlich,weiblich,diff", axis, tick-format=".2s", domain-range="extent", legend)
+            color(type="category10")
 
 
 

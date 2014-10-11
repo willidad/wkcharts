@@ -1,8 +1,8 @@
-.col-lg-6.h50(ng-init="sTooltips=true;xAxis=true;yAxis=true;xGrid=true;yGrid=false;xLabel='Date';yLabel='Close ($)'; xTicks=10; yTicks=7; legendPos='top-left';xLblShow=true;yLblShow=false;legendTitle='Ticker'")
+.col-lg-6.h50(ng-init="sTooltips=true;xAxis=true;yAxis=true;xGrid=true;yGrid=false;xLabel='Date';yLabel='Close ($)'; xTicks=10; yTicks=7; legendPos='top-left';xLblShow=true;yLblShow=false;legendTitle='Ticker';brush='brush'")
 
     .box80
         chart(data="combo", tooltips="{{sTooltips}}")
-            x(axis="{{xAxis}}", brushed="Brush1", type="time", property="date", domain-range="extent", grid="{{xGrid}}", show-label="{{xLblShow}}", label="{{xLabel}}", ticks="{{xTicks}}", format="{{xFormat}}")
+            x(axis="{{xAxis}}", brushed="{{brush}}", type="time", property="date", domain-range="extent", grid="{{xGrid}}", show-label="{{xLblShow}}", label="{{xLabel}}", ticks="{{xTicks}}", format="{{xFormat}}")
             color(type="category10", label="Ticker Symbol")
             layout(line)
                 y(axis="{{yAxis}}", type="linear", property="{{props}}", layer-property="close", domain-range="extent", grid="{{yGrid}}",
@@ -12,7 +12,7 @@
         chart(data="combo")
             layout(area)
                 y(type="linear", property="msft", layer-property="close", domain-range="extent")
-                x(axis, brush="Brush1", brush-change="brushChange(extent,range)", type="time", property="date", domain-range="extent")
+                x(axis, brush="{{brush}}", brush-change="brushChange(extent,range)", type="time", property="date", domain-range="extent")
                 color()
 .col-lg-3
     .box
@@ -20,7 +20,7 @@
             #chart1.d3-chart(style="height:150px")
                 chart(data="combo", tooltips="{{sTooltips}}")
                     layout(area)
-                        x(axis="{{xAxis}}", brushed="Brush1", type="time", property="date", domain-range="extent", grid="{{xGrid}}", show-label="{{xLblShow}}", label="{{xLabel}}", ticks="{{xTicks}}", format="{{xFormat}}")
+                        x(axis="{{xAxis}}", brushed="{{brush}}", type="time", property="date", domain-range="extent", grid="{{xGrid}}", show-label="{{xLblShow}}", label="{{xLabel}}", ticks="{{xTicks}}", format="{{xFormat}}")
                         y(axis="right", type="linear", property="{{props}}", layer-property="volume", domain-range="max", ticks="5", tick-format=".2s", grid)
                         color(type="category10")
         .box80
@@ -31,6 +31,9 @@ table.table.table-condensed(style="width:800px;")
         td Show tooltips
         td
             input(type="checkbox", ng-model="sTooltips")
+        td Enable Group Brushing
+            input(type="checkbox", ng-model="brush", ng-true-value="brush", ng-false-value="")
+    tr
         td Legend position
         td
             select(ng-model="legendPos")
