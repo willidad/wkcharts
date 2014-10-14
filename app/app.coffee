@@ -148,6 +148,42 @@ angular.module('app', ['ui.router','ui.bootstrap','ngAnimate', 'app.templates', 
           templateUrl: pagesPath + 'footer/footer.jade'
           controller: 'FooterCtrl'
       url: '/page10'
+    .state 'page11',
+      views:
+        'top':
+          templateUrl: pagesPath + 'topnav/top.jade'
+          controller: 'TopCtrl'
+        'content':
+          templateUrl: pagesPath + 'contentPage11/page11.jade'
+          controller: 'Page11Ctrl'
+        'footer':
+          templateUrl: pagesPath + 'footer/footer.jade'
+          controller: 'FooterCtrl'
+      url: '/page11'
+    .state 'page12',
+      views:
+        'top':
+          templateUrl: pagesPath + 'topnav/top.jade'
+          controller: 'TopCtrl'
+        'content':
+          templateUrl: pagesPath + 'contentPage12/page12.jade'
+          controller: 'Page12Ctrl'
+        'footer':
+          templateUrl: pagesPath + 'footer/footer.jade'
+          controller: 'FooterCtrl'
+      url: '/page12'
+    .state 'page13',
+      views:
+        'top':
+          templateUrl: pagesPath + 'topnav/top.jade'
+          controller: 'TopCtrl'
+        'content':
+          templateUrl: pagesPath + 'contentPage13/page13.jade'
+          controller: 'Page13Ctrl'
+        'footer':
+          templateUrl: pagesPath + 'footer/footer.jade'
+          controller: 'FooterCtrl'
+      url: '/page13'
 
 
 )

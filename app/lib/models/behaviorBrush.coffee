@@ -69,7 +69,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
           yHit = er.top < cr.bottom - cr.height / 3 and cr.top + cr.height / 3 < er.bottom
           d3.select(this).classed('selected', yHit and xHit)
         )
-      return _selectables.data()
+      return _container.selectAll('.selected').data()
 
 
     #-------------------------------------------------------------------------------------------------------------------
@@ -116,6 +116,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
 
       _tooltip.hide(true)
       _boundsIdx = undefined
+      _selectables = _container.selectAll('.selectable')
       _brushEvents.brushStart()
 
     #--- BrushEnd Event Handler ----------------------------------------------------------------------------------------
@@ -257,7 +258,6 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
       if arguments.length is 0 then return _overlay
       else
         if not _active then return
-        #_area = s.node()
         _overlay = s
         _brushXY = me.x() and me.y()
         _brushX = me.x() and not me.y()
@@ -314,11 +314,12 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
     me.area = (val) ->
       if arguments.length is 0 then return _areaSelection
       else
-        _areaSelection = val
-        _area = _areaSelection.node()
-        _areaBox = _area.getBBox()
-        $log.debug 'area set', _areaBox
-        me.brush(_areaSelection)
+        if not _areaSelection
+          _areaSelection = val
+          _area = _areaSelection.node()
+          _areaBox = _area.getBBox()
+          me.brush(_areaSelection)
+
         return me #to enable chaining
 
     me.container = (val) ->
@@ -340,6 +341,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
         _brushGroup = val
         return me #to enable chaining
 
+
     me.tooltip = (val) ->
       if arguments.length is 0 then return _tooltip
       else
@@ -351,6 +353,9 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
 
     me.extent = () ->
       return _boundsIdx
+
+    me.events = () ->
+      return _brushEvents
 
     me.empty = () ->
       return _boundsIdx is undefined

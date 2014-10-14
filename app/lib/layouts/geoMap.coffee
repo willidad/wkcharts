@@ -18,7 +18,7 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
     link: (scope, element, attrs, layout) ->
 
       _tooltip = undefined
-      _selected = layout.selected()
+      _selected = undefined
       _scaleList = {}
       _id = 'geoMap' + mapCntr++
       _dataMapping = d3.map()
@@ -85,6 +85,7 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
 
       layout.lifeCycle().on 'draw', draw
       _tooltip = layout.behavior().tooltip
+      _selected = layout.behavior().selected
       _tooltip.on "enter.#{_id}", ttEnter
 
       # GeoMap specific properties -------------------------------------------------------------------------------------

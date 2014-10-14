@@ -10,7 +10,7 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
       _tooltip = undefined
       _scaleList = {}
       _id = 'bubble' + bubbleCntr++
-      _selected = layout.selected()
+      _selected = undefined
 
       #--- Tooltip Event Handlers --------------------------------------------------------------------------------------
 
@@ -47,6 +47,7 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
         @getKind('y').resetOnNewData(true)
         @getKind('x').resetOnNewData(true)
         _tooltip = layout.behavior().tooltip
+        _selected = layout.behavior().selected
         _tooltip.on "enter.#{_id}", ttEnter
 
       layout.lifeCycle().on 'draw', draw

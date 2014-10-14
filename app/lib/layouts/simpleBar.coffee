@@ -12,7 +12,7 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
     oldLayout = []
     oldKeys = []
     _scaleList = {}
-    _selected = host.selected()
+    _selected = undefined
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
 
       if oldLayout.length is 0
         bars.enter().append('rect')
-          .attr('class', 'bar')
+          .attr('class', 'bar selectable')
           .style('opacity', 0)
           .call(_tooltip.tooltip)
           .call(_selected)
@@ -92,6 +92,7 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
       @getKind('y').domainCalc('total').resetOnNewData(true)
       @getKind('x').resetOnNewData(true)
       _tooltip = host.behavior().tooltip
+      _selected = host.behavior().selected
       _tooltip.on "enter.#{_id}", ttEnter
 
     host.lifeCycle().on 'draw', draw

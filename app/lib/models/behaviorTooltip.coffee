@@ -44,6 +44,7 @@ angular.module('wk.chart').factory 'behaviorTooltip', ($log, $document, $rootSco
         left: 0 + 'px'
         top: 0 + 'px'
         'z-index': 1500
+        opacity: 0
       }
       _templScope.$apply()  # ensure tooltip gets rendered
       #wayit until it is rendered and then reposition

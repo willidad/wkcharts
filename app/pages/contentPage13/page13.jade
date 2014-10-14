@@ -1,0 +1,32 @@
+.col-lg-6.h50(ng-init="")
+    chart(data="pieData", tooltips)
+        layout(pie, selection, selected-domain="xyBrushDomain")
+            color(property="age", values-legend)
+            size(type="linear",property="population")
+    chart(data="pieData", tooltips)
+        layout(simple-bar, selection, selected-domain="xBrushDomain")
+            x(property="age", type="ordinal", legend-title="Age")
+            y(axis, tick-format=".2s", show-label, label="Population", property="population")
+            color(type="category20", property="age", values-legend)
+
+.col-lg-6
+    .box
+        table.table-condensed.table
+            thead
+                tr
+                    th(colspan=2) Selection on Pie Chart
+            tbody
+                tr
+                    td selected-domain
+                    td {{xyBrushDomain}}
+
+    .box
+        table.table-condensed.table
+            thead
+                tr
+                    th(colspan=2) Click-Object Selection: data values only
+            tbody
+                tr
+                    td selected-domain
+                    td {{xBrushDomain}}
+

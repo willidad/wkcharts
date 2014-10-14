@@ -1,0 +1,30 @@
+.input-small {
+    width:100px;
+}
+
+.extent {
+    fill-opacity:0.2;
+    shape-rendering: crispEdges;
+}
+.resize rect {
+    stroke:black;
+    stroke-width:4;
+    fill:darkgrey;
+}
+
+.col-lg-6.h50 {
+    height:50%;
+}
+
+.angular-google-map-container {
+    height: 700px;
+}
+
+input[type="number"] {
+    width:50px;
+}
+
+.scroll {
+    overflow: scroll;
+    height:52%;
+}

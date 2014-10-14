@@ -3,13 +3,18 @@ angular.module('wk.chart').directive 'selection', ($log) ->
 
   return {
     restrict: 'A'
-    require: ['selection', '^chart', 'layout']
+    scope:
+      selectedDomain: '='
+    require: 'layout'
 
-    link: (scope, element, attrs, controllers) ->
-      me = controllers[0]
-      chart = controllers[1]
-      layout = controllers[2]
+    link: (scope, element, attrs, layout) ->
 
+      layout.lifeCycle().on 'configure.selection', ->
 
+        _selection = layout.behavior().selected
+        _selection.active(true)
+        _selection.on 'selected', (selectedObjects) ->
+          scope.selectedDomain = selectedObjects
+          scope.$apply()
 
   }

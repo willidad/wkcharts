@@ -1,4 +1,4 @@
-angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animation, selection) ->
+angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animation) ->
 
   layout = () ->
     _id = ''
@@ -7,7 +7,6 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
     _isBrush = false
     _data = undefined
     _chart = undefined
-    _selected = selection()
     _scaleList = scaleList()
     _layoutLifeCycle = d3.dispatch('configure', 'draw', 'prepData', 'brush', 'redraw', 'drawAxis', 'update', 'tooltip')
 
@@ -46,12 +45,6 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
 
     me.behavior = () ->
       me.chart().behavior()
-
-    me.selected = (val) ->
-      if arguments.length is 0 then return _selected
-      else
-        _selected = val
-        return me #to enable chaining
 
     me.isBrush = (trueFalse) ->
       if arguments.length is 0 then return _isBrush

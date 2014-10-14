@@ -123,7 +123,7 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
 
         layers.transition().duration(options.duration)
           .attr('d', (d) -> area(d.layer)).attr('transform', "translate(#{offs})")
-          .style('opacity', 1)
+          .style('opacity', 0.7)
 
         layers.exit().transition().duration(options.duration)
           .attr('d', (d) ->

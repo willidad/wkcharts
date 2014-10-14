@@ -64,7 +64,7 @@ angular.module('wk.chart').directive 'horizontalArea', ($log) ->
           .attr('transform', "translate(0,#{options.width + offset})rotate(-90)") #rotate and position chart
           .transition().duration(options.duration)
           .attr('d', (d) -> area(d.value))
-          .style('opacity', 0.3).style('pointer-events', 'none')
+          .style('opacity', 0.7).style('pointer-events', 'none')
         layers.exit().transition().duration(options.duration)
           .style('opacity', 0)
           .remove()

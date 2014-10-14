@@ -40,10 +40,8 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _svg.append('defs').append('clipPath').attr('id', "clip-#{_containerId}").append('rect')
       _container= _svg.append('g').attr('class','d3-chart-container')
       _overlay = _container.append('g').attr('class', 'overlay').style('pointer-events', 'all')
-      _overlay.append('rect').style('visibility', 'none').attr('class', 'background').datum({name:'background'})
+      _overlay.append('rect').style('visibility', 'hidden').attr('class', 'background').datum({name:'background'})
       _chartArea = _container.append('g').attr('class', 'chartArea')
-      _brushArea = _chartArea.append('g').attr('class', 'brushArea')
-
 
     _getAxis = (orient) ->
       axis = _container.select(".axis.#{orient}")
@@ -96,9 +94,10 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
             _margin[axisPos] = d3ChartMargins.axis[axisPos]
             if s.showLabel()
               _margin[axisPos] += d3ChartMargins.label[axisPos]
-      #$log.debug _margin
+      $log.info "Element Margins #{me.id()}",_margin
 
       bounds = _elementSelection.node().getBoundingClientRect()
+      $log.info "Element Bounds #{me.id()}", bounds
       _innerWidth = bounds.width - _margin.left - _margin.right
       _innerHeight = bounds.height - _margin.top - _margin.bottom
       _svg.select("#clip-#{_containerId} rect").attr('width', _innerWidth).attr('height', _innerHeight)

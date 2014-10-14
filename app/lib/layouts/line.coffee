@@ -39,7 +39,7 @@ angular.module('wk.chart').directive 'line', ($log, behavior) ->
 
       draw = (data, options, x, y, color) ->
         layerKeys = y.layerKeys(data)
-        _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key), color:color.scale()(key), key:key})})
+        _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key), color:color.scale()(key), key:key, __data$$:d})})
 
         offset = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
 

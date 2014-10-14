@@ -6,9 +6,9 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
     link: (scope, element, attrs, layout) ->
 
       _tooltip = undefined
+      _selected = undefined
       _id = 'scatter' + scatterCnt++
       _scaleList = []
-      _selected = layout.selected()
 
       ttEnter = (data) ->
         for sName, scale of _scaleList
@@ -41,7 +41,7 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
           .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})")
           .call(init)
           .call(_tooltip.tooltip)
-          #.call(_selected)
+          .call(_selected)
         points
           .transition().duration(options.duration)
           .attr('d', d3.svg.symbol().type((d) -> shape.map(d)).size((d) -> size.map(d) * size.map(d)))
@@ -58,6 +58,7 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
         @getKind('y').domainCalc('extent').resetOnNewData(true)
         @getKind('x').resetOnNewData(true).domainCalc('extent')
         _tooltip = layout.behavior().tooltip
+        _selected = layout.behavior().selected
         _tooltip.on "enter.#{_id}", ttEnter
 
       layout.lifeCycle().on 'draw', draw

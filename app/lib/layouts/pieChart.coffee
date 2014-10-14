@@ -13,7 +13,7 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
     arcs = null
     oldKeys = []
     _scaleList = []
-    _selected = layout.selected()
+    _selected = undefined
     _tooltip = undefined
 
     #-------------------------------------------------------------------------------------------------------------------
@@ -124,6 +124,7 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
     layout.lifeCycle().on 'configure', ->
       _scaleList = this.getScales(['size', 'color'])
       _tooltip = layout.behavior().tooltip
+      _selected = layout.behavior().selected
       _tooltip.on "enter.#{_id}", ttEnter
 
     layout.lifeCycle().on 'draw', draw

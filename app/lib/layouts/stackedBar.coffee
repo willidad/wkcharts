@@ -18,7 +18,7 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
       oldStack = []
       _tooltip = ()->
       _scaleList = {}
-      _selected = host.selected()
+      _selected = undefined
 
       ttEnter = (data) ->
         ttLayers = data.layers.map((l) -> {name:l.layerKey, value:_scaleList.y.formatValue(l.value), color: {'background-color': l.color}})
@@ -153,6 +153,7 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
         @getKind('x').resetOnNewData(true)
         @layerScale('color')
         _tooltip = host.behavior().tooltip
+        _selected = host.behavior().selected
         _tooltip.on "enter.#{_id}", ttEnter
 
       host.lifeCycle().on 'draw', draw
