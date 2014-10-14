@@ -3,7 +3,8 @@
     margin: 4px;
     border: #a9a9a9 solid 2px;
     z-index:5000;
-    overflow: hidden;
+    opacity:0.7;
+
 }
 .d3ChartsToolTip > .table {
     margin-bottom: 0;
@@ -77,19 +78,19 @@ li.d3ChartShapeLegendItem span {
     opacity:1;
 }
 
-.brushArea .resize rect, .overlay .resize rect {
+.brushArea .resize rect, .overlay>.resize rect {
     stroke: darkgrey;
     visibility: visible;
 }
 
-.brushArea .background, .overlay .background {
-    fill:lightgrey;
-    fill-opacity:0.2;
+.brushArea>.background, .overlay>.background {
+    visibility: hidden
 }
-.brushArea .extent, .overlay .extent {
+.brushArea>.extent, .overlay>.extent {
     fill:lightgrey;
     fill-opacity:0.6;
 }
+
 
 .selected {
     stroke:red;

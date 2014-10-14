@@ -1,9 +1,13 @@
 angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
+
+  clusteredBarCntr = 0
   return {
     restrict: 'A'
     require: '^layout'
 
     link: (scope, element, attrs, host) ->
+
+      _id = "clusteredBar#{clusteredBarCntr++}"
 
       layers = null
       layerKeysOld = []
@@ -47,7 +51,7 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
 
       #-----------------------------------------------------------------------------------------------------------------
 
-      _tooltip = ()->
+      _tooltip = undefined
       _scaleList = {}
 
       ttEnter = (data) ->
@@ -55,10 +59,6 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
         @headerName = _scaleList.x.axisLabel()
         @headerValue = _scaleList.x.formatValue(data.key)
         @layers = @layers.concat(ttLayers)
-
-      setTooltip = (tooltip) ->
-        _tooltip = tooltip
-        tooltip.on 'enter', ttEnter
 
       #-----------------------------------------------------------------------------------------------------------------
 
@@ -88,13 +88,13 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
 
         if clusterOld.length is 0
           layers.enter().append('g')
-            .attr('class', 'layer').call(_tooltip)
+            .attr('class', 'layer').call(_tooltip.tooltip)
             .attr('transform',(d) -> "translate(#{d.x},0) scale(1,1)")
             .style({opacity: 0})
 
         else
           layers.enter().append('g')
-            .attr('class', 'layer').call(_tooltip)
+            .attr('class', 'layer').call(_tooltip.tooltip)
             .attr('transform', (d)-> "translate(#{getXPredX(xAddedPred[d.key], clusterOld)}, 0) scale(1,1)")
 
         layers
@@ -152,8 +152,8 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
         @getKind('y').domainCalc('max').resetOnNewData(true)
         @getKind('x').resetOnNewData(true)
         @layerScale('color')
+        _tooltip = host.behavior().tooltip
+        _tooltip.on "enter.#{_id}", ttEnter
 
       host.lifeCycle().on 'draw', draw
-
-      host.lifeCycle().on 'tooltip', setTooltip
   }

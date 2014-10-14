@@ -5,13 +5,10 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
     require: '^layout'
     link: (scope, element, attrs, layout) ->
 
-      _tooltip = () ->
+      _tooltip = undefined
       _id = 'scatter' + scatterCnt++
       _scaleList = []
       _selected = layout.selected()
-
-
-      prepData = (x, y, color, size, shape) ->
 
       ttEnter = (data) ->
         for sName, scale of _scaleList
@@ -22,12 +19,6 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
             path: if sName is 'shape' then d3.svg.symbol().type(scale.map(data)).size(80)() else undefined
             class: if sName is 'shape' then 'tt-svg-shape' else ''
           })
-
-
-      setTooltip = (tooltip) ->
-        _tooltip = tooltip
-        _tooltip.on "enter.#{_id}", ttEnter
-
 
       #-----------------------------------------------------------------------------------------------------------------
 
@@ -49,7 +40,7 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
           .append('path').attr('class', 'points selectable')
           .attr('transform', (d)-> "translate(#{x.map(d)},#{y.map(d)})")
           .call(init)
-          .call(_tooltip)
+          .call(_tooltip.tooltip)
           #.call(_selected)
         points
           .transition().duration(options.duration)
@@ -66,8 +57,8 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
         _scaleList = @getScales(['x', 'y', 'color', 'size', 'shape'])
         @getKind('y').domainCalc('extent').resetOnNewData(true)
         @getKind('x').resetOnNewData(true).domainCalc('extent')
+        _tooltip = layout.behavior().tooltip
+        _tooltip.on "enter.#{_id}", ttEnter
 
       layout.lifeCycle().on 'draw', draw
-
-      layout.lifeCycle().on 'tooltip', setTooltip
   }

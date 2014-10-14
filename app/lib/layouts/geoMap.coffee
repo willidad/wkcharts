@@ -17,7 +17,7 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
 
     link: (scope, element, attrs, layout) ->
 
-      _tooltip = () ->
+      _tooltip = undefined
       _selected = layout.selected()
       _scaleList = {}
       _id = 'geoMap' + mapCntr++
@@ -33,11 +33,6 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
 
         val = _dataMapping.get(data.properties[_idProp[0]])
         @layers.push({name:val.RS, value:val.DES})
-        #$log.log 'tooltip data', data, val
-
-      setTooltip = (tooltip) ->
-        _tooltip = tooltip
-        _tooltip.on "enter.#{_id}", ttEnter
 
       #-----------------------------------------------------------------------------------------------------------------
       pathSel = []
@@ -69,7 +64,7 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
           pathSel
             .enter().append("svg:path")
               .style('fill','lightgrey').style('stroke', 'darkgrey')
-              .call(_tooltip)
+              .call(_tooltip.tooltip)
               .call(_selected)
               .call(_zoom)
 
@@ -89,8 +84,8 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
         _scaleList.color.resetOnNewData(true)
 
       layout.lifeCycle().on 'draw', draw
-
-      layout.lifeCycle().on 'tooltip', setTooltip
+      _tooltip = layout.behavior().tooltip
+      _tooltip.on "enter.#{_id}", ttEnter
 
       # GeoMap specific properties -------------------------------------------------------------------------------------
 

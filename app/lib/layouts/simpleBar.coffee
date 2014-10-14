@@ -1,12 +1,12 @@
 angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
+  sBarCntr = 0
   return {
   restrict: 'A'
   require: '^layout'
-  controller: ($scope, $attrs) ->
-    me = {chartType: 'barChart', id:utils.getId()}
-    $attrs.$set('chart-id', me.id)
-    return me
+
   link: (scope, element, attrs, host) ->
+
+    _id = "simpleBar#{sBarCntr++}"
 
     bars = null
     oldLayout = []
@@ -30,22 +30,16 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
       if succ then succ.x - succ.width * 0.05 else layout[layout.length - 1].x + layout[layout.length - 1].width * 1.05
 
 
-    #-------------------------------------------------------------------------------------------------------------------
+    #--- Tooltip Event Handlers --------------------------------------------------------------------------------------
 
-    _tooltip = ()->
+    _tooltip = undefined
 
     ttEnter = (data) ->
       @headerName = _scaleList.x.axisLabel()
       @headerValue = _scaleList.y.axisLabel()
       @layers.push({name: _scaleList.color.formattedValue(data.data), value: _scaleList.y.formattedValue(data.data), color:{'background-color': _scaleList.color.map(data.data)}})
 
-
-
-    setTooltip = (tooltip) ->
-      _tooltip = tooltip
-      tooltip.on 'enter', ttEnter
-
-    #-------------------------------------------------------------------------------------------------------------------
+    #--- Draw --------------------------------------------------------------------------------------------------------
 
     draw = (data, options, x, y, color) ->
 
@@ -59,22 +53,20 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
       deletedSucc = utils.diff(oldKeys, newKeys, 1)
       addedPred = utils.diff(newKeys, oldKeys, -1)
 
-      #$log.info 'barchart added, deleted', addedPred, deletedSucc
-
       bars = bars.data(layout, (d) -> d.key)
 
       if oldLayout.length is 0
         bars.enter().append('rect')
           .attr('class', 'bar')
           .style('opacity', 0)
-          .call(_tooltip)
+          .call(_tooltip.tooltip)
           .call(_selected)
       else
         bars.enter().append('rect')
           .attr('class', 'bar selectable')
           .attr('x', (d) -> getPredX(addedPred[d.key], oldLayout))
           .attr('width', 0)
-          .call(_tooltip)
+          .call(_tooltip.tooltip)
           .call(_selected)
 
       bars.style('fill', (d) -> d.color).transition().duration(options.duration)
@@ -93,14 +85,15 @@ angular.module('wk.chart').directive 'simpleBar', ($log, utils)->
       oldLayout = layout
       oldKeys = newKeys
 
-    #-------------------------------------------------------------------------------------------------------------------
+    #--- Configuration and registration ------------------------------------------------------------------------------
 
     host.lifeCycle().on 'configure', ->
       _scaleList = @getScales(['x', 'y', 'color'])
       @getKind('y').domainCalc('total').resetOnNewData(true)
       @getKind('x').resetOnNewData(true)
+      _tooltip = host.behavior().tooltip
+      _tooltip.on "enter.#{_id}", ttEnter
 
     host.lifeCycle().on 'draw', draw
 
-    host.lifeCycle().on 'tooltip', setTooltip
   }

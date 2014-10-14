@@ -1,4 +1,6 @@
 angular.module('wk.chart').directive 'pie', ($log, utils) ->
+  pieCntr = 0
+
   return {
   restrict: 'EA'
   require: '^layout'
@@ -6,24 +8,20 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
 
     # set chart specific defaults
 
+    _id = "pie#{pieCntr++}"
+
     arcs = null
     oldKeys = []
     _scaleList = []
     _selected = layout.selected()
+    _tooltip = undefined
 
     #-------------------------------------------------------------------------------------------------------------------
-
-    _tooltip = ()->
 
     ttEnter = (data) ->
       @headerName = _scaleList.color.axisLabel()
       @headerValue = _scaleList.size.axisLabel()
       @layers.push({name: _scaleList.color.formattedValue(data.data), value: _scaleList.size.formattedValue(data.data), color:{'background-color': _scaleList.color.map(data.data)}})
-      null
-
-    setTooltip = (tooltip) ->
-      _tooltip = tooltip
-      tooltip.on 'enter', ttEnter
 
     #-------------------------------------------------------------------------------------------------------------------
 
@@ -104,7 +102,7 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
         .attr('class','arc selectable')
         .style('fill', (d) ->  color.map(d.data))
         .call(init)
-        .call(_tooltip)
+        .call(_tooltip.tooltip)
         .call(_selected)
 
       arcs
@@ -125,8 +123,8 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
 
     layout.lifeCycle().on 'configure', ->
       _scaleList = this.getScales(['size', 'color'])
+      _tooltip = layout.behavior().tooltip
+      _tooltip.on "enter.#{_id}", ttEnter
 
     layout.lifeCycle().on 'draw', draw
-
-    layout.lifeCycle().on 'tooltip', setTooltip
   }

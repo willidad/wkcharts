@@ -1,4 +1,4 @@
-angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, scaleList, axisConfig, d3Animation, tooltip) ->
+angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, scaleList, axisConfig, d3Animation, behavior) ->
 
   containerCnt = 0
 
@@ -21,7 +21,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     _innerHeight = 0
     _data = undefined
     _overlay = undefined
-    _tooltip = tooltip()
+    _behavior = undefined
 
     me = ()->
 
@@ -40,7 +40,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _svg.append('defs').append('clipPath').attr('id', "clip-#{_containerId}").append('rect')
       _container= _svg.append('g').attr('class','d3-chart-container')
       _overlay = _container.append('g').attr('class', 'overlay').style('pointer-events', 'all')
-      #_overlay.append('rect').attr('class', 'background').style({visibility:'hidden'})
+      _overlay.append('rect').style('visibility', 'none').attr('class', 'background').datum({name:'background'})
       _chartArea = _container.append('g').attr('class', 'chartArea')
       _brushArea = _chartArea.append('g').attr('class', 'brushArea')
 
@@ -105,6 +105,8 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _spacedContainer = _container.attr('transform', (d) -> "translate(#{_margin.left}, #{_margin.top})")
       _spacedContainer.select('.chartArea').style('clip-path', "url(#clip-#{_containerId})")
       _spacedContainer.select('.overlay>.background').attr('width', _innerWidth).attr('height', _innerHeight)
+      _chart.behavior().overlay(_overlay)
+      _chart.behavior().container(_spacedContainer)
 
       return me
 
@@ -143,17 +145,6 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     me.prepData = (data) ->
       for l in _layouts
         l.prepareData(data)
-
-    me.setTooltip = (trueFalse) ->
-      for l in _layouts
-        if trueFalse #and not l.isBrush()
-          #_overlay.style('pointer-events', 'auto')
-          _tooltip.active(true)
-          _tooltip.brushElement(_brushArea.node())
-          l.setTooltip(_tooltip, _brushArea)
-        else
-          #_overlay.style('pointer-events', 'none')
-          _tooltip.active(false)
 
     me.drawAxis = () ->
       # set scales before drawing the axis

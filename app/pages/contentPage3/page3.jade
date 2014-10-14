@@ -59,7 +59,7 @@
 .col-lg-6
     .box
         chart(data="productMap", tooltips)
-            layout(bubble, brush)
+            layout(bubble)
                 x(type="linear", property="Profit Margin", axis, domain="-50,100", label="Profit Margin %")
                 y(type="linear", property="Market Growth", axis, label-format="%", domain="0,15", label="Market Growth %")
                 size(type="linear", property="Revenue", range="{{range}}", domain="{{scaleDomain}}")

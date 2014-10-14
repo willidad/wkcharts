@@ -15,51 +15,27 @@ angular.module('wk.chart').directive 'line', ($log, behavior) ->
       offset = 0
       _id = 'line' + lineCntr++
 
-      prepData = (x, y, color) ->
-        #layerKeys = y.layerKeys(@)
-        #_layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:@map((d)-> {x:x.value(d),y:y.layerValue(d, key)})})
+      #--- Tooltip Event Handlers --------------------------------------------------------------------------------------
 
-      ttEnter = (idx, axisX, cntnr) ->
-        cntnrSel = d3.select(cntnr)
-        cntnrHeight = cntnrSel.attr('height')
-        parent = d3.select(cntnr.parentElement)
-        _ttHighlight = parent.append('g')
-        _ttHighlight.append('line').attr({y1:0, y2:cntnrHeight}).style({'pointer-events':'none', stroke:'lightgrey', 'stroke-width':1})
-        _circles = _ttHighlight.selectAll('circle').data(_layout,(d) -> d.key)
-        _circles.enter().append('circle')
-          .attr('r', if _showMarkers then 8 else 5)
-          .attr('fill', (d)-> d.color)
-          .attr('fill-opacity', 0.6)
-          .attr('stroke', 'black')
-          .style('pointer-events','none')
-
-        _ttHighlight.attr('transform', "translate(#{_scaleList.x.scale()(_layout[0].value[idx].x)+offset})")
-
-      ttMove = (idx, axisX,  cntnr) ->
+      ttMoveData = (idx) ->
         ttLayers = _layout.map((l) -> {name:l.key, value:_scaleList.y.formatValue(l.value[idx].y), color:{'background-color': l.color}})
-
-        _circles.attr('cy', (d) ->
-          null
-          _scaleList.y.scale()(d.value[idx].y))
-        _ttHighlight.attr('transform', "translate(#{_scaleList.x.scale()(_layout[0].value[idx].x)+offset})")
-
         @headerName = _scaleList.x.axisLabel()
         @headerValue = _scaleList.x.formatValue(_layout[0].value[idx].x)
         @layers = @layers.concat(ttLayers)
 
-      ttLeave = (x, axisX, cntnr)->
-        _ttHighlight.remove()
+      ttMoveMarker = (idx) ->
+        _circles = this.selectAll('circle').data(_layout, (d) -> d.key)
+        _circles.enter().append('circle')
+          .attr('r', if _showMarkers then 8 else 5)
+          .style('fill', (d)-> d.color)
+          .style('fill-opacity', 0.6)
+          .style('stroke', 'black')
+          .style('pointer-events','none')
+        _circles.attr('cy', (d) -> _scaleList.y.scale()(d.value[idx].y))
+        _circles.exit().remove()
+        this.attr('transform', "translate(#{_scaleList.x.scale()(_layout[0].value[idx].x) + offset})")
 
-
-
-      setTooltip = (tooltip, overlay) ->
-        _tooltip = tooltip
-        tooltip(overlay)
-        tooltip.refreshOnMove(true)
-        tooltip.on "move.#{_id}", ttMove
-        tooltip.on "enter.#{_id}", ttEnter
-        tooltip.on "leave.#{_id}", ttLeave
-
+      #--- Draw --------------------------------------------------------------------------------------------------------
 
       draw = (data, options, x, y, color) ->
         layerKeys = y.layerKeys(data)
@@ -67,7 +43,7 @@ angular.module('wk.chart').directive 'line', ($log, behavior) ->
 
         offset = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
 
-        if _tooltip then _tooltip.scale(x).data(data)
+        if _tooltip then _tooltip.data(data)
 
         markers = (layer) ->
           if _showMarkers
@@ -103,35 +79,26 @@ angular.module('wk.chart').directive 'line', ($log, behavior) ->
           .style('opacity', 0)
           .remove()
 
-
+      #--- Configuration and registration ------------------------------------------------------------------------------
 
       host.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['x', 'y', 'color'])
         @layerScale('color')
         @getKind('y').domainCalc('extent').resetOnNewData(true)
         @getKind('x').resetOnNewData(true).domainCalc('extent')
+        _tooltip = host.behavior().tooltip
+        _tooltip.markerScale(_scaleList.x)
+        _tooltip.on "enter.#{_id}", ttMoveData
+        _tooltip.on "moveData.#{_id}", ttMoveData
+        _tooltip.on "moveMarker.#{_id}", ttMoveMarker
 
       host.lifeCycle().on 'draw', draw
 
-      host.lifeCycle().on 'prepData', prepData
+      #--- Property Observers ------------------------------------------------------------------------------------------
 
-      host.lifeCycle().on "tooltip.#{_id}", setTooltip
-
-      #-----------------------------------------------------------------------------------------------------------------
       attrs.$observe 'markers', (val) ->
         if val is '' or val is 'true'
           _showMarkers = true
         else
           _showMarkers = false
-
-      attrs.$observe 'behave', (val) ->
-        if val is ''
-          c = host.container().getOverlay()
-          behave = behavior()
-          behave.brush(c)
-          behave.tooltip(c)
-
-
-
-
   }

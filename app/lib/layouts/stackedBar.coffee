@@ -1,10 +1,14 @@
 angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
+
+  stackedBarCntr = 0
   return {
     restrict: 'A'
     require: 'layout'
     link: (scope, element, attrs, host) ->
 
       #$log.log 'linking Stacked bar'
+
+      _id = "stackedBar#{stackedBarCntr++}"
 
       layers = null
 
@@ -21,10 +25,6 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
         @headerName = _scaleList.x.axisLabel()
         @headerValue = _scaleList.x.formatValue(data.key)
         @layers = @layers.concat(ttLayers)
-
-      setTooltip = (tooltip) ->
-        _tooltip = tooltip
-        tooltip.on 'enter', ttEnter
 
       #-----------------------------------------------------------------------------------------------------------------
 
@@ -77,14 +77,14 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
 
         if oldStack.length is 0
           layers.enter().append('g')
-            .attr('class', "layer").attr('transform',(d) -> "translate(#{d.x},0) scale(1,1)").style('opacity',0).call(_tooltip)
+            .attr('class', "layer").attr('transform',(d) -> "translate(#{d.x},0) scale(1,1)").style('opacity',0).call(_tooltip.tooltip)
         else
           layers.enter().append('g')
             .attr('class', "layer").attr('transform',(d) ->
               pred = getXByKey(oldStack, xAddedPred[d.key])
               tx = if pred then pred.x + pred.width * 1.05 else 0
               return "translate(#{tx},0) scale(0,1)"
-            ).call(_tooltip)
+            ).call(_tooltip.tooltip)
 
         layers
           .transition().duration(options.duration)
@@ -152,8 +152,8 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
         @getKind('y').domainCalc('total').resetOnNewData(true)
         @getKind('x').resetOnNewData(true)
         @layerScale('color')
+        _tooltip = host.behavior().tooltip
+        _tooltip.on "enter.#{_id}", ttEnter
 
       host.lifeCycle().on 'draw', draw
-
-      host.lifeCycle().on 'tooltip', setTooltip
   }

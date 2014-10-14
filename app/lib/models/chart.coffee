@@ -1,7 +1,9 @@
-angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, container) ->
+angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, container, behavior) ->
 
   chart = () ->
     _id = ''
+
+    me = () ->
 
     _layouts = []               # List of layouts for the chart
     _container = container()    # the charts drawing container object
@@ -9,13 +11,14 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
     _ownedScales = scaleList()  # holds the scles owned by chart, i.e. share scales
     _data = undefined           # pointer to the last data set bound to chart
     _showTooltip = false        # tooltip property
+    _behavior = behavior()
 
     _container.chart(me)        # register the chart with the container object
 
     _brush = d3.dispatch('draw', 'change')
     _chartEvents = d3.dispatch('configure', 'draw', 'redraw', 'drawAxis', 'update')
 
-    me = () ->
+
 
     #--- Getter/Setter Functions ---------------------------------------------------------------------------------------
 
@@ -29,7 +32,7 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
       if arguments.length is 0 then return _showTooltip
       else
         _showTooltip = trueFalse
-        _container.setTooltip(_showTooltip)
+        _behavior.tooltip.active(_showTooltip)
         return me
 
     #--- Setter and registration functions -----------------------------------------------------------------------------
@@ -70,6 +73,9 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
 
     me.getData = () ->
       return _data
+
+    me.behavior = () ->
+      return _behavior
 
     #--- Chart drawing life cycle --------------------------------------------------------------------------------------
 

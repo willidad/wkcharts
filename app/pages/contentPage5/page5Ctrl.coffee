@@ -14,7 +14,7 @@ angular.module('wk.chart').controller 'Page5Ctrl', ($log, $scope, $interval) ->
   d3.csv 'Altersstruktur.csv', (rows) ->
 
     $scope.altersstruktur = rows.map((r) ->
-      r.diff = +r.männlich + +r.weiblich
+      r.diff = +r.maennlich + +r.weiblich
       return r
     )
     $scope.$apply()

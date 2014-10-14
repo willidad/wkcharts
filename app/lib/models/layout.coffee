@@ -44,6 +44,9 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
       _layoutLifeCycle.tooltip(tooltip, overlay)
       return me
 
+    me.behavior = () ->
+      me.chart().behavior()
+
     me.selected = (val) ->
       if arguments.length is 0 then return _selected
       else
@@ -104,9 +107,6 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
         me.draw(_data, notAnimated)
 
     me.brushed = (x) ->
-
-    #me.update = (notAnimated) ->
-    #  me.chart().lifeCycle().update(notAnimated)
 
     return me
 

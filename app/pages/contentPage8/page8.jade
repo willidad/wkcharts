@@ -1,8 +1,8 @@
 .col-lg-6(ng-init="")
     .box80
-        chart(data="spiderData")
+        chart(data="spiderData", tooltips)
             layout(spider)
-                y(type="linear", tick-format="%", ticks="6")
+                y(type="linear", tick-format="%", ticks="6", format="%")
                 x(type="ordinal", property="axis")
                 color(type="category10", legend="top-left", legend-title="What % of owners use a specific service in a week")
 

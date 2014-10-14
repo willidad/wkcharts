@@ -8,6 +8,7 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
       stack = d3.layout.stack()
       offset = 'zero'
       layers = null
+      _showMarkers = false
       layerKeys = []
       layerData = []
       layoutNew = []
@@ -21,37 +22,25 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
       offs = 0
       _id = 'area' + stackedAreaCntr++
 
-      ttEnter = (idx, axisX, cntnr) ->
-        cntnrSel = d3.select(cntnr)
-        cntnrHeight = cntnrSel.attr('height')
-        parent = d3.select(cntnr.parentElement)
-        _ttHighlight = parent.append('g')
-        _ttHighlight.append('line').attr({y1:0, y2:cntnrHeight}).style({'pointer-events':'none', stroke:'lightgrey', 'stroke-width':1})
-        _circles = _ttHighlight.selectAll('circle').data(layoutNew,(d) -> d.key)
-        _circles.enter().append('circle').attr('r', 5).attr('fill', (d)-> d.color).attr('fill-opacity', 0.6).attr('stroke', 'black').style('pointer-events','none')
+      #--- Tooltip Event Handlers --------------------------------------------------------------------------------------
 
-
-      ttMove = (idx, axisX, cntnr) ->
+      ttMoveData = (idx) ->
         ttLayers = layerData.map((l) -> {name:l.key, value:_scaleList.y.formatValue(l.layer[idx].yy), color: {'background-color': l.color}})
-        #$log.info 'tooltip mouse move', x, layers
-
-        _circles.attr('cy', (d) -> scaleY(d.layer[idx].y + d.layer[idx].y0))
-        _ttHighlight.attr('transform', "translate(#{_scaleList.x.scale()(layerData[0].layer[idx].x)+offs})")
-
         @headerName = _scaleList.x.axisLabel()
         @headerValue = _scaleList.x.formatValue(layerData[0].layer[idx].x)
         @layers = @layers.concat(ttLayers)
 
-      ttLeave = (x, axisX, cntnr)->
-        _ttHighlight.remove()
-
-      setTooltip = (tooltip, overlay) ->
-        _tooltip = tooltip
-        tooltip(overlay)
-        tooltip.on "move.#{_id}", ttMove
-        tooltip.on "enter.#{_id}", ttEnter
-        tooltip.on "leave.#{_id}", ttLeave
-        tooltip.refreshOnMove(true)
+      ttMoveMarker = (idx) ->
+        _circles = this.selectAll('circle').data(layerData, (d) -> d.key)
+        _circles.enter().append('circle')
+        .attr('r', if _showMarkers then 8 else 5)
+        .style('fill', (d)-> d.color)
+        .style('fill-opacity', 0.6)
+        .style('stroke', 'black')
+        .style('pointer-events','none')
+        _circles.attr('cy', (d) -> scaleY(d.layer[idx].y + d.layer[idx].y0))
+        _circles.exit().remove()
+        this.attr('transform', "translate(#{_scaleList.x.scale()(layerData[0].layer[idx].x)+offs})")
 
       #-------------------------------------------------------------------------------------------------------------------
 
@@ -80,7 +69,7 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
         deletedSucc = utils.diff(layerKeysOld, layerKeys, 1)
         addedPred = utils.diff(layerKeys, layerKeysOld, -1)
       ###
-      #-------------------------------------------------------------------------------------------------------------------
+      #--- Draw --------------------------------------------------------------------------------------------------------
 
       draw = (data, options, x, y, color) ->
         #$log.log "rendering Area Chart"
@@ -96,7 +85,7 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
 
         offs = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
 
-        if _tooltip then _tooltip.scale(x).data(data)
+        if _tooltip then _tooltip.data(data)
 
         layoutNew = layout(layerData)
 
@@ -143,6 +132,24 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
           )
           .remove()
 
+      #--- Configuration and registration ------------------------------------------------------------------------------
+
+
+
+      host.lifeCycle().on 'configure', ->
+        _scaleList = @getScales(['x', 'y', 'color'])
+        @layerScale('color')
+        @getKind('y').domainCalc('total').resetOnNewData(true)
+        @getKind('x').resetOnNewData(true).domainCalc('extent')
+        _tooltip = host.behavior().tooltip
+        _tooltip.markerScale(_scaleList.x)
+        _tooltip.on "enter.#{_id}", ttMoveData
+        _tooltip.on "moveData.#{_id}", ttMoveData
+        _tooltip.on "moveMarker.#{_id}", ttMoveMarker
+
+      host.lifeCycle().on 'draw', draw
+
+      #--- Property Observers ------------------------------------------------------------------------------------------
 
       attrs.$observe 'stackedArea', (val) ->
         if val in ['zero', 'silhouette', 'expand', 'wiggle']
@@ -150,15 +157,9 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
         stack.offset(offset)
         host.lifeCycle().redraw()
 
-      host.lifeCycle().on 'configure', ->
-        _scaleList = @getScales(['x', 'y', 'color'])
-        @layerScale('color')
-        @getKind('y').domainCalc('total').resetOnNewData(true)
-        @getKind('x').resetOnNewData(true).domainCalc('extent')
-
-      host.lifeCycle().on 'draw', draw
-
-      #host.lifeCycle().on 'prepData', prepData
-
-      host.lifeCycle().on "tooltip.#{_id}", setTooltip
+      attrs.$observe 'markers', (val) ->
+        if val is '' or val is 'true'
+          _showMarkers = true
+        else
+          _showMarkers = false
   }

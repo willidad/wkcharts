@@ -1,4 +1,4 @@
-angular.module('wk.chart').directive 'brush', ($log, selectionSharing) ->
+angular.module('wk.chart').directive 'brush', ($log, selectionSharing, behavior) ->
   return {
     restrict: 'A'
     require: ['^chart', '^layout', '?x', '?y']
@@ -9,17 +9,33 @@ angular.module('wk.chart').directive 'brush', ($log, selectionSharing) ->
     link:(scope, element, attrs, controllers) ->
       chart = controllers[0]
       layout = controllers[1]
-      axis = controllers[2] or controllers[3]
+      x = controllers[2]
+      y = controllers[3]
       xScale = undefined
       yScale = undefined
       _selectables = undefined
       _brushAreaSelection = undefined
-      _isAreaBrush = not axis
+      _isAreaBrush = not x and not y
       _brushGroup = undefined
 
       layout.isBrush(true)
+      brush = chart.behavior().brush
+      if not x and not y
+        #layout brush, get x and y from layout scales
+        scales = layout.scales().getScales(['x', 'y'])
+        brush.x(scales.x)
+        brush.y(scales.y)
+      else
+        brush.x(x)
+        brush.y(y)
+      brush.active(true)
 
-      brush = d3.svg.brush()
+      layout.lifeCycle().on 'draw.brush', (data) ->
+        brush.data(data)
+
+      ###
+      overlay = layout.container().getOverlay()
+
       brushed = () ->
         if not brush.empty()
 
@@ -90,11 +106,13 @@ angular.module('wk.chart').directive 'brush', ($log, selectionSharing) ->
         _selectables = chart.container().getChartArea().selectAll('.selectable')
         _brushAreaSelection = chart.container().getBrushArea().select('.extent')
 
-      layout.onDrawBrush(draw) #todo Switch to eventhandler
-
+      #layout.onDrawBrush(draw) #todo Switch to eventhandler
+      ###
       attrs.$observe 'brush', (val) ->
         if _.isString(val) and val.length > 0
           _brushGroup = val
+          brush.brushGroup(val)
         else
           _brushGroup = undefined
+          brush.brushGroup(undefined)
   }
