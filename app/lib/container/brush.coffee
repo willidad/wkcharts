@@ -33,9 +33,12 @@ angular.module('wk.chart').directive 'brush', ($log, selectionSharing, behavior)
       brush.active(true)
 
       brush.events().on 'brush', (idxRange, valueRange, domain) ->
-        scope.brushExtent = idxRange
-        scope.selectedValues = valueRange
-        scope.selectedDomain = domain
+        if attrs.brushExtent
+          scope.brushExtent = idxRange
+        if attrs.selectedValues
+          scope.selectedValues = valueRange
+        if attrs.selectedDomain
+          scope.selectedDomain = domain
         scope.$apply()
 
       layout.lifeCycle().on 'draw.brush', (data) ->

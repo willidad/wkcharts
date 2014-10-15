@@ -22,6 +22,8 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     _overlay = undefined
     _behavior = undefined
 
+    noAnimation = true
+
     me = ()->
 
     me.id = () ->
@@ -83,7 +85,8 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
 
     me.sizeContainer = () ->
       #collect axis and label information about layouts registered with container
-
+      bounds = _elementSelection.node().getBoundingClientRect()
+      if bounds.width <= 0 then return # check if bounds have a meaningful value. Width is eventually 0 when called while browser layouts page after load. Will be called when layout is done, so just ignore the first call
       _margin = angular.copy(d3ChartMargins.default)
       for l in _layouts
         for k, s of l.scales().allKinds()  #TODO: Not important -  find way to handle shared scales more efficiently
@@ -93,7 +96,6 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
             if s.showLabel()
               _margin[axisPos] += d3ChartMargins.label[axisPos]
 
-      bounds = _elementSelection.node().getBoundingClientRect() #TODO: Problem fix - throttle before getting rect to fix timing problem in Chrome and FF.
       _innerWidth = bounds.width - _margin.left - _margin.right
       _innerHeight = bounds.height - _margin.top - _margin.bottom
       _svg.select("#clip-#{_containerId} rect").attr('width', _innerWidth).attr('height', _innerHeight)
@@ -102,8 +104,12 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _spacedContainer.select('.overlay>.background').attr('width', _innerWidth).attr('height', _innerHeight)
       _chart.behavior().overlay(_overlay)
       _chart.behavior().container(_spacedContainer)
+      me.chart().events().update()
 
       return me
+
+    me.resizeHandler = () ->
+      me.chart().lifeCycle().update(noAnimation)
 
     me.element = (elem) ->
       if arguments.length is 0 then return _element
@@ -113,6 +119,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
         if _elementSelection.empty()
           $log.error "Error: Element #{_element} does not exist"
         else
+          new ResizeSensor(_element.parentElement, me.resizeHandler)
           _genChartFrame()
         return me
 
@@ -138,7 +145,8 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       for l in _layouts
         l.prepareData(data)
 
-    me.drawAxis = () ->
+    me.drawAxis = (notAnimated) ->
+      duration = if notAnimated then 0 else d3Animation.duration
       # set scales before drawing the axis
       for l in _layouts
         for k, s of l.scales().allKinds()
@@ -155,7 +163,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
             else
               s.axis().tickSize(6)
             s.axis().orient(s.axisOrient())
-            a.transition().duration(d3Animation.duration).call(s.axis())
+            a.transition().duration(duration).call(s.axis())
             a.selectAll('.tick').style('pointer-events', 'none')  # avoid fading of tooltip wne hovering over grid lines
             if s.showLabel()
               offs = axisConfig[s.kind()].labelOffset[s.axisOrient()]
@@ -193,12 +201,6 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
           s.axis().tickSize(if s.isHorizontal() then -_innerHeight else -_innerWidth).tickPadding(6) # required for shared scales!
         a.call(s.axis())
       return me
-
-    angular.element($window).on('resize', () ->
-      if _data
-        me.sizeContainer()
-        me.draw(_data, true) #do not animate when resizing the window
-    )
 
     return me
 

@@ -87,18 +87,21 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
     me.lifeCycle = (val) ->
      return _lifeCycle
 
-    me.execLifeCycleFull = (data) ->
+    me.execLifeCycleFull = (data, noAnimation) ->
       if data
+        $log.info 'LifeCycle triggered'
         _data = data
-        _lifeCycle.prepareData(data)    # calls the registered layout types
-        _lifeCycle.scaleDomains(data)   # calls the scales
-        _container.sizeContainer(data)  # calls container #TODO: implement through dispatch mechanism
-        _container.drawAxis(data)       # calls container #TODO: implement through dispatch mechanism
-        _lifeCycle.drawLegend(data)     # calls container #TODO: separate from container object
-        _lifeCycle.drawChart(data)      # calls layout
+        _lifeCycle.prepareData(data, noAnimation)    # calls the registered layout types
+        _lifeCycle.scaleDomains(data, noAnimation)   # calls registered the scales
+        _container.sizeContainer(data, noAnimation)  # calls container #TODO: implement through dispatch mechanism
+        _container.drawAxis(data, noAnimation)       # calls container #TODO: implement through dispatch mechanism
+        _lifeCycle.drawLegend(data, noAnimation)     # calls container #TODO: separate from container object
+        _lifeCycle.drawChart(data, noAnimation)      # calls layout
 
-    me.lifeCycle().on 'newData', me.execLifeCycleFull
-    me.lifeCycle().on 'update', () -> me.execLifeCycleFull(_data)
+    me.lifeCycle().on 'newData.chart', me.execLifeCycleFull
+    me.lifeCycle().on 'update.chart', (noAnimation) ->
+      $log.info 'Update Chart triggered'
+      me.execLifeCycleFull(_data, noAnimation)
 
     #-------------------------------------------------------------------------------------------------------------------
 

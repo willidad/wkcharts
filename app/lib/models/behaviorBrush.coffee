@@ -100,9 +100,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
     brushStart = () ->
       #register a mouse handlers for the brush
       _evTargetData = d3.select(d3.event.target).datum()
-      #_area = this
-      #_areaBox = _area.getBBox()
-      $log.debug 'AreaBox', _areaBox
+      _areaBox = _area.getBBox()
       _startPos = d3.mouse(_area)
       startTop = top
       startLeft = left
@@ -317,7 +315,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
         if not _areaSelection
           _areaSelection = val
           _area = _areaSelection.node()
-          _areaBox = _area.getBBox()
+          #_areaBox = _area.getBBox() need to get when calculating size to deal with resizing
           me.brush(_areaSelection)
 
         return me #to enable chaining
