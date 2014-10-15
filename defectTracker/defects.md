@@ -19,4 +19,4 @@
 19. Legend: enter / exit animation inconsistent, ugly and with inconsistent timing
 20. Selection Marker (red line around selected object) ugly. Need better solution for highlighting selection
 21. GeoMap: Maps: water areas can not be dragged (is a geoJson problem, not a in charts code)
-22. when parsing tooltip or legend template angular throws error when interpolating path value for shape(works correctly though). Error: Invalid value for <path> attribute d="{{ttRow.path}}" 
+Fixed 22. when parsing tooltip or legend template angular throws error when interpolating path value for shape(works correctly though). Error: Invalid value for <path> attribute d="{{ttRow.path}}" 
