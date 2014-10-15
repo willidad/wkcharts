@@ -15,7 +15,6 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     _container = undefined
     _spacedContainer = undefined
     _chartArea = undefined
-    _brushArea = undefined
     _margin = angular.copy(d3ChartMargins.default)
     _innerWidth = 0
     _innerHeight = 0
@@ -84,20 +83,17 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
 
     me.sizeContainer = () ->
       #collect axis and label information about layouts registered with container
-      #$log.log 'sizing container. Owner:', me.id()
+
       _margin = angular.copy(d3ChartMargins.default)
       for l in _layouts
-        for k, s of l.scales().allKinds()  # shared scales will be hit multiple times. ist this a problem?
-          #$log.log ' scaling:', s.id(), s.showAxis(), s.axisOrient()
+        for k, s of l.scales().allKinds()  #TODO: Not important -  find way to handle shared scales more efficiently
           if s.showAxis()
             axisPos = s.axisOrient()
             _margin[axisPos] = d3ChartMargins.axis[axisPos]
             if s.showLabel()
               _margin[axisPos] += d3ChartMargins.label[axisPos]
-      $log.info "Element Margins #{me.id()}",_margin
 
-      bounds = _elementSelection.node().getBoundingClientRect()
-      $log.info "Element Bounds #{me.id()}", bounds
+      bounds = _elementSelection.node().getBoundingClientRect() #TODO: Problem fix - throttle before getting rect to fix timing problem in Chrome and FF.
       _innerWidth = bounds.width - _margin.left - _margin.right
       _innerHeight = bounds.height - _margin.top - _margin.bottom
       _svg.select("#clip-#{_containerId} rect").attr('width', _innerWidth).attr('height', _innerHeight)
@@ -131,9 +127,6 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
 
     me.getChartArea = () ->
       return _spacedContainer.select('.chartArea')
-
-    me.getBrushArea = () ->
-      return _brushArea
 
     me.getOverlay = () ->
       return _overlay

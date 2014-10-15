@@ -32,7 +32,7 @@ angular.module 'app'
       return d
     )
     $scope.longData2.sort((a,b) -> b.total-a.total)
-    $log.info $scope.longData2
+    #$log.info $scope.longData2
 
     $scope.shortData = $scope.longData.slice(0,5)
 

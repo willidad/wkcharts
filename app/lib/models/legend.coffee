@@ -99,7 +99,7 @@ angular.module('wk.chart').factory 'legend', ($log, $compile, $rootScope, $templ
           _legendScope.legendRows = layers.map((d) -> {value:d, color:{'background-color':s(d)}})
         else
           _legendScope.legendRows = layers.map((d) -> {value:d, path:d3.svg.symbol().type(s(d)).size(80)()})
-          $log.log _legendScope.legendRows
+          #$log.log _legendScope.legendRows
         _legendScope.showLegend = true
         _legendScope.position = {
           position:'absolute'
