@@ -20,7 +20,6 @@ angular.module('wk.chart').directive 'brush', ($log, selectionSharing, behavior)
       _isAreaBrush = not x and not y
       _brushGroup = undefined
 
-      layout.isBrush(true)
       brush = chart.behavior().brush
       if not x and not y
         #layout brush, get x and y from layout scales

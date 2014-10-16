@@ -24,7 +24,6 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     _data = undefined
     _overlay = undefined
     _behavior = undefined
-    noAnimation = true
 
     #--- Utility Functions ---------------------------------------------------------------------------------------------
 
@@ -85,7 +84,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     me.element = (elem) ->
       if arguments.length is 0 then return _element
       else
-        _resizeHandler = () ->  me.chart().lifeCycle().update(noAnimation)
+        _resizeHandler = () ->  me.chart().lifeCycle().resize(true) # no animation
         _element = elem
         _elementSelection = d3.select(_element)
         if _elementSelection.empty()
@@ -182,16 +181,10 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     #-------------------------------------------------------------------------------------------------------------------
 
 
-    me.brushed = (s) -> #TODO: remove after change to Brushed
-      if s.showAxis()
-        a = _spacedContainer.select(".axis.#{s.axis().orient()}")
-        if s.isHorizontal()
-          s.range([0, _innerWidth], true)
-        if s.isVertical()
-          s.range([_innerHeight, 0], true)
-        if s.showGrid()
-          s.axis().tickSize(if s.isHorizontal() then -_innerHeight else -_innerWidth).tickPadding(6) # required for shared scales!
-        a.call(s.axis())
+    me.drawSingleAxis = (scale) ->
+      if scale.showAxis()
+        a = _spacedContainer.select(".axis.#{scale.axis().orient()}")
+        a.call(scale.axis())
       return me
 
     return me

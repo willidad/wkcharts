@@ -1,22 +1,19 @@
-angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animation) ->
+angular.module('wk.chart').factory 'layout', ($log, scale, scaleList) ->
+
+  layoutCntr = 0
 
   layout = () ->
-    _id = ''
+    _id = "layout#{layoutCntr++}"
     _container = undefined
-    _drawBrushFn = undefined
-    _isBrush = false
     _data = undefined
     _chart = undefined
     _scaleList = scaleList()
-    _layoutLifeCycle = d3.dispatch('configure', 'draw', 'prepData', 'brush', 'redraw', 'drawAxis', 'update', 'tooltip')
+    _layoutLifeCycle = d3.dispatch('configure', 'draw', 'prepareData', 'brush', 'redraw', 'drawAxis', 'update')
 
     me = () ->
 
     me.id = (id) ->
-      if arguments.length is 0 then return _id
-      else
-        _id = id
-        return me
+      return _id
 
     me.chart = (chart) ->
       if arguments.length is 0 then return _chart
@@ -25,6 +22,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
         _scaleList.parentScales(chart.scales())
         _chart.lifeCycle().on "configure.#{me.id()}", () -> _layoutLifeCycle.configure.apply(me.scales()) #passthrough
         _chart.lifeCycle().on "drawChart.#{me.id()}", me.draw # register for the drawing event
+        _chart.lifeCycle().on "prepareData.#{me.id()}", me.prepareData
         return me
 
     me.scales = () ->
@@ -39,29 +37,14 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
         _container = obj
         return me
 
-    me.setTooltip = (tooltip, overlay) ->
-      _layoutLifeCycle.tooltip(tooltip, overlay)
-      return me
-
     me.behavior = () ->
       me.chart().behavior()
-
-    me.isBrush = (trueFalse) ->
-      if arguments.length is 0 then return _isBrush
-      else
-        _isBrush = trueFalse
-
-    me.onDrawBrush = (drawFn) ->
-      if arguments.length is 0 then return _drawBrushFn
-      else
-        _drawBrushFn = drawFn
 
     me.prepareData = (data) ->
       args = []
       for kind in ['x','y', 'color']
         args.push(_scaleList.getKind(kind))
-
-      _layoutLifeCycle.prepData.apply(data, args)
+      _layoutLifeCycle.prepareData.apply(data, args)
 
     me.lifeCycle = ()->
       return _layoutLifeCycle
@@ -74,12 +57,12 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
       if drawArea.empty()
         drawArea = container.append('g').attr('class', (d) -> me.id())
 
-      options = {height:_container.height(), width:_container.width(), margins:_container.margins(), duration: 0}
-
-      if notAnimated
-        options.duration = 0
-      else
-        options.duration = me.chart().animationDuration()
+      options = {
+        height:_container.height(),
+        width:_container.width(),
+        margins:_container.margins(),
+        duration: if notAnimated then 0 else me.chart().animationDuration()
+      }
 
       args = [data, options]
       for kind in ['x','y', 'color', 'size', 'shape']
@@ -87,19 +70,13 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
 
       _layoutLifeCycle.draw.apply(drawArea, args)
 
-      if _drawBrushFn
-        brushArea = _container.getContainer().select('.brushArea')
-        _drawBrushFn.apply(brushArea, args)
-
       _layoutLifeCycle.on 'redraw', me.redraw
       _layoutLifeCycle.on 'update', me.chart().lifeCycle().update
       _layoutLifeCycle.on 'drawAxis', me.chart().lifeCycle().drawAxis
-
-    me.redraw = (notAnimated) ->
-      if _data
-        me.draw(_data, notAnimated)
-
-    me.brushed = (x) ->
+      _layoutLifeCycle.on 'brush', (axis, notAnimated) ->
+        _container.drawSingleAxis(axis)
+        if _data
+          me.draw(_data, notAnimated)
 
     return me
 

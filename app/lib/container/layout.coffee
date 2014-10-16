@@ -5,8 +5,7 @@ angular.module('wk.chart').directive 'layout', ($log, layout, container) ->
     require: ['layout','^chart']
 
     controller: ($element) ->
-      me = layout().id('layout' + layoutCnt++)
-      #$log.log 'creating controller', me.id()
+      me = layout()
       return me
     link: (scope, element, attrs, controllers) ->
 

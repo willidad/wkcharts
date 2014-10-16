@@ -88,21 +88,21 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
       attrs.$observe 'legend', (val) ->
         if val isnt undefined
           l = me.legend()
-          if val isnt 'false'
-            l.position('top-right').show(true)
-            switch val
-              when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
-                l.position(val).div(undefined)
-              when ''
-
+          l.showValues(false)
+          switch val
+            when 'false'
+              l.show(false)
+            when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
+              l.position(val).div(undefined).show(true)
+            when 'true', ''
+              l.position('top-right').show(true).div(undefined)
+            else
+              legendDiv = d3.select(val)
+              if legendDiv.empty()
+                $log.warn 'legend reference does not exist:', val
+                l.div(undefined).show(false)
               else
-                legendDiv = d3.select(val)
-                if legendDiv.empty()
-                  $log.warn 'legend reference does not exist:', val
-                else
-                  l.div(legendDiv).position('top-left')
-          else
-            me.legend().show(false)
+                l.div(legendDiv).position('top-left').show(true)
 
           l.scale(me).layout(layout)
           if me.parent()
@@ -113,21 +113,20 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
         if val isnt undefined
           l = me.legend()
           l.showValues(true)
-          if val isnt 'false'
-            l.position('top-right').show(true)
-            switch val
-              when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
-                l.position(val).div(undefined)
-              when ''
-
+          switch val
+            when 'false'
+              l.show(false)
+            when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
+              l.position(val).div(undefined).show(true)
+            when 'true'
+              l.position('top-right').show(true).div(undefined)
+            else
+              legendDiv = d3.select(val)
+              if legendDiv.empty()
+                $log.warn 'legend reference does not exist:', val
+                l.div(undefined).show(false)
               else
-                legendDiv = d3.select(val)
-                if legendDiv.empty()
-                  $log.warn 'legend reference does not exist:', val
-                else
-                  l.div(legendDiv).position('top-left')
-          else
-            me.legend().show(false)
+                l.div(legendDiv).position('top-left').show(true)
 
           l.scale(me).layout(layout)
           if me.parent()
