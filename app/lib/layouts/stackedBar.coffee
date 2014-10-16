@@ -109,7 +109,6 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
           bars.enter().append('rect')
             .attr('class', 'bar')
             .call(_selected)
-            #.call(d3Chart.behavior.toolTip)
         else
           bars.enter().append('rect')
             .attr('class', 'bar selectable')
@@ -117,7 +116,7 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
               pred = getLayerByKey(oldStack, d.key, lAddedPred[d.layerKey])
               return if pred then pred.y else y.scale()(0)
             )
-            .attr('height', 0).attr('width',0)
+            .attr('height', 0).attr('width',(d) -> d.width)
             .call(_selected)
 
 
