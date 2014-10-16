@@ -1,4 +1,4 @@
-.col-lg-6.h50(ng-init="sTooltips=true;xAxis=true;yAxis=true;xGrid=true;yGrid=false;xLabel='Date';yLabel='Close ($)'; xTicks=10; yTicks=7; legendPos='top-left';xLblShow=true;yLblShow=false;legendTitle='Ticker';brush='brush'")
+.col-lg-6.h50(ng-init="sTooltips=true;xAxis=true;yAxis=true;xGrid=true;yGrid=false;xLabel='Date';yLabel='Close ($)'; xTicks=10; yTicks=7; legendPos='top-left';xLblShow=true;yLblShow=false;legendTitle='Ticker';brush='brush';brushHandles=''")
 
     .box80
         chart(data="combo", tooltips="{{sTooltips}}")
@@ -9,7 +9,7 @@
                     label="{{yLabel}}", show-label="{{yLblShow}}", ticks="{{yTicks}}", legend="{{legendPos}}", legend-title="{{legendTitle}}", format="{{yFormat}}")
 
     .box20
-        chart(data="combo")
+        chart(data="combo", ng-class="brushHandles")
             layout(area)
                 y(type="linear", property="msft", layer-property="close", domain-range="extent")
                 x(axis, brush="{{brush}}", brush-change="brushChange(extent,range)", type="time", property="date", domain-range="extent")
@@ -33,6 +33,8 @@ table.table.table-condensed(style="width:800px;")
             input(type="checkbox", ng-model="sTooltips")
         td Enable Group Brushing
             input(type="checkbox", ng-model="brush", ng-true-value="brush", ng-false-value="")
+        td Show Brush Handles
+            input(type="checkbox", ng-model="brushHandles", ng-true-value="show-brush-handles", ng-false-value="")
     tr
         td Legend position
         td
