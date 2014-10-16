@@ -14,7 +14,7 @@
                         x(axis, brushed="b1", type="time", property="date", domain-range="extent", grid)
                         color(type="category10")
             .box
-                chart(data="combo")
+                chart(data="combo", class="show-brush-handles")
                     layout(area)
                         y(type="linear", property="msft", layer-property="close", domain-range="extent", ticks="3")
                         x(axis, brush="b1", type="time", property="date", domain-range="extent")
@@ -27,7 +27,7 @@
                 x(axis, brushed="b2", type="time", property="date", domain-range="extent", date-format="%Y%m%d", show-label, label="Date")
                 color(type="category10")
         .box20
-            chart(data="temperature", date-format="%Y%m%d")
+            chart(data="temperature", date-format="%Y%m%d", class="show-brush-handles")
                 layout(line)
                     y(type="linear", domain-range="extent")
                     x(axis, brush="b2", type="time", property="date", domain-range="extent", date-format="%Y%m%d")
@@ -43,7 +43,7 @@
                 layout(line)
                     y(axis="right", type="linear", property="volume", domain-range="max", label="Volume", tick-format=".2s")
         .box20
-            chart(data="hpq")
+            chart(data="hpq", class="show-brush-handles")
                 layout(line)
                     x(axis, brush="b3", type="time", property="date", domain-range="extent")
                     y(type="linear", property="close", domain-range="max")
@@ -56,7 +56,7 @@
                     y(type="linear", axis, tick-format=".2s", show-grid, legend)
                 color(type="category10")
         .box20
-            chart(data="ageGroups")
+            chart(data="ageGroups", class="show-brush-handles")
                 layout(stacked-bar)
                     x(brush="b4", brush-change="brushChange(extent,range)", property="State", type="ordinal", axis)
                     y(type="linear", domain-range="totalExtent")

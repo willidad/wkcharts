@@ -267,24 +267,24 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
         # resize handles for the sides
         if _brushY or _brushXY
           s.append('g').attr('class', 'resize n').style({cursor:'ns-resize', display:'none'})
-            .append('rect').attr({x:0, y: -3, width:0, height:6}).style('visibility', 'hidden').datum({name:'n'})
+            .append('rect').attr({x:0, y: -3, width:0, height:6}).datum({name:'n'})
           s.append('g').attr('class', 'resize s').style({cursor:'ns-resize', display:'none'})
-            .append('rect').attr({x:0, y: -3, width:0, height:6}).style('visibility', 'hidden').datum({name:'s'})
+            .append('rect').attr({x:0, y: -3, width:0, height:6}).datum({name:'s'})
         if _brushX or _brushXY
           s.append('g').attr('class', 'resize w').style({cursor:'ew-resize', display:'none'})
-            .append('rect').attr({y:0, x: -3, width:6, height:0}).style('visibility', 'hidden').datum({name:'w'})
+            .append('rect').attr({y:0, x: -3, width:6, height:0}).datum({name:'w'})
           s.append('g').attr('class', 'resize e').style({cursor:'ew-resize', display:'none'})
-            .append('rect').attr({y:0, x: -3, width:6, height:0}).style('visibility', 'hidden').datum({name:'e'})
+            .append('rect').attr({y:0, x: -3, width:6, height:0}).datum({name:'e'})
         # resize handles for the corners
         if _brushXY
           s.append('g').attr('class', 'resize nw').style({cursor:'nwse-resize', display:'none'})
-          .append('rect').attr({x: -3, y: -3, width:6, height:6}).style('visibility', 'hidden').datum({name:'nw'})
+          .append('rect').attr({x: -3, y: -3, width:6, height:6}).datum({name:'nw'})
           s.append('g').attr('class', 'resize ne').style({cursor:'nesw-resize', display:'none'})
-          .append('rect').attr({x: -3, y: -3, width:6, height:6}).style('visibility', 'hidden').datum({name:'ne'})
+          .append('rect').attr({x: -3, y: -3, width:6, height:6}).datum({name:'ne'})
           s.append('g').attr('class', 'resize sw').style({cursor:'nesw-resize', display:'none'})
-          .append('rect').attr({x: -3, y: -3, width:6, height:6}).style('visibility', 'hidden').datum({name:'sw'})
+          .append('rect').attr({x: -3, y: -3, width:6, height:6}).datum({name:'sw'})
           s.append('g').attr('class', 'resize se').style({cursor:'nwse-resize', display:'none'})
-          .append('rect').attr({x: -3, y: -3, width:6, height:6}).style('visibility', 'hidden').datum({name:'se'})
+          .append('rect').attr({x: -3, y: -3, width:6, height:6}).datum({name:'se'})
         #register handler. Please note, brush wants the mouse down exclusively !!!
         s.on 'mousedown.brush', brushStart
         return me

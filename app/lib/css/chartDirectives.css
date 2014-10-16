@@ -78,15 +78,20 @@ li.d3ChartShapeLegendItem span {
     opacity:1;
 }
 
-.brushArea .resize rect, .overlay>.resize rect {
-    stroke: darkgrey;
+.overlay .resize rect {
+    stroke: black;
+    fill: darkgrey;
+    visibility: hidden;
+}
+
+.show-brush-handles .overlay .resize rect {
     visibility: visible;
 }
 
-.brushArea>.background, .overlay>.background {
+.overlay .background {
     visibility: hidden
 }
-.brushArea>.extent, .overlay>.extent {
+.overlay>.extent {
     fill:lightgrey;
     fill-opacity:0.6;
 }
