@@ -23,7 +23,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
       else
         _chart = chart
         _scaleList.parentScales(chart.scales())
-        _chart.events().on "configure.#{me.id()}", () -> _layoutLifeCycle.configure.apply(me.scales()) #passthrough
+        _chart.lifeCycle().on "configure.#{me.id()}", () -> _layoutLifeCycle.configure.apply(me.scales()) #passthrough
         _chart.lifeCycle().on "drawChart.#{me.id()}", me.draw # register for the drawing event
         return me
 
@@ -79,7 +79,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
       if notAnimated
         options.duration = 0
       else
-        options.duration = d3Animation.duration
+        options.duration = me.chart().animationDuration()
 
       args = [data, options]
       for kind in ['x','y', 'color', 'size', 'shape']
@@ -93,7 +93,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, d3Animatio
 
       _layoutLifeCycle.on 'redraw', me.redraw
       _layoutLifeCycle.on 'update', me.chart().lifeCycle().update
-      _layoutLifeCycle.on 'drawAxis', me.chart().events().drawAxis
+      _layoutLifeCycle.on 'drawAxis', me.chart().lifeCycle().drawAxis
 
     me.redraw = (notAnimated) ->
       if _data

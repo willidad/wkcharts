@@ -4,9 +4,12 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
 
   container = () ->
 
+    me = ()->
+
+    #--- Variable declarations and defaults ----------------------------------------------------------------------------
+
     _containerId = 'cntnr' + containerCnt++
     _chart = undefined
-
     _element = undefined
     _elementSelection = undefined
     _layouts = []
@@ -21,23 +24,13 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     _data = undefined
     _overlay = undefined
     _behavior = undefined
-
     noAnimation = true
 
-    me = ()->
-
-    me.id = () ->
-      return _containerId
-
-    me.chart = (chart) ->
-      if arguments.length is 0 then return _chart
-      else
-        _chart = chart
-        return me
+    #--- Utility Functions ---------------------------------------------------------------------------------------------
 
     _genChartFrame = ()->
       _svg = _elementSelection.append('div').attr('class', 'd3-chart')
-        .append('svg')
+      .append('svg')
       _svg.append('defs').append('clipPath').attr('id', "clip-#{_containerId}").append('rect')
       _container= _svg.append('g').attr('class','d3-chart-container')
       _overlay = _container.append('g').attr('class', 'overlay').style('pointer-events', 'all')
@@ -57,6 +50,9 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
     _removeAxis = (orient) ->
       _container.select(".axis.#{orient}").remove()
 
+    _removeLabel = (orient) ->
+      _container.select(".label.#{orient}").remove()
+
     _getLabel = (orient) ->
       label = _container.select(".label.#{orient}")
       if label.empty()
@@ -72,16 +68,57 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
           label.attr('transform', (d) ->"translate(#{_innerWidth+_margin.right},#{_innerHeight/2})rotate(90)")
       return label
 
-    _removeLabel = (orient) ->
-      _container.select(".label.#{orient}").remove()
+    #--- Getter/Setter Functions ---------------------------------------------------------------------------------------
+
+    me.id = () ->
+      return _containerId
+
+    me.chart = (chart) ->
+      if arguments.length is 0 then return _chart
+      else
+        _chart = chart
+        # register to lifecycle events
+        _chart.lifeCycle().on "sizeContainer.#{me.id()}", me.sizeContainer
+        _chart.lifeCycle().on "drawAxis.#{me.id()}", me.drawAxis
+        return me
+
+    me.element = (elem) ->
+      if arguments.length is 0 then return _element
+      else
+        _resizeHandler = () ->  me.chart().lifeCycle().update(noAnimation)
+        _element = elem
+        _elementSelection = d3.select(_element)
+        if _elementSelection.empty()
+          $log.error "Error: Element #{_element} does not exist"
+        else
+          new ResizeSensor(_element.parentElement, _resizeHandler)
+          _genChartFrame()
+        return me
 
     me.addLayout = (layout) ->
       _layouts.push(layout)
       return me
 
-    me.addLegend = (legend) ->
-      _legends.push(legend)
-      return me
+    me.height = () ->
+      return _innerHeight
+
+    me.width = () ->
+      return _innerWidth
+
+    me.margins = () ->
+      return _margin
+
+    me.getChartArea = () ->
+      return _spacedContainer.select('.chartArea')
+
+    me.getOverlay = () ->
+      return _overlay
+
+    me.getContainer = () ->
+      return _spacedContainer
+
+    # Life Cycle Functions ---------------------------------------------------------------------------------------------
+    #--- Size Container  -----------------------------------------------------------------------------------------------
 
     me.sizeContainer = () ->
       #collect axis and label information about layouts registered with container
@@ -104,49 +141,13 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _spacedContainer.select('.overlay>.background').attr('width', _innerWidth).attr('height', _innerHeight)
       _chart.behavior().overlay(_overlay)
       _chart.behavior().container(_spacedContainer)
-      me.chart().events().update()
 
       return me
 
-    me.resizeHandler = () ->
-      me.chart().lifeCycle().update(noAnimation)
-
-    me.element = (elem) ->
-      if arguments.length is 0 then return _element
-      else
-        _element = elem
-        _elementSelection = d3.select(_element)
-        if _elementSelection.empty()
-          $log.error "Error: Element #{_element} does not exist"
-        else
-          new ResizeSensor(_element.parentElement, me.resizeHandler)
-          _genChartFrame()
-        return me
-
-    me.height = () ->
-      return _innerHeight
-
-    me.width = () ->
-      return _innerWidth
-
-    me.margins = () ->
-      return _margin
-
-    me.getChartArea = () ->
-      return _spacedContainer.select('.chartArea')
-
-    me.getOverlay = () ->
-      return _overlay
-
-    me.getContainer = () ->
-      return _spacedContainer
-
-    me.prepData = (data) ->
-      for l in _layouts
-        l.prepareData(data)
+    #--- Draw Axis -----------------------------------------------------------------------------------------------------
 
     me.drawAxis = (notAnimated) ->
-      duration = if notAnimated then 0 else d3Animation.duration
+      duration = if notAnimated then 0 else me.chart().animationDuration()
       # set scales before drawing the axis
       for l in _layouts
         for k, s of l.scales().allKinds()
@@ -175,22 +176,13 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
             else
               _removeLabel(s.axisOrient())
           if s.axisOrientOld() and s.axisOrientOld() isnt s.axisOrient()
-            me.removeAxis(s.axisOrientOld())
+            _removeAxis(s.axisOrientOld())
             _removeLabel(s.axisOrientOld())
 
-    me.removeAxis = (orient) ->
-      _removeAxis(orient)
-      _removeLabel(orient)
+    #-------------------------------------------------------------------------------------------------------------------
 
 
-    me.draw = (data, doNotAnimate) ->
-      _data = data
-      #$log.log 'Drawing container Layout', me.id()
-      for l in _layouts
-        l.draw(data, doNotAnimate)
-      return me
-
-    me.brushed = (s) ->
+    me.brushed = (s) -> #TODO: remove after change to Brushed
       if s.showAxis()
         a = _spacedContainer.select(".axis.#{s.axis().orient()}")
         if s.isHorizontal()

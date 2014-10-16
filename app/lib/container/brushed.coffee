@@ -12,7 +12,7 @@ angular.module('wk.chart').directive 'brushed', ($log,selectionSharing) ->
 
       brusher = (extent) ->
         x.scale().domain(extent)
-        for l in chart.layouts() when l.scales().hasScale(x)
+        for l in chart.layouts() when l.scales().hasScale(x) #TODO Need a better way using events
           l.container().brushed(x)
           l.redraw(true)
 

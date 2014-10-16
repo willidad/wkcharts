@@ -1,12 +1,14 @@
-angular.module('wk.chart').directive 'line', ($log, behavior) ->
+angular.module('wk.chart').directive 'line', ($log, behavior, utils) ->
   lineCntr = 0
   return {
     restrict: 'A'
     require: 'layout'
     link: (scope, element, attrs, host) ->
       #$log.log 'linking s-line'
-      layerKeys = []
+      _layerKeys = []
       _layout = []
+      _initialOpacity = 1
+
       _tooltip = undefined
       _ttHighlight = undefined
       _circles = undefined
@@ -14,6 +16,7 @@ angular.module('wk.chart').directive 'line', ($log, behavior) ->
       _scaleList = {}
       offset = 0
       _id = 'line' + lineCntr++
+
 
       #--- Tooltip Event Handlers --------------------------------------------------------------------------------------
 
@@ -38,8 +41,8 @@ angular.module('wk.chart').directive 'line', ($log, behavior) ->
       #--- Draw --------------------------------------------------------------------------------------------------------
 
       draw = (data, options, x, y, color) ->
-        layerKeys = y.layerKeys(data)
-        _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key), color:color.scale()(key), key:key, __data$$:d})})
+        _layerKeys = y.layerKeys(data)
+        _layout = _layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key), color:color.scale()(key), key:key, __data$$:d})})
 
         offset = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
 
@@ -55,10 +58,12 @@ angular.module('wk.chart').directive 'line', ($log, behavior) ->
               .attr('r', 5)
               .style('fill', (d) -> d.color)
               .style('pointer-events','none')
+              .style('opacity', _initialOpacity)
             m.transition().duration(options.duration)
               .attr('cy', (d) -> y.scale()(d.y))
               .attr('cx', (d) -> x.scale()(d.x) + offset)
-            m.exit().transition().duration(options.duration).remove()
+              .style('opacity', 1)
+            m.exit().transition().duration(options.duration).style('opacity', 0).remove()
 
         line = d3.svg.line()
           .x((d) -> x.scale()(d.x))
@@ -66,20 +71,22 @@ angular.module('wk.chart').directive 'line', ($log, behavior) ->
 
         layers = this.selectAll(".layer")
           .data(_layout, (d) -> d.key)
-        enter = layers.enter().append('g').attr('class', "layer")#.attr('transform', "translate(#{offset})")
+        enter = layers.enter().append('g').attr('class', "layer")
         enter.append('path')
           .attr('class','line')
           .style('stroke', (d) -> d.color)
-          .style('opacity', 0)
+          .style('opacity', _initialOpacity)
           .style('pointer-events', 'none')
-        layers.select('.line').transition().duration(options.duration)
+        layers.select('.line').attr('transform', "translate(#{offset})").transition().duration(options.duration)
           .attr('d', (d) -> line(d.value))
           .style('opacity', 1).style('pointer-events', 'none')
-          .attr('transform', "translate(#{offset})")
+
         layers.exit().transition().duration(options.duration)
           .style('opacity', 0)
           .remove()
         layers.call(markers)
+
+        _initialOpacity = 0
 
       #--- Configuration and registration ------------------------------------------------------------------------------
 

@@ -158,7 +158,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
 
         _isOrdinal = _scaleType in ['ordinal', 'category10', 'category20', 'category20b', 'category20c']
         if _range
-          me.setRange(_range)
+          me.range(_range)
 
         if _showAxis
           _axis.scale(_scale)

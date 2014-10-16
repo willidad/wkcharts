@@ -1,32 +1,33 @@
-angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, container, behavior) ->
+angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, container, behavior, d3Animation) ->
+
+  chartCntr = 0
 
   chart = () ->
-    _id = ''
+
+    _id = "chart#{chartCntr++}"
 
     me = () ->
 
+    #--- Variable declarations and defaults ----------------------------------------------------------------------------
+
     _layouts = []               # List of layouts for the chart
-    _container = container()    # the charts drawing container object
-    _allScales = scaleList()    # Holds all scales of the chart, regardless of scale owner
-    _ownedScales = scaleList()  # holds the scles owned by chart, i.e. share scales
+    _container = undefined    # the charts drawing container object
+    _allScales = undefined    # Holds all scales of the chart, regardless of scale owner
+    _ownedScales = undefined  # holds the scles owned by chart, i.e. share scales
     _data = undefined           # pointer to the last data set bound to chart
     _showTooltip = false        # tooltip property
     _behavior = behavior()
+    _animationDuration = d3Animation.duration
 
-    _container.chart(me)        # register the chart with the container object
+    #--- LifeCycle Dispatcher ------------------------------------------------------------------------------------------
 
+    _lifeCycle = d3.dispatch('configure','prepareData', 'scaleDomains', 'sizeContainer', 'drawAxis', 'drawLegend', 'drawChart', 'newData', 'update' )
     _brush = d3.dispatch('draw', 'change')
-    _chartEvents = d3.dispatch('configure', 'draw', 'redraw', 'drawAxis', 'update')
-
-
 
     #--- Getter/Setter Functions ---------------------------------------------------------------------------------------
 
     me.id = (id) ->
-      if arguments.length is 0 then return _id
-      else
-        _id = id
-        return me
+      return _id
 
     me.showTooltip = (trueFalse) ->
       if arguments.length is 0 then return _showTooltip
@@ -34,8 +35,6 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
         _showTooltip = trueFalse
         _behavior.tooltip.active(_showTooltip)
         return me
-
-    #--- Setter and registration functions -----------------------------------------------------------------------------
 
     me.addLayout = (layout) ->
       if arguments.length is 0 then return _layouts
@@ -51,7 +50,16 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
         _ownedScales.add(scale)
       return me
 
+    me.animationDuration = (val) ->
+      if arguments.length is 0 then return _animationDuration
+      else
+        _animationDuration = val
+        return me #to enable chaining
+
     #--- Getter Functions ----------------------------------------------------------------------------------------------
+
+    me.lifeCycle = (val) ->
+      return _lifeCycle
 
     me.layouts = () ->
       return _layouts
@@ -79,23 +87,15 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
 
     #--- Chart drawing life cycle --------------------------------------------------------------------------------------
 
-    _lifeCycle = d3.dispatch('prepareData', 'scaleDomains', 'sizeContainer', 'drawAxis', 'drawLegend', 'drawChart', 'newData', 'update' )
-
-    me.events = () ->
-      return _chartEvents
-
-    me.lifeCycle = (val) ->
-     return _lifeCycle
-
     me.execLifeCycleFull = (data, noAnimation) ->
       if data
         $log.info 'LifeCycle triggered'
         _data = data
         _lifeCycle.prepareData(data, noAnimation)    # calls the registered layout types
         _lifeCycle.scaleDomains(data, noAnimation)   # calls registered the scales
-        _container.sizeContainer(data, noAnimation)  # calls container #TODO: implement through dispatch mechanism
-        _container.drawAxis(data, noAnimation)       # calls container #TODO: implement through dispatch mechanism
-        _lifeCycle.drawLegend(data, noAnimation)     # calls container #TODO: separate from container object
+        _lifeCycle.sizeContainer(data, noAnimation)  # calls container
+        _lifeCycle.drawAxis(noAnimation)              # calls container
+        _lifeCycle.drawLegend(data, noAnimation)     # calls container #TODO: disconnect from draw event
         _lifeCycle.drawChart(data, noAnimation)      # calls layout
 
     me.lifeCycle().on 'newData.chart', me.execLifeCycleFull
@@ -103,7 +103,11 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
       $log.info 'Update Chart triggered'
       me.execLifeCycleFull(_data, noAnimation)
 
-    #-------------------------------------------------------------------------------------------------------------------
+    #--- Initialization ------------------------------------------------------------------------------------------------
+
+    _container = container().chart(me)   # the charts drawing container object
+    _allScales = scaleList()    # Holds all scales of the chart, regardless of scale owner
+    _ownedScales = scaleList()  # holds the scles owned by chart, i.e. share scales
 
     return me
 

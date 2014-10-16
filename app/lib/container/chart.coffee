@@ -5,23 +5,20 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
     require: 'chart'
     scope:
       data: '='
-    controller: ($element) ->
-      me = chart().id("chart#{chartCnt++}")
-      #$log.log 'creating controller', me.id()
+    controller: () ->
+      me = chart()
       return me
 
     link: (scope, element, attrs, controller) ->
       me = controller
 
       deepWatch = false
-      dataWatcher = undefined
+      watcherRemoveFn = undefined
       element.addClass(me.id())
-
-      #$log.log 'linking chart id:', me.id()
 
       me.container().element(element[0])
 
-      me.events().configure()
+      me.lifeCycle().configure()
 
       attrs.$observe 'tooltips', (val) ->
         if val isnt undefined and (val is '' or val is 'true')
@@ -29,17 +26,20 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
         else
           me.showTooltip(false)
 
+      attrs.$observe 'animationDuration', (val) ->
+        if val and _.isNumber(+val) and +val >= 0
+          me.animationDuration(val)
+
       attrs.$observe 'deepWatch', (val) ->
         if val isnt undefined and val isnt 'false'
           deepWatch = true
         else
           deepWatch = false
-        if dataWatcher
-          dataWatcher()
-        dataWatcher = scope.$watch 'data', (val) ->
+        if watcherRemoveFn
+          watcherRemoveFn()
+
+        watcherRemoveFn = scope.$watch 'data', (val) ->
           if val
-            #$log.log 'data changed, chart id:', me.id()
-            me.execLifeCycleFull(val)
-            #me.draw(val)
+            me.lifeCycle().newData(val)
         , deepWatch
   }

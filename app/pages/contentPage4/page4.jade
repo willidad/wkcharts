@@ -1,11 +1,11 @@
 .col-lg-6
     .box
-        chart(data="shortDataFilter", layout, line, markers)
+        chart(data="shortDataFilter", layout, line, markers, animation-duration="{{duration}}")
             x(property="State", type="ordinal", axis)
             y(type="linear", axis, tick-format=".2s", grid, , property="{{categories}}", legend, domain-range="extent")
             color(type="category20")
     .box
-        chart(data="shortDataFilter", layout, stacked-bar)
+        chart(data="shortDataFilter", layout, stacked-area, , animation-duration="{{duration}}")
             x(property="State", type="ordinal", axis)
             y(type="linear", axis, tick-format=".2s", grid, , property="{{categories}}", legend)
             color(type="category20")
