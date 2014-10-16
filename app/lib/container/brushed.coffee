@@ -14,7 +14,8 @@ angular.module('wk.chart').directive 'brushed', ($log,selectionSharing) ->
 
       brusher = (extent) ->
         if not axis then return
-        axis.scale().domain(extent)
+        #axis
+        axis.domain(extent).scale().domain(extent)
         for l in chart.layouts() when l.scales().hasScale(axis) #need to do it this way to ensure the right axis is chosen in case of several layouts in a container
           l.lifeCycle().brush(axis, true) #no animation
 

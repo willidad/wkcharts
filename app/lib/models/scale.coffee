@@ -185,7 +185,7 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
     me.getDomain = (data) ->
       if arguments.length is 0 then return _scale.domain()
       else
-        if me.domainCalc()
+        if not _domain and me.domainCalc()
             return _calculatedDomain
         else
           if _domain

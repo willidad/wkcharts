@@ -12,7 +12,7 @@ Fixed:20fa409 17. Brush (All charts) While brushing, moving mouse over legend or
 Fixed:20fa409 18. Brush: (FireFox, IE only) in certain (unknown cause) situations pressing mouse and moving causes a image drag and drop instead if brush move. Appearently browser treats SVG as image and drags it.
 Fixed:4adfe3f 22. when parsing tooltip or legend template angular throws error when interpolating path value for shape(works correctly though). Error: Invalid value for <path> attribute d="{{ttRow.path}}" 
 Fixed:eeb0213 24: Page 6 chart at Top Right Area layout does not show tooltip market
-Fixed: 26: Page 7: Axis are animated on initial load. Not true for all other charts on other pages. Must be some special case due to bound attributes. 
+Fixed:d3bf066 26: Page 7: Axis are animated on initial load. Not true for all other charts on other pages. Must be some special case due to bound attributes. 
 
 8. Line Chart: Enter and exit animation look bad. need better appearance
 9. Area Charts (hor and verAreas): areas are colored with opacity 0.7. Color legends and tooltip colors are Use opacity there too, or go back to opacity 1 for ares
