@@ -46,8 +46,7 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
 
       getLSuccX = (xKey, layerKey, layout) ->
         succ = getLayerByKey(layout, xKey, layerKey)
-        if succ then succ.x + succ.width * 0.05 else layout[layout.length-1].x + layout[layout.length-1].width * 1.05
-
+        if succ then succ.x + succ.width * 0.05 else getXByKey(layout,xKey).width
 
       #-----------------------------------------------------------------------------------------------------------------
 
@@ -104,7 +103,9 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
 
         layers.exit()
           .transition().duration(options.duration)
-            .attr('transform',(d) -> "translate(#{getXSuccX(xDeletedSucc[d.key], cluster)},#{y.scale()(0)}) scale(0,0)")
+            .attr('transform',(d) ->
+              null
+              "translate(#{getXSuccX(xDeletedSucc[d.key], cluster)},#{y.scale()(0)}) scale(0,0)")
             .remove()
 
         enterScale = 0
@@ -137,7 +138,9 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
           .transition().duration(options.duration)
           .attr('width',0)
           .attr('height', 0)
-          .attr('x', (d) -> getLSuccX(d.key, lDeletedSucc[d.layerKey], cluster))
+          .attr('x', (d) ->
+            null
+            getLSuccX(d.key, lDeletedSucc[d.layerKey], cluster))
           .attr('y', y.scale()(0))
           .remove()
 

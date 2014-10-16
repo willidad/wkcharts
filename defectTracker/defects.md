@@ -2,8 +2,8 @@ Fixed:d3a5e10 1. Chrome / Firefox : drawing area gets resized after first data c
 Fixed:d3a5e10 2. (related to 1.) brush extent cannot be moved to very right border.
 Fixed:d3a5e10 3. Charts so not resize when browser window resizes (not related to 1 and 2)
 Fixed:eeb0213 4. Stacked Area chart:  Enter animations wrong
-Fixed: 5. Stacked Bar: layer enter animation wrong
-6. Clustered Bar: Exit animation for top layer wrong (65+years)
+Fixed:938bb94 5. Stacked Bar: layer enter animation wrong
+Fixed: 6. Clustered Bar: Exit animation for top layer wrong (65+years)
 7. Line Chart: lines not positioned correctly after deletion of last data records on ordinal x scale. Does not re-calculate position
 8. Line Chart: Enter and exit animation look bad. need better appearance
 9. Area Charts (hor and verAreas): areas are colored with opacity 0.7. Color legends and tooltip colors are Use opacity there too, or go back to opacity 1 for ares
