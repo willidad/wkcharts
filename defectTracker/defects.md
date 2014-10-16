@@ -12,7 +12,10 @@ Fixed:20fa409 17. Brush (All charts) While brushing, moving mouse over legend or
 Fixed:20fa409 18. Brush: (FireFox, IE only) in certain (unknown cause) situations pressing mouse and moving causes a image drag and drop instead if brush move. Appearently browser treats SVG as image and drags it.
 Fixed:4adfe3f 22. when parsing tooltip or legend template angular throws error when interpolating path value for shape(works correctly though). Error: Invalid value for <path> attribute d="{{ttRow.path}}" 
 Fixed:eeb0213 24: Page 6 chart at Top Right Area layout does not show tooltip market
+Fixed:d3bf066 15. Inconsistent animations of axis and chart after changing axis position or removing axis display or axis label
 Fixed:d3bf066 26: Page 7: Axis are animated on initial load. Not true for all other charts on other pages. Must be some special case due to bound attributes. 
+Fixed:ea6628c 25: When axis are re-configured or new data, brush extent is removed and full range is shown. Should maintain the configured brush extent (Page 7) or reset the brush
+Fixed: 23: BrushArea does not resize when chart container resizes -> selection changes if browser viewport gets changed
 
 8. Line Chart: Enter and exit animation look bad. need better appearance
 9. Area Charts (hor and verAreas): areas are colored with opacity 0.7. Color legends and tooltip colors are Use opacity there too, or go back to opacity 1 for ares
@@ -21,14 +24,14 @@ Fixed:d3bf066 26: Page 7: Axis are animated on initial load. Not true for all ot
 
 13. Page 6: Brush area are not set initially -empty brush. Should we set to full range again (as in earlier versions)
 
-15. Inconsistent animations of axis and chart after changing axis position or removing axis display or axis label
+
 16. Spider Chart (all chart) long tooltip lists do not fit on screen. Need to find a way to display all values (scrolling? two columns?)
  
 19. Legend: enter / exit animation inconsistent, ugly and with inconsistent timing
 20. Selection Marker (red line around selected object) ugly. Need better solution for highlighting selection
 21. GeoMap: Maps: water areas can not be dragged (is a geoJson problem, not a in charts code)
 
-23: BrushArea does not resize when chart container resizes -> selection changes if browser viewport gets changed
+
 
 24: Area Chart enter and exit animation looks bad (related to 8)
-25: When axis are re-configured or new data, brush extent is removed and full range is shown. Should maintain the configured brush extent (Page 7) or reset the brush
+

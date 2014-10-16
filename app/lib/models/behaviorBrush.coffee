@@ -10,9 +10,11 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
     _startPos = undefined
     _evTargetData = undefined
     _area = undefined
+    _chart = undefined
     _data = undefined
     _areaSelection = undefined
     _areaBox = undefined
+    _backgroundBox = undefined
     _container = undefined
     _selectables =  undefined
     _brushGroup = undefined
@@ -289,7 +291,31 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
         s.on 'mousedown.brush', brushStart
         return me
 
+    #--- Extent resize handler -----------------------------------------------------------------------------------------
+
+    resizeExtent = () ->
+      $log.info 'resizing brush extent'
+      if _areaBox
+        newBox = _area.getBBox()
+        $log.debug 'throttle', _areaBox, top, bottom, left, right
+        horizontalRatio = _areaBox.width / newBox.width
+        verticalRatio = _areaBox.height / newBox.height
+        top = top / verticalRatio
+        bottom = bottom / verticalRatio
+        left = left / horizontalRatio
+        right = right / horizontalRatio
+        $log.debug 'throttle', newBox, top, bottom, left, right
+        _areaBox = newBox
+        positionBrushElements(left, right, top, bottom)
+
     #--- Brush Properties --------------------------------------------------------------------------------------------
+
+    me.chart = (val) ->
+      if arguments.length is 0 then return _chart
+      else
+        _chart = val
+        _chart.lifeCycle().on 'resize.brush', resizeExtent
+        return me #to enable chaining
 
     me.active = (val) ->
       if arguments.length is 0 then return _active

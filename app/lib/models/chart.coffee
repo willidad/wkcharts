@@ -128,6 +128,7 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
 
     #--- Initialization ------------------------------------------------------------------------------------------------
 
+    _behavior.chart(me)
     _container = container().chart(me)   # the charts drawing container object
     _allScales = scaleList()    # Holds all scales of the chart, regardless of scale owner
     _ownedScales = scaleList()  # holds the scles owned by chart, i.e. share scales

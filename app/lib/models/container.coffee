@@ -137,6 +137,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
       _svg.select("#clip-#{_containerId} rect").attr('width', _innerWidth).attr('height', _innerHeight)
       _spacedContainer = _container.attr('transform', (d) -> "translate(#{_margin.left}, #{_margin.top})")
       _spacedContainer.select('.chartArea').style('clip-path', "url(#clip-#{_containerId})")
+      _spacedContainer.select('.overlay').style('clip-path', "url(#clip-#{_containerId})")
       _spacedContainer.select('.overlay>.background').attr('width', _innerWidth).attr('height', _innerHeight)
       _chart.behavior().overlay(_overlay)
       _chart.behavior().container(_spacedContainer)
@@ -178,8 +179,7 @@ angular.module('wk.chart').factory 'container', ($log, $window, d3ChartMargins, 
             _removeAxis(s.axisOrientOld())
             _removeLabel(s.axisOrientOld())
 
-    #-------------------------------------------------------------------------------------------------------------------
-
+    #--- Brush Accelerator ---------------------------------------------------------------------------------------------
 
     me.drawSingleAxis = (scale) ->
       if scale.showAxis()
