@@ -1,6 +1,6 @@
 .col-lg-6
     .box
-        chart(data="shortDataFilter", layout, line)
+        chart(data="shortDataFilter", layout, line, markers)
             x(property="State", type="ordinal", axis)
             y(type="linear", axis, tick-format=".2s", grid, , property="{{categories}}", legend, domain-range="extent")
             color(type="category20")
