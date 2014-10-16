@@ -9,6 +9,7 @@ angular.module('wk.chart').factory 'behaviorTooltip', ($log, $document, $rootSco
     _markerLine = undefined
     _areaSelection = undefined
     _area= undefined
+    _container = undefined
     _markerScale = undefined
     _data = undefined
     _tooltipDispatch = d3.dispatch('enter', 'moveData', 'moveMarker', 'leave')
@@ -75,7 +76,7 @@ angular.module('wk.chart').factory 'behaviorTooltip', ($log, $document, $rootSco
         #_area = this
         _areaBox = _areaSelection.select('.background').node().getBBox()
         _pos = d3.mouse(_area)
-        _markerG = _areaSelection.append('g')
+        _markerG = _container.append('g')  # need to append marker to chart area to ensure it is on top of the chart elements Fix 10
           .attr('class', 'tooltipMarker')
         _markerLine = _markerG.append('line')
         if _markerScale.isHorizontal()
@@ -139,6 +140,12 @@ angular.module('wk.chart').factory 'behaviorTooltip', ($log, $document, $rootSco
         _area = _areaSelection.node()
         if _showMarkerLine
           me.tooltip(_areaSelection)
+        return me #to enable chaining
+
+    me.container = (val) ->
+      if arguments.length is 0 then return _container
+      else
+        _container = val
         return me #to enable chaining
 
     me.markerScale = (val) ->
