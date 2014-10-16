@@ -99,6 +99,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
 
     brushStart = () ->
       #register a mouse handlers for the brush
+      d3.event.preventDefault()
       _evTargetData = d3.select(d3.event.target).datum()
       _areaBox = _area.getBBox()
       _startPos = d3.mouse(_area)
@@ -121,8 +122,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
 
     brushEnd = () ->
       #de-register handlers
-      #_evTargetData = d3.select(_area).attr('class')
-      #$log.debug 'brushEnd', _area, _evTargetData
+
       d3.select($window).on 'mousemove.brush', null
       d3.select($window).on 'mouseup.brush', null
       d3.select(_area).style('pointer-events','all').selectAll('.resize').style('display', null) # show the resize handlers
