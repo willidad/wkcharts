@@ -1,13 +1,13 @@
 Fixed:d3a5e10 1. Chrome / Firefox : drawing area gets resized after first data change. Seems to be a problem with the browser size calculation timing - seems to assume it needs a vertical page scoll bar at initial sizing. (no problem in IE)
 Fixed:d3a5e10 2. (related to 1.) brush extent cannot be moved to very right border.
 Fixed:d3a5e10 3. Charts so not resize when browser window resizes (not related to 1 and 2)
-4. Stacked Area chart:  Enter animations wrong
+Fixed: 4. Stacked Area chart:  Enter animations wrong
 5. Stacked Bar: layer enter animation wrong
 6. Clustered Bar: Exit animation for top layer wrong (65+years)
 7. Line Chart: lines not positioned correctly after deletion of last data records on ordinal x scale. Does not re-calculate position
 8. Line Chart: Enter and exit animation look bad. need better appearance
 9. Area Charts (hor and verAreas): areas are colored with opacity 0.7. Color legends and tooltip colors are Use opacity there too, or go back to opacity 1 for ares
-Fixed: 10. Line Charts, Area Charts: Tooltip markers (line and bubbles) are not on top of of drawing area (i.e. are hidden by area chart if area opacity = 1). See 9 also
+Fixed:6efb665 10. Line Charts, Area Charts: Tooltip markers (line and bubbles) are not on top of of drawing area (i.e. are hidden by area chart if area opacity = 1). See 9 also
 11. Clustered bar chart: Tooltips flicker (show / hide) when moving over a cluster. Should only change when moving between clusters (page 5)
 12. Page 6: Brush resize handles are not shown - should we bring these back. 
 13. Page 6: Brush area are not set initially -empty brush. Should we set to full range again (as in earlier versions)
@@ -21,3 +21,4 @@ Fixed:20fa409 18. Brush: (FireFox, IE only) in certain (unknown cause) situation
 21. GeoMap: Maps: water areas can not be dragged (is a geoJson problem, not a in charts code)
 Fixed:4adfe3f 22. when parsing tooltip or legend template angular throws error when interpolating path value for shape(works correctly though). Error: Invalid value for <path> attribute d="{{ttRow.path}}" 
 23: BrushArea does not resize when chart container resizes -> selection changes if browser viewport gets changed
+Fixed: 24: Page 6 chart at Top Right Area layout does not show tooltip market

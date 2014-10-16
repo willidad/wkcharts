@@ -12,6 +12,9 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
       layerKeys = []
       layerData = []
       layoutNew = []
+      layoutOld = []
+      layerKeysOld = []
+      area = undefined
       deletedSucc = {}
       addedPred = {}
       _tooltip = undefined
@@ -31,15 +34,16 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
         @layers = @layers.concat(ttLayers)
 
       ttMoveMarker = (idx) ->
-        _circles = this.selectAll('circle').data(layerData, (d) -> d.key)
-        _circles.enter().append('circle')
-        .attr('r', if _showMarkers then 8 else 5)
-        .style('fill', (d)-> d.color)
-        .style('fill-opacity', 0.6)
-        .style('stroke', 'black')
-        .style('pointer-events','none')
+        _circles = this.selectAll(".marker-#{_id}").data(layerData, (d) -> d.key)
+        _circles.enter().append('circle').attr('class',"marker-#{_id}")
+          .attr('r', if _showMarkers then 8 else 5)
+          .style('fill', (d)-> d.color)
+          .style('fill-opacity', 0.6)
+          .style('stroke', 'black')
+          .style('pointer-events','none')
         _circles.attr('cy', (d) -> scaleY(d.layer[idx].y + d.layer[idx].y0))
         _circles.exit().remove()
+
         this.attr('transform', "translate(#{_scaleList.x.scale()(layerData[0].layer[idx].x)+offs})")
 
       #-------------------------------------------------------------------------------------------------------------------
@@ -51,9 +55,6 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
 
       layout = stack.values((d)->d.layer).y((d) -> d.yy)
 
-      layoutOld = undefined
-      layerKeysOld = []
-      area = undefined
 
       #-------------------------------------------------------------------------------------------------------------------
       ###
@@ -73,21 +74,18 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
 
       draw = (data, options, x, y, color) ->
         #$log.log "rendering Area Chart"
-        layoutOld = layoutNew.map((d) -> {key: d.key, path: area(d.layer.map((p) -> {x: p.x, y: 0, y0: p.y + p.y0}))})
-        layerKeysOld = layerKeys
+
 
         layerKeys = y.layerKeys(data)
-        layerData = layerKeys.map((k) => {key: k, color:color.scale()(k), layer: data.map((d) -> {x: x.value(d), yy: +y.layerValue(d,k), y0: 0})}) # yy: need to avoid overwriting by layout calc -> see stack y accessor
-        #layoutNew = layout(layerData)
-
         deletedSucc = utils.diff(layerKeysOld, layerKeys, 1)
         addedPred = utils.diff(layerKeys, layerKeysOld, -1)
+
+        layerData = layerKeys.map((k) => {key: k, color:color.scale()(k), layer: data.map((d) -> {x: x.value(d), yy: +y.layerValue(d,k), y0: 0})}) # yy: need to avoid overwriting by layout calc -> see stack y accessor
+        layoutNew = layout(layerData)
 
         offs = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
 
         if _tooltip then _tooltip.data(data)
-
-        layoutNew = layout(layerData)
 
         if not layers
           layers = this.selectAll('.layer')
@@ -114,8 +112,12 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
           layers.enter()
             .append('path').attr('class', 'area')
             .attr('d', (d) ->
-              if addedPred[d.key] then getLayerByKey(addedPred[d.key], layoutOld).path else area(d.layer.map((p) ->
-                {x: p.x, y: 0, y0: 0}))
+              if addedPred[d.key] #then
+                null
+                getLayerByKey(addedPred[d.key], layoutOld).path
+              else
+                null
+                area(d.layer.map((p) ->  {x: p.x, y: 0, y0: 0}))
             )
           .style('fill', (d, i) ->
             color.scale()(d.key))
@@ -132,9 +134,10 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
           )
           .remove()
 
+        layoutOld = layoutNew.map((d) -> {key: d.key, path: area(d.layer.map((p) -> {x: p.x, y: 0, y0: p.y + p.y0}))})
+        layerKeysOld = layerKeys
+
       #--- Configuration and registration ------------------------------------------------------------------------------
-
-
 
       host.lifeCycle().on 'configure', ->
         _scaleList = @getScales(['x', 'y', 'color'])

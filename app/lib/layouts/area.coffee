@@ -24,8 +24,8 @@ angular.module('wk.chart').directive 'area', ($log) ->
         @layers = @layers.concat(ttLayers)
 
       ttMoveMarker = (idx) ->
-        _circles = this.selectAll('circle').data(_layout, (d) -> d.key)
-        _circles.enter().append('circle')
+        _circles = this.selectAll(".marker-#{_id}").data(_layout, (d) -> d.key)
+        _circles.enter().append('circle').attr('class',"marker-#{_id}")
           .attr('r', if _showMarkers then 8 else 5)
           .style('fill', (d)-> d.color)
           .style('fill-opacity', 0.6)
