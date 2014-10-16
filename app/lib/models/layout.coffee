@@ -8,7 +8,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList) ->
     _data = undefined
     _chart = undefined
     _scaleList = scaleList()
-    _layoutLifeCycle = d3.dispatch('configure', 'draw', 'prepareData', 'brush', 'redraw', 'drawAxis', 'update')
+    _layoutLifeCycle = d3.dispatch('configure', 'draw', 'prepareData', 'brush', 'redraw', 'drawAxis', 'update', 'updateAttrs')
 
     me = () ->
 
@@ -73,6 +73,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList) ->
       _layoutLifeCycle.on 'redraw', me.redraw
       _layoutLifeCycle.on 'update', me.chart().lifeCycle().update
       _layoutLifeCycle.on 'drawAxis', me.chart().lifeCycle().drawAxis
+      _layoutLifeCycle.on 'updateAttrs', me.chart().lifeCycle().updateAttrs
       _layoutLifeCycle.on 'brush', (axis, notAnimated) ->
         _container.drawSingleAxis(axis)
         if _data

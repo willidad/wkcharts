@@ -9,7 +9,7 @@
                     label="{{yLabel}}", show-label="{{yLblShow}}", ticks="{{yTicks}}", legend="{{legendPos}}", legend-title="{{legendTitle}}", format="{{yFormat}}")
 
     .box20
-        chart(data="combo", ng-class="brushHandles")
+        chart(data="combo", ng-class="brushHandles ")
             layout(area)
                 y(type="linear", property="msft", layer-property="close", domain-range="extent")
                 x(axis, brush="{{brush}}", brush-change="brushChange(extent,range)", type="time", property="date", domain-range="extent")

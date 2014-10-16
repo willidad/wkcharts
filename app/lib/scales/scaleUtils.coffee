@@ -53,7 +53,7 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
 
       attrs.$observe 'label', (val) ->
         if val isnt undefined
-          me.axisLabel(val).drawAxis()
+          me.axisLabel(val).updateAttrs()
 
       attrs.$observe 'format', (val) ->
         if val isnt undefined
@@ -71,15 +71,15 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
         if val isnt undefined
           me.ticks(+val)
           if me.axis()
-            me.drawAxis()
+            me.updateAttrs()
 
       attrs.$observe 'grid', (val) ->
         if val isnt undefined
-          me.showGrid(val is '' or val is 'true').update()
+          me.showGrid(val is '' or val is 'true').updateAttrs()
 
       attrs.$observe 'showLabel', (val) ->
         if val isnt undefined
-          me.showLabel(val is '' or val is 'true').update()
+          me.showLabel(val is '' or val is 'true').update(true)
 
     #-------------------------------------------------------------------------------------------------------------------
 

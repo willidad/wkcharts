@@ -44,7 +44,7 @@ angular.module('wk.chart').directive 'x', ($log, scale, scaleUtils) ->
               me.axisOrient('bottom').showAxis(true)
           else
             me.showAxis(false).axisOrient(undefined)
-          me.update()
+          me.update(true)
 
       scaleUtils.observeAxisAttributes(attrs, me)
       scaleUtils.observeLegendAttributes(attrs, me, layout)

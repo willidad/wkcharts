@@ -21,7 +21,7 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
 
     #--- LifeCycle Dispatcher ------------------------------------------------------------------------------------------
 
-    _lifeCycle = d3.dispatch('configure', 'resize', 'prepareData', 'scaleDomains', 'sizeContainer', 'drawAxis', 'drawChart', 'newData', 'update' )
+    _lifeCycle = d3.dispatch('configure', 'resize', 'prepareData', 'scaleDomains', 'sizeContainer', 'drawAxis', 'drawChart', 'newData', 'update', 'updateAttrs' )
     _brush = d3.dispatch('draw', 'change')
 
     #--- Getter/Setter Functions ---------------------------------------------------------------------------------------
@@ -116,17 +116,15 @@ angular.module('wk.chart').factory 'chart', ($log, layeredData, scaleList, conta
         _lifeCycle.drawAxis(noAnimation)              # calls container
         _lifeCycle.drawChart(data, noAnimation)
 
-    me.brushExtentChanged = (noAnimation) ->
+    me.brushExtentChanged = () ->
       if _data
-        _lifeCycle.drawAxis(noAnimation)              # calls container
-        _lifeCycle.drawChart(_data, noAnimation)
+        _lifeCycle.drawAxis(true)              # No Animation
+        _lifeCycle.drawChart(_data, true)
 
     me.lifeCycle().on 'newData.chart', me.execLifeCycleFull
     me.lifeCycle().on 'resize.chart', me.resizeLifeCycle
-    me.lifeCycle().on 'update.chart', (noAnimation) ->
-      $log.info 'Update Chart triggered'
-      me.execLifeCycleFull(_data, noAnimation)
-
+    me.lifeCycle().on 'update.chart', (noAnimation) -> me.execLifeCycleFull(_data, noAnimation)
+    me.lifeCycle().on 'updateAttrs', me.attributeChange
 
     #--- Initialization ------------------------------------------------------------------------------------------------
 

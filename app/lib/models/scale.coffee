@@ -411,9 +411,12 @@ angular.module('wk.chart').factory 'scale', ($log, legend, formatDefaults) ->
         if calcRule and calcDomain[calcRule]
           _calculatedDomain = calcDomain[calcRule](data)
 
-    me.update = () ->
-      me.parent().lifeCycle().update()
+    me.update = (noAnimation) ->
+      me.parent().lifeCycle().update(noAnimation)
       return me
+
+    me.updateAttrs = () ->
+      me.parent().lifeCycle().updateAttrs()
 
     me.drawAxis = () ->
       me.parent().lifeCycle().drawAxis()
