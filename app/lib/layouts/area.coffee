@@ -14,6 +14,7 @@ angular.module('wk.chart').directive 'area', ($log) ->
       _showMarkers = false
       offset = 0
       _id = 'line' + lineCntr++
+      area = undefined
 
       #--- Tooltip handlers --------------------------------------------------------------------------------------------
 
@@ -38,6 +39,7 @@ angular.module('wk.chart').directive 'area', ($log) ->
       #-----------------------------------------------------------------------------------------------------------------
 
       draw = (data, options, x, y, color) ->
+
         layerKeys = y.layerKeys(data)
         _layout = layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key)})})
 
@@ -67,6 +69,12 @@ angular.module('wk.chart').directive 'area', ($log) ->
           .style('opacity', 0)
           .remove()
 
+      brush = (data, options,x,y,color) ->
+        layers = this.selectAll(".layer")
+        layers.select('.line')
+          .attr('d', (d) -> area(d.value))
+
+
       #--- Configuration and registration ------------------------------------------------------------------------------
 
       host.lifeCycle().on 'configure', ->
@@ -81,6 +89,7 @@ angular.module('wk.chart').directive 'area', ($log) ->
         _tooltip.on "moveMarker.#{_id}", ttMoveMarker
 
       host.lifeCycle().on 'draw', draw
+      host.lifeCycle().on 'brushDraw', brush
 
       #--- Property Observers ------------------------------------------------------------------------------------------
 

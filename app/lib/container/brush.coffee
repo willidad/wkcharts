@@ -46,9 +46,7 @@ angular.module('wk.chart').directive 'brush', ($log, selectionSharing, behavior)
 
       attrs.$observe 'brush', (val) ->
         if _.isString(val) and val.length > 0
-          _brushGroup = val
           brush.brushGroup(val)
         else
-          _brushGroup = undefined
           brush.brushGroup(undefined)
   }

@@ -159,4 +159,5 @@ angular.module('wk.chart').directive 'clusteredBar', ($log, utils)->
         _tooltip.on "enter.#{_id}", ttEnter
 
       host.lifeCycle().on 'draw', draw
+      host.lifeCycle().on 'brushDraw', draw
   }

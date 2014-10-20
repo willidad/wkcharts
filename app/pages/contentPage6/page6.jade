@@ -22,7 +22,7 @@
     .box
         .box80
             chart(data="temperature", tooltips, date-format="%Y%m%d")
-                layout(line)
+                layout(line, markers)
                     y(axis, type="linear", domain-range="extent", grid, label="Temperature (F)", legend="#temp-legend")
                 x(axis, brushed="b2", type="time", property="date", domain-range="extent", date-format="%Y%m%d", show-label, label="Date")
                 color(type="category10")

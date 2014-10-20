@@ -133,13 +133,9 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
             l.register(me.parent())
           l.redraw()
 
-
       attrs.$observe 'legendTitle', (val) ->
         if val isnt undefined
           me.legend().title(val).redraw()
-
-
-
 
   }
 

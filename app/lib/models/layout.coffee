@@ -1,4 +1,4 @@
-angular.module('wk.chart').factory 'layout', ($log, scale, scaleList) ->
+angular.module('wk.chart').factory 'layout', ($log, scale, scaleList, timing) ->
 
   layoutCntr = 0
 
@@ -8,7 +8,7 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList) ->
     _data = undefined
     _chart = undefined
     _scaleList = scaleList()
-    _layoutLifeCycle = d3.dispatch('configure', 'draw', 'prepareData', 'brush', 'redraw', 'drawAxis', 'update', 'updateAttrs')
+    _layoutLifeCycle = d3.dispatch('configure', 'draw', 'prepareData', 'brush', 'redraw', 'drawAxis', 'update', 'updateAttrs', 'brushDraw')
 
     me = () ->
 
@@ -49,35 +49,43 @@ angular.module('wk.chart').factory 'layout', ($log, scale, scaleList) ->
     me.lifeCycle = ()->
       return _layoutLifeCycle
 
-    me.draw = (data, notAnimated) ->
-      _data = data
-      #$log.log 'drawing layout:', me.id()
+
+    #--- DRYout from draw ----------------------------------------------------------------------------------------------
+
+    getDrawArea = () ->
       container = _container.getChartArea()
       drawArea = container.select(".#{me.id()}")
       if drawArea.empty()
         drawArea = container.append('g').attr('class', (d) -> me.id())
+      return drawArea
 
+    buildArgs = (data, notAnimated) ->
       options = {
         height:_container.height(),
         width:_container.width(),
         margins:_container.margins(),
         duration: if notAnimated then 0 else me.chart().animationDuration()
       }
-
       args = [data, options]
       for kind in ['x','y', 'color', 'size', 'shape']
         args.push(_scaleList.getKind(kind))
+      return args
 
-      _layoutLifeCycle.draw.apply(drawArea, args)
+    #-------------------------------------------------------------------------------------------------------------------
+
+    me.draw = (data, notAnimated) ->
+      _data = data
+
+      _layoutLifeCycle.draw.apply(getDrawArea(), buildArgs(data, notAnimated))
 
       _layoutLifeCycle.on 'redraw', me.redraw
       _layoutLifeCycle.on 'update', me.chart().lifeCycle().update
       _layoutLifeCycle.on 'drawAxis', me.chart().lifeCycle().drawAxis
       _layoutLifeCycle.on 'updateAttrs', me.chart().lifeCycle().updateAttrs
+
       _layoutLifeCycle.on 'brush', (axis, notAnimated) ->
         _container.drawSingleAxis(axis)
-        if _data
-          me.draw(_data, notAnimated)
+        _layoutLifeCycle.brushDraw.apply(getDrawArea(), buildArgs(_data, notAnimated))
 
     return me
 

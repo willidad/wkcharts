@@ -156,4 +156,5 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
         _tooltip.on "enter.#{_id}", ttEnter
 
       host.lifeCycle().on 'draw', draw
+      host.lifeCycle().on 'brushDraw', draw
   }

@@ -1,6 +1,9 @@
 angular.module('wk.chart').service 'selectionSharing', ($log) ->
-  selections = {}
+  selection = {}
   callbacks = {}
+
+  this.createGroup = (group) ->
+
 
   this.setSelection = (selection, group) ->
     if group
@@ -17,9 +20,15 @@ angular.module('wk.chart').service 'selectionSharing', ($log) ->
     if group
       if not callbacks[group]
         callbacks[group] = []
-      callbacks[group].push(callback)
+      #ensure that callbacks are not registered more than once
+      if not _.contains(callbacks[group], callback)
+        callbacks[group].push(callback)
 
-  deRegister = (callback, grp) ->
+  this.unregister = (group, callback) ->
+    if callbacks[group]
+      idx = callbacks[group].indexOf callback
+      if idx >= 0
+        callbacks[group].splice(idx, 1)
 
   return this
 

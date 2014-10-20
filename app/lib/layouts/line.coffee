@@ -1,4 +1,4 @@
-angular.module('wk.chart').directive 'line', ($log, behavior, utils) ->
+angular.module('wk.chart').directive 'line', ($log, behavior, utils, timing) ->
   lineCntr = 0
   return {
     restrict: 'A'
@@ -16,6 +16,8 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils) ->
       _scaleList = {}
       offset = 0
       _id = 'line' + lineCntr++
+      line = undefined
+      markers = undefined
 
 
       #--- Tooltip Event Handlers --------------------------------------------------------------------------------------
@@ -41,14 +43,17 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils) ->
       #--- Draw --------------------------------------------------------------------------------------------------------
 
       draw = (data, options, x, y, color) ->
-        _layerKeys = y.layerKeys(data)
-        _layout = _layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key), color:color.scale()(key), key:key, __data$$:d})})
+        timing.start('line')
+        timing.start('prepData')
+        if not options.skip
+          _layerKeys = y.layerKeys(data)
+          _layout = _layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key), color:color.scale()(key), key:key, __data$$:d})})
 
         offset = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
-
+        timing.stop('prepData')
         if _tooltip then _tooltip.data(data)
 
-        markers = (layer) ->
+        markers = (layer, duration) ->
           if _showMarkers
             m = layer.selectAll('.marker').data(
               (l) -> l.value
@@ -59,16 +64,16 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils) ->
               .style('fill', (d) -> d.color)
               .style('pointer-events','none')
               .style('opacity', _initialOpacity)
-            m.transition().duration(options.duration)
+            m.transition().duration(duration)
               .attr('cy', (d) -> y.scale()(d.y))
               .attr('cx', (d) -> x.scale()(d.x) + offset)
               .style('opacity', 1)
-            m.exit().transition().duration(options.duration).style('opacity', 0).remove()
+            m.exit().transition().duration(duration).style('opacity', 0).remove()
 
         line = d3.svg.line()
           .x((d) -> x.scale()(d.x))
           .y((d) -> y.scale()(d.y))
-
+        timing.start('layers')
         layers = this.selectAll(".layer")
           .data(_layout, (d) -> d.key)
         enter = layers.enter().append('g').attr('class', "layer")
@@ -84,9 +89,19 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils) ->
         layers.exit().transition().duration(options.duration)
           .style('opacity', 0)
           .remove()
-        layers.call(markers)
+        timing.stop('layers')
+
+        layers.call(markers, options.duration)
 
         _initialOpacity = 0
+
+        timing.stop('line')
+
+      brush = (data, options, x, y, color) ->
+        layers = this.selectAll(".layer")
+        layers.select('.line')
+          .attr('d', (d) -> line(d.value))
+        layers.call(markers, 0)
 
       #--- Configuration and registration ------------------------------------------------------------------------------
 
@@ -102,6 +117,7 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils) ->
         _tooltip.on "moveMarker.#{_id}", ttMoveMarker
 
       host.lifeCycle().on 'draw', draw
+      host.lifeCycle().on 'brushDraw', brush
 
       #--- Property Observers ------------------------------------------------------------------------------------------
 
