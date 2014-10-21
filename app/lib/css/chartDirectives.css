@@ -45,31 +45,28 @@ li.d3ChartShapeLegendItem span {
 
 .d3ChartColorLegendItem {
     position:relative;
+    overflow:hidden;
 }
 .d3ChartColorLegendItem.ng-enter,
 .d3ChartColorLegendItem.ng-leave,
 .d3ChartColorLegendItem.ng-move {
-    -webkit-transition: 0.5s linear all;
-    transition: .5s linear all;
+    -webkit-transition: 0.3s linear all;
+    transition: .3s linear all;
     position:relative;
 }
 
 .d3ChartColorLegendItem.ng-enter {
-    left:-30px;
-    opacity:0;
+    height:0em;
 }
 .d3ChartColorLegendItem.ng-enter.ng-enter-active {
-    left:0;
-    opacity:1;
+    height:1.4em;
 }
 
 .d3ChartColorLegendItem.ng-leave {
-    left:0;
-    opacity:1;
+    height:1.4em;
 }
 .d3ChartColorLegendItem.ng-leave.ng-leave-active {
-    left:-30px;
-    opacity:0;
+    height:0em;
 }
 .d3ChartColorLegendItem.ng-move {
     opacity:0;
