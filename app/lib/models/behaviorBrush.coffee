@@ -112,8 +112,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
       d3.select(_area).style('pointer-events','none').selectAll(".resize").style("display", null)
       d3.select('body').style('cursor', d3.select(d3.event.target).style('cursor'))
 
-      d3.select($window).on 'mousemove.brush', brushMove
-      d3.select($window).on 'mouseup.brush', brushEnd
+      d3.select($window).on('mousemove.brush', brushMove).on('mouseup.brush', brushEnd)
 
       _tooltip.hide(true)
       _boundsIdx = undefined
@@ -141,7 +140,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
     #--- BrushMove Event Handler ---------------------------------------------------------------------------------------
 
     brushMove = () ->
-      timing.start('brushMove')
+      $log.info 'brushmove'
       pos = d3.mouse(_area)
       deltaX = pos[0] - _startPos[0]
       deltaY = pos[1] - _startPos[1]
@@ -150,41 +149,20 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
       # does not hi the 0 point maye there is a more elegant way to write this, but for now it works :-)
 
       leftMv = (delta) ->
-        if startLeft + delta >= 0
-          if startLeft + delta > startRight
-            null
-            rightMv(delta + startLeft - startRight)
-          else
-            left = startLeft + delta
-        else
-          left = 0
+        left = if startLeft + delta >= 0 then (if startLeft + delta < startRight then startLeft + delta else startRight) else 0
+        right = if startLeft + delta <= _areaBox.width then (if startLeft + delta < startRight then startRight else startLeft + delta) else _areaBox.width
 
       rightMv = (delta) ->
-        if startRight + delta <= _areaBox.width
-          if startRight + delta < startLeft
-            leftMv(startRight + delta - startLeft)
-          else
-            right = startRight + delta
-        else
-          _areaBox.width
+        left = if startRight + delta >= 0 then (if startRight + delta < startLeft then startRight + delta else startLeft) else 0
+        right = if startRight + delta <= _areaBox.width then (if startRight + delta < startLeft then startLeft else startRight + delta) else _areaBox.width
 
       topMv = (delta) ->
-        if startTop + delta >= 0
-          if startTop + delta > startBottom
-            bottomMv(startTop + delta - startBottom)
-          else
-            top = startTop + delta
-        else
-          top = 0
+        top = if startTop + delta >= 0 then (if startTop + delta < startBottom then startTop + delta else startBottom) else 0
+        bottom = if startTop + delta <= _areaBox.height then (if startTop + delta > startBottom then startTop + delta else startBottom ) else _areaBox.height
 
       bottomMv = (delta) ->
-        if startBottom + delta <= _areaBox.height
-          if startBottom + delta < startTop
-            topMv(startBottom + delta - startTop)
-          else
-            bottom  = startBottom + delta
-        else
-          bottom = _areaBox.height
+        top = if startBottom + delta >= 0 then (if startBottom + delta < startBottom then startBottom + delta else startTop) else 0
+        bottom = if startBottom + delta <= _areaBox.height then (if startBottom + delta > startBottom then startBottom + delta else startTop ) else _areaBox.height
 
       horMv = (delta) ->
         if startLeft + delta >= 0
@@ -211,7 +189,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
           bottom = startBottom - startTop
 
       switch _evTargetData.name
-        when 'background' #TODO ensure that area stays within the container limit
+        when 'background'
           if deltaX + _startPos[0] > 0
             left = if deltaX < 0 then _startPos[0] + deltaX else _startPos[0]
             if left + Math.abs(deltaX) < _areaBox.width
@@ -253,9 +231,6 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
       setSelection(left, right, top, bottom)
       _brushEvents.brush(_boundsIdx, _boundsValues, _boundsDomain)
       selectionSharing.setSelection _boundsValues, _brushGroup
-      timing.stop('brushMove')
-
-    brushThrottle = _.throttle brushMove, 50
 
     #--- Brush ---------------------------------------------------------------------------------------------------------
 
@@ -304,9 +279,13 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
         horizontalRatio = _areaBox.width / newBox.width
         verticalRatio = _areaBox.height / newBox.height
         top = top / verticalRatio
+        startTop = startTop / verticalRatio
         bottom = bottom / verticalRatio
+        startBottom = startBottom / verticalRatio
         left = left / horizontalRatio
+        startLeft = startLeft / horizontalRatio
         right = right / horizontalRatio
+        startRight = startRight / horizontalRatio
         _areaBox = newBox
         positionBrushElements(left, right, top, bottom)
 

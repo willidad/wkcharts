@@ -16,6 +16,8 @@ Fixed:d3bf066   15. Inconsistent animations of axis and chart after changing axi
 Fixed:d3bf066   26: Page 7: Axis are animated on initial load. Not true for all other charts on other pages. Must be some special case due to bound attributes.    
 Fixed:ea6628c   25: When axis are re-configured or new data, brush extent is removed and full range is shown. Should maintain the configured brush extent (Page 7) or reset the brush   
 Fixed:dcbf35e   23: BrushArea does not resize when chart container resizes -> selection changes if browser viewport gets changed   
+Fixed: 27: brush does not move to left end of brush area on fast mouse moves
+Fixed: 28: handover from left to right and vice versa as well as handover from top to bottom (and vv)do not maintain the handover point
 
 8. Line Chart: Enter and exit animation look bad. need better appearance
 9. Area Charts (hor and verAreas): areas are colored with opacity 0.7. Color legends and tooltip colors are Use opacity there too, or go back to opacity 1 for ares
@@ -30,6 +32,7 @@ Fixed:dcbf35e   23: BrushArea does not resize when chart container resizes -> se
 11. ?? Clustered bar chart: Tooltips flicker (show / hide) when moving over a cluster. Should only change when moving between clusters (page 5)
 
 13. ?? Page 6: Brush area are not set initially -empty brush. Should we set to full range again (as in earlier versions)
+
 
 
 
