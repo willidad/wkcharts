@@ -149,20 +149,24 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
       # does not hi the 0 point maye there is a more elegant way to write this, but for now it works :-)
 
       leftMv = (delta) ->
-        left = if startLeft + delta >= 0 then (if startLeft + delta < startRight then startLeft + delta else startRight) else 0
-        right = if startLeft + delta <= _areaBox.width then (if startLeft + delta < startRight then startRight else startLeft + delta) else _areaBox.width
+        pos = startLeft + delta
+        left = if pos >= 0 then (if pos < startRight then pos else startRight) else 0
+        right = if pos <= _areaBox.width then (if pos < startRight then startRight else pos) else _areaBox.width
 
       rightMv = (delta) ->
-        left = if startRight + delta >= 0 then (if startRight + delta < startLeft then startRight + delta else startLeft) else 0
-        right = if startRight + delta <= _areaBox.width then (if startRight + delta < startLeft then startLeft else startRight + delta) else _areaBox.width
+        pos = startRight + delta
+        left = if pos >= 0 then (if pos < startLeft then pos else startLeft) else 0
+        right = if pos <= _areaBox.width then (if pos < startLeft then startLeft else pos) else _areaBox.width
 
       topMv = (delta) ->
-        top = if startTop + delta >= 0 then (if startTop + delta < startBottom then startTop + delta else startBottom) else 0
-        bottom = if startTop + delta <= _areaBox.height then (if startTop + delta > startBottom then startTop + delta else startBottom ) else _areaBox.height
+        pos = startTop + delta
+        top = if pos >= 0 then (if pos < startBottom then pos else startBottom) else 0
+        bottom = if pos <= _areaBox.height then (if pos > startBottom then pos else startBottom ) else _areaBox.height
 
       bottomMv = (delta) ->
-        top = if startBottom + delta >= 0 then (if startBottom + delta < startBottom then startBottom + delta else startTop) else 0
-        bottom = if startBottom + delta <= _areaBox.height then (if startBottom + delta > startBottom then startBottom + delta else startTop ) else _areaBox.height
+        pos = startBottom + delta
+        top = if pos >= 0 then (if pos < startTop then pos else startTop) else 0
+        bottom = if pos <= _areaBox.height then (if pos > startTop then pos else startTop ) else _areaBox.height
 
       horMv = (delta) ->
         if startLeft + delta >= 0
@@ -275,6 +279,7 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
 
     resizeExtent = () ->
       if _areaBox
+        $log.info 'resizeHandler'
         newBox = _area.getBBox()
         horizontalRatio = _areaBox.width / newBox.width
         verticalRatio = _areaBox.height / newBox.height
@@ -286,6 +291,8 @@ angular.module('wk.chart').factory 'behaviorBrush', ($log, $window, selectionSha
         startLeft = startLeft / horizontalRatio
         right = right / horizontalRatio
         startRight = startRight / horizontalRatio
+        _startPos[0] = _startPos[0] / horizontalRatio
+        _startPos[1] = _startPos[1] / verticalRatio
         _areaBox = newBox
         positionBrushElements(left, right, top, bottom)
 
