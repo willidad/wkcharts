@@ -18,11 +18,11 @@ Fixed:ea6628c   25: When axis are re-configured or new data, brush extent is rem
 Fixed:dcbf35e   23: BrushArea does not resize when chart container resizes -> selection changes if browser viewport gets changed   
 Fixed:d0a0c58   27: brush does not move to left end of brush area on fast mouse moves
 Fixed:d0a0c58   28: handover from left to right and vice versa as well as handover from top to bottom (and vv)do not maintain the handover point
-Fixed:  19. Legend: enter / exit animation inconsistent, ugly and with inconsistent timing
+Fixed:98168ec  19. Legend: enter / exit animation inconsistent, ugly and with inconsistent timing
 
 
 8. Line Chart: Enter and exit animation look bad. need better appearance
-9. Area Charts (hor and verAreas): areas are colored with opacity 0.7. Color legends and tooltip colors are Use opacity there too, or go back to opacity 1 for ares
+
 24: Area Chart enter and exit animation looks bad (related to 8)
 
 16. Spider Chart (all chart) long tooltip lists do not fit on screen. Need to find a way to display all values (scrolling? two columns?)
@@ -33,8 +33,17 @@ Fixed:  19. Legend: enter / exit animation inconsistent, ugly and with inconsist
 
 11. ?? Clustered bar chart: Tooltips flicker (show / hide) when moving over a cluster. Should only change when moving between clusters (page 5)
 
-13. ?? Page 6: Brush area are not set initially -empty brush. Should we set to full range again (as in earlier versions)
+
 
 29: Resize during brush dragging: Brush area is not correctly resized when resize event is triggered during brushing (e.g. if scrollbar becomes visible) while mouse moves outside of chart area. Reproduce on page 11)
 
 
+
+
+
+
+
+
+
+No Fix 13. ?? Page 6: Brush area are not set initially -empty brush. Should we set to full range again (as in earlier versions)
+No Fix 9. Area Charts (hor and verAreas): areas are colored with opacity 0.7. Color legends and tooltip colors are Use opacity there too, or go back to opacity 1 for ares
