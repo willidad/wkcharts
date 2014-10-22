@@ -4,9 +4,9 @@ angular.module('wk.chart').directive 'bubble', ($log, utils) ->
     restrict: 'A'
     require: 'layout'
 
-    link: (scope, element, attrs, layout) ->
+    link: (scope, element, attrs, controller) ->
       #$log.debug 'bubbleChart linked'
-
+      layout = controller.me
       _tooltip = undefined
       _scaleList = {}
       _id = 'bubble' + bubbleCntr++

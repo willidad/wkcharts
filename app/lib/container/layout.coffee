@@ -5,12 +5,11 @@ angular.module('wk.chart').directive 'layout', ($log, layout, container) ->
     require: ['layout','^chart']
 
     controller: ($element) ->
-      me = layout()
-      return me
+      this.me = layout()
     link: (scope, element, attrs, controllers) ->
 
-      me = controllers[0]
-      chart = controllers[1]
+      me = controllers[0].me
+      chart = controllers[1].me
       me.chart(chart)
 
       element.addClass(me.id())

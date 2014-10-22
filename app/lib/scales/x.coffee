@@ -4,14 +4,13 @@ angular.module('wk.chart').directive 'x', ($log, scale, scaleUtils) ->
     restrict: 'E'
     require: ['x','^chart', '?^layout']
     controller: ($element) ->
-      me = scale()
       #$log.log 'creating controller scaleX'
-      return me
+      this.me = scale() # for Angular 1.3
 
     link: (scope, element, attrs, controllers) ->
-      me = controllers[0]
-      chart = controllers[1]
-      layout = controllers[2]
+      me = controllers[0].me
+      chart = controllers[1].me
+      layout = controllers[2]?.me
 
       if not (chart or layout)
         $log.error 'scale needs to be contained in a chart or layout directive '

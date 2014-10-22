@@ -9,10 +9,10 @@ angular.module('wk.chart').directive 'brush', ($log, selectionSharing, behavior)
       change: '&'
 
     link:(scope, element, attrs, controllers) ->
-      chart = controllers[0]
-      layout = controllers[1]
-      x = controllers[2]
-      y = controllers[3]
+      chart = controllers[0].me
+      layout = controllers[1]?.me
+      x = controllers[2]?.me
+      y = controllers[3]?.me
       xScale = undefined
       yScale = undefined
       _selectables = undefined

@@ -4,7 +4,8 @@ angular.module('wk.chart').directive 'spider', ($log, utils) ->
     restrict: 'A'
     require: 'layout'
 
-    link: (scope, element, attrs, layout) ->
+    link: (scope, element, attrs, controller) ->
+      layout = controller.me
       #$log.debug 'bubbleChart linked'
 
       _tooltip = undefined

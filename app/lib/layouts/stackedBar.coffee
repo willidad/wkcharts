@@ -4,8 +4,8 @@ angular.module('wk.chart').directive 'stackedBar', ($log, utils) ->
   return {
     restrict: 'A'
     require: 'layout'
-    link: (scope, element, attrs, host) ->
-
+    link: (scope, element, attrs, controller) ->
+      host = controller.me
       #$log.log 'linking Stacked bar'
 
       _id = "stackedBar#{stackedBarCntr++}"

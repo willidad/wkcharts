@@ -3,7 +3,8 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
   return {
     restrict: 'A'
     require: 'layout'
-    link: (scope, element, attrs, host) ->
+    link: (scope, element, attrs, controller) ->
+      host = controller.me
 
       stack = d3.layout.stack()
       offset = 'zero'

@@ -4,10 +4,10 @@ angular.module('wk.chart').directive 'brushed', ($log,selectionSharing, timing) 
     restrict: 'A'
     require: ['^chart', '?^layout', '?x', '?y']
     link: (scope, element, attrs, controllers) ->
-      chart = controllers[0]
-      layout = controllers[1]
-      x = controllers[2]
-      y = controllers[3]
+      chart = controllers[0].me
+      layout = controllers[1]?.me
+      x = controllers[2]?.me
+      y = controllers[3]?.me
 
       axis = x or y
       _brushGroup = undefined

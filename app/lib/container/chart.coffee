@@ -6,11 +6,10 @@ angular.module('wk.chart').directive 'chart', ($log, chart, container) ->
     scope:
       data: '='
     controller: () ->
-      me = chart()
-      return me
+      this.me = chart()
 
     link: (scope, element, attrs, controller) ->
-      me = controller
+      me = controller.me
 
       deepWatch = false
       watcherRemoveFn = undefined

@@ -7,7 +7,8 @@ angular.module('wk.chart').directive 'selection', ($log) ->
       selectedDomain: '='
     require: 'layout'
 
-    link: (scope, element, attrs, layout) ->
+    link: (scope, element, attrs, controller) ->
+      layout = controller.me
 
       layout.lifeCycle().on 'configure.selection', ->
 

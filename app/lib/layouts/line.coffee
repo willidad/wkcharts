@@ -3,7 +3,8 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils, timing) ->
   return {
     restrict: 'A'
     require: 'layout'
-    link: (scope, element, attrs, host) ->
+    link: (scope, element, attrs, controller) ->
+      host = controller.me
       #$log.log 'linking s-line'
       _layerKeys = []
       _layout = []

@@ -7,7 +7,8 @@ angular.module('wk.chart').directive 'gauge', ($log, utils) ->
       $attrs.$set('chart-id', me.id)
       return me
     
-    link: (scope, element, attrs, layout) ->
+    link: (scope, element, attrs, controller) ->
+      layout = controller.me
 
       initalShow = true
 

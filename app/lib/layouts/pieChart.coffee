@@ -4,7 +4,8 @@ angular.module('wk.chart').directive 'pie', ($log, utils) ->
   return {
   restrict: 'EA'
   require: '^layout'
-  link: (scope, element, attrs, layout) ->
+  link: (scope, element, attrs, controller) ->
+    layout = controller.me
 
     # set chart specific defaults
 

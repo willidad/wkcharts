@@ -6,7 +6,8 @@ angular.module('wk.chart').directive 'horizontalClusteredBar', ($log, utils)->
     restrict: 'A'
     require: '^layout'
 
-    link: (scope, element, attrs, host) ->
+    link: (scope, element, attrs, controller) ->
+      host = controller.me
 
       _id = "hClusteredBar#{hClusteredBarCntr++}"
 

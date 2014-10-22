@@ -3,8 +3,8 @@ angular.module('wk.chart').directive 'scatter', ($log, utils) ->
   return {
     restrict: 'A'
     require: '^layout'
-    link: (scope, element, attrs, layout) ->
-
+    link: (scope, element, attrs, controller) ->
+      layout = controller.me
       _tooltip = undefined
       _selected = undefined
       _id = 'scatter' + scatterCnt++

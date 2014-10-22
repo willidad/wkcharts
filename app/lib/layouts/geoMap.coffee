@@ -15,7 +15,8 @@ angular.module('wk.chart').directive 'geoMap', ($log, utils) ->
       projection: '='
     }
 
-    link: (scope, element, attrs, layout) ->
+    link: (scope, element, attrs, controller) ->
+      layout = controller.me
 
       _tooltip = undefined
       _selected = undefined
