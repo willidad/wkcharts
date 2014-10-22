@@ -5,7 +5,7 @@
             y(axis, type="linear", ticks="10", tick-format=".2s", grid)
             color(scale="category20")
     .box
-        chart(data="shortDataFilter")
+        chart(data="shortDataFilter", tooltips)
             layout(stacked-bar)
                 x(s-brushed, property="State", type="ordinal", axis)
                 y(type="linear", axis, tick-format=".2s", grid)

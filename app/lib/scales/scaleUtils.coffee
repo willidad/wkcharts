@@ -118,7 +118,7 @@ angular.module('wk.chart').service 'scaleUtils', ($log) ->
               l.show(false)
             when 'top-left', 'top-right', 'bottom-left', 'bottom-right'
               l.position(val).div(undefined).show(true)
-            when 'true'
+            when 'true', ''
               l.position('top-right').show(true).div(undefined)
             else
               legendDiv = d3.select(val)

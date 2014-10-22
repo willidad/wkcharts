@@ -4,8 +4,24 @@
     border: #a9a9a9 solid 2px;
     z-index:5000;
     opacity:0.7;
-
 }
+.d3ChartsToolTip.ng-show-add,
+.d3ChartsToolTip.ng-show-remove {
+    -webkit-transition: 1.3s linear all;
+    transition: 1.3s linear all;
+}
+
+.d3ChartsToolTip.ng-show-add,
+.d3ChartsToolTip.ng-show-remove.ng-show-remove-active {
+    opacity:0
+}
+
+.d3ChartsToolTip.ng-show-add.ng-show-add-active,
+.d3ChartsToolTip.ng-show-remove {
+    opacity:1
+}
+
+
 .d3ChartsToolTip > .table {
     margin-bottom: 0;
 }
