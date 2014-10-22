@@ -108,24 +108,20 @@ angular.module('wk.chart').directive 'stackedArea', ($log, utils) ->
             .append('path').attr('class', 'area')
             .style('fill', (d, i) -> color.scale()(d.key)).style('opacity', 0)
             .style('pointer-events', 'none')
+            .style('opacity', 0.7)
         else
           layers.enter()
             .append('path').attr('class', 'area')
-            .attr('d', (d) ->
-              if addedPred[d.key] #then
-                null
-                getLayerByKey(addedPred[d.key], layoutOld).path
-              else
-                null
-                area(d.layer.map((p) ->  {x: p.x, y: 0, y0: 0}))
-            )
-          .style('fill', (d, i) ->
-            color.scale()(d.key))
-          .style('pointer-events', 'none')
+            .attr('d', (d) -> if addedPred[d.key] then getLayerByKey(addedPred[d.key], layoutOld).path else area(d.layer.map((p) ->  {x: p.x, y: 0, y0: 0})))
+            .style('fill', (d, i) -> color.scale()(d.key))
+            .style('pointer-events', 'none')
+            .style('opacity', 0.7)
 
-        layers.transition().duration(options.duration)
-          .attr('d', (d) -> area(d.layer)).attr('transform', "translate(#{offs})")
-          .style('opacity', 0.7)
+        layers
+          .attr('transform', "translate(#{offs})")
+          .transition().duration(options.duration)
+            .attr('d', (d) -> area(d.layer))
+
 
         layers.exit().transition().duration(options.duration)
           .attr('d', (d) ->
