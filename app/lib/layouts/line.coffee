@@ -43,21 +43,20 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils, timing) ->
       #--- Draw --------------------------------------------------------------------------------------------------------
 
       draw = (data, options, x, y, color) ->
-        timing.start('line')
-        timing.start('prepData')
+
         if not options.skip
           _layerKeys = y.layerKeys(data)
           _layout = _layerKeys.map((key) => {key:key, color:color.scale()(key), value:data.map((d)-> {x:x.value(d),y:y.layerValue(d, key), color:color.scale()(key), key:key, __data$$:d})})
 
         offset = if x.isOrdinal() then x.scale().rangeBand() / 2 else 0
-        timing.stop('prepData')
+
         if _tooltip then _tooltip.data(data)
 
         markers = (layer, duration) ->
           if _showMarkers
             m = layer.selectAll('.marker').data(
-              (l) -> l.value
-            , (d) -> d.x
+                (l) -> l.value
+              , (d) -> d.x
             )
             m.enter().append('circle').attr('class','marker selectable')
               .attr('r', 5)
@@ -73,7 +72,7 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils, timing) ->
         line = d3.svg.line()
           .x((d) -> x.scale()(d.x))
           .y((d) -> y.scale()(d.y))
-        timing.start('layers')
+
         layers = this.selectAll(".layer")
           .data(_layout, (d) -> d.key)
         enter = layers.enter().append('g').attr('class', "layer")
@@ -89,13 +88,10 @@ angular.module('wk.chart').directive 'line', ($log, behavior, utils, timing) ->
         layers.exit().transition().duration(options.duration)
           .style('opacity', 0)
           .remove()
-        timing.stop('layers')
 
         layers.call(markers, options.duration)
 
         _initialOpacity = 0
-
-        timing.stop('line')
 
       brush = (data, options, x, y, color) ->
         layers = this.selectAll(".layer")

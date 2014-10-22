@@ -1,11 +1,11 @@
 .col-lg-6
     .box
-        chart(layout, clustered-bar, data="shortDataFilter", tooltips)
+        chart(layout, clustered-bar, data="shortDataFilter", tooltips, animation-duration="{{duration}}")
             x(property="State", type="ordinal", axis="bottom", show-label, label="{{title}}", ticks="10")
             y(axis, type="linear", ticks="10", tick-format=".2s", grid)
             color(scale="category20")
     .box
-        chart(data="shortDataFilter", tooltips)
+        chart(data="shortDataFilter", tooltips, animation-duration="{{duration}}")
             layout(stacked-bar)
                 x(s-brushed, property="State", type="ordinal", axis)
                 y(type="linear", axis, tick-format=".2s", grid)
